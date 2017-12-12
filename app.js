@@ -21,7 +21,7 @@ function init() {
 	stdin.setEncoding('utf-8');
 
 	let map = new Map(MAP_SIZE);
-	let hero = new Hero(map.getCurrentLevel().start);
+	let hero = new Hero(map.current.start);
 
 	setupPrompt(map, hero);
 
@@ -113,7 +113,7 @@ function setupPrompt(map, hero) {
 }
 
 function interact(hero, map) {
-	let level = map.getCurrentLevel();
+	let level = map.current;
 
 	if (level.start.isSame(hero.position)) {
 		if (map.prevLevel())
@@ -121,12 +121,16 @@ function interact(hero, map) {
 		else
 			log(chalk.red(' -- can\'t return to previous level'));
 	}
-	if (level.end.isSame(hero.position)) {
-		if (map.nextLevel(hero))
+	level.end.forEach((x, index) => {
+		if (x.position.isSame(hero.position)) {
+			if (!x.nextLevel) {
+				x.nextLevel = map.generateNewLevel(hero, index !== 0);
+			}
+
+			map.setLevel(x.nextLevel);
 			map.show(hero);
-		else
-			log(chalk.red(' -- can\'t access next level'));
-	}
+		}
+	});
 
 	let monster = level.isMonster(hero.position);
 	if (monster) {
@@ -214,6 +218,7 @@ function showMenu() {
 		log('a\tbuy');
 		log('s\tsell');
 		log('d\texchange');
+		log('f\tfull heal');
 		log('q\tback');
 	}
 
@@ -226,13 +231,13 @@ function showPrompt() {
 }
 
 function handleCombatInput(input, map, hero) {
-	let level = map.getCurrentLevel();
+	let level = map.current;
 	let monster = level.isMonster(hero.position);
 	let attackType = null;
 
 	switch(input) {
 	case 'x':
-		hero.defend(monster);
+		hero.block(monster);
 		break;
 	case 'a':
 		attackType = attackTypes.melee;
@@ -246,12 +251,13 @@ function handleCombatInput(input, map, hero) {
 	case 'q':
 		state.prevState();
 		return true;
+	default:
+		return false;
 	}
 
 	if (attackType) {
 		log(' -- attacking with ' + chalk.cyan(attackType));
-		hero.attack(monster, attackType);
-		if (monster.isAlive()) {
+		if (hero.attack(monster, attackType)) {
 			monster.attack(hero, attackType);
 		} else {
 			level.removeMonster(monster);
@@ -274,7 +280,19 @@ function handleCombatInput(input, map, hero) {
 	log(' -- enemy\'s turn');
 	log(' -- attacking with ' + chalk.cyan(attackType));
 	monster.attack(hero, attackType);
-	hero.attack(monster, attackType);
+	if (!hero.attack(monster, attackType)) {
+		level.removeMonster(monster);
+		log(chalk.green(' -- enemy dead'));
+		log(' -- looted ' + chalk.yellow(monster.gold) + ' gold');
+		log(' -- gained ' + chalk.yellow(monster.xp.toFixed(2)) + ' xp');
+		log();
+		log(' * press any key to continue *');
+		hero.gainXP(monster.xp);
+		hero.giveGold(monster.gold);
+
+		state.newState(states.wait);
+		return true;
+	}
 	log();
 
 	return true;
@@ -356,6 +374,9 @@ function handleShopInput(input, map, hero) {
 	case 's':
 		return true;
 	case 'd':
+		return true;
+	case 'f':
+		hero.heal();
 		return true;
 	default:
 		return false;

@@ -1,7 +1,7 @@
 /* global module, require, process */
 
 const { log, debug } = require('./general');
-const { attackTypes, states, directions, MAX_SKILL_LEVEL } = require('./constants');
+const { attackTypes, states, directions, MAX_SKILL_LEVEL, heroStates } = require('./constants');
 const Weapon = require('./weapon');
 const Armour = require('./armour');
 const state = require('./state');
@@ -81,7 +81,7 @@ class Hero {
 	}
 
 	move(map, dir) {
-		let level = map.getCurrentLevel();
+		let level = map.current;
 		let valid = true;
 
 		switch (dir) {
@@ -185,6 +185,11 @@ class Hero {
 		let armour = this.armour.filter(x => x.attackType === attackType)[0];
 		let damage = armour.getDamage(amount);
 
+		if (this.state === heroStates.block) {
+			damage /= 2;
+			this.state = heroStates.normal;
+		}
+
 		log(' -- damaged by enemy ' + chalk.red(damage));
 
 		this.hp -= damage;
@@ -200,10 +205,20 @@ class Hero {
 		armour.gainXP(amount);
 	}
 
-	heal(amount) {
-		this.hp += amount;
-		if (this.hp > this.maxhp)
+	heal() {
+		let diff = Math.round(this.maxhp - this.hp);
+		if (diff === 0) {
+			log(chalk.yellow(' -- already at full hp'));
+			return;
+		}
+
+		if (this.gold > diff) {
+			this.gold -= diff;
 			this.hp = this.maxhp;
+			log(chalk.green(' -- healed'));
+		} else {
+			log(chalk.red(' -- you don\'t have enough gold'));
+		}
 	}
 
 	gainXP(amount) {
@@ -230,11 +245,13 @@ class Hero {
 		let damage = weapon.getDamage();
 		let bonus = this.getDamageBonus(attackType);
 
-		monster.takeDamage(damage * bonus, attackType);
 		weapon.gainXP(damage);
+		return monster.takeDamage(damage * bonus, attackType);
 	}
 
-	defend() {
+	block() {
+		this.state = heroStates.block;
+		log(' -- blocking');
 	}
 
 	getDamageBonus(attackType) {

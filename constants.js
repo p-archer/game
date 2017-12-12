@@ -27,6 +27,11 @@ const states = {
 	shop: 'shop'
 };
 
+const heroStates = {
+	normal: 'normal',
+	block: 'block'
+};
+
 const attackTypes = {
 	melee: 'melee',
 	ranged: 'ranged',
@@ -41,15 +46,44 @@ const shops = {
 	skills: 'skills'
 };
 
+const mapTypes = {
+	arctic: 'arctic',
+	crypt: 'crypt',
+	desert: 'desert',
+	dungeon: 'dungeon',
+	enchanted: 'enchanted forest',
+	inferno: 'inferno',
+	forest: 'forest',
+	magical: 'arcane dimension',
+	swamp: 'swamp',
+	tower: 'tower',
+};
+
+const species = {
+	beast: 'beast',
+	fairy: 'fairy',
+	giant: 'giant',
+	greenskin: 'greenskin',
+	humanoid: 'humanoid',
+	infernal: 'infernal',
+	lizard: 'lizard',
+	magical: 'magical',
+	mythological: 'mythological',
+	undead: 'undead',
+};
+
 module.exports = {
-	CHANCE_FOR_TREASURE: CHANCE_FOR_TREASURE,
+	ARMOUR_GAIN_FACTOR: ARMOUR_GAIN_FACTOR,
 	CHANCE_FOR_MONSTER: CHANCE_FOR_MONSTER,
 	CHANCE_FOR_SHOP: CHANCE_FOR_SHOP,
-	MAX_SKILL_LEVEL: MAX_SKILL_LEVEL,
+	CHANCE_FOR_TREASURE: CHANCE_FOR_TREASURE,
 	MAP_SIZE: MAP_SIZE,
-	ARMOUR_GAIN_FACTOR: ARMOUR_GAIN_FACTOR,
-	directions: directions,
-	states: states,
+	MAX_SKILL_LEVEL: MAX_SKILL_LEVEL,
 	attackTypes: attackTypes,
-	shops: shops
+	directions: directions,
+	heroStates: heroStates,
+	mapTypes: mapTypes,
+	shops: shops,
+	species: species,
+	states: states,
 };

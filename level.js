@@ -1,26 +1,37 @@
 /* global require, module */
 
-const { random, log } = require('./general');
-const { CHANCE_FOR_TREASURE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops } = require('./constants');
+const { random, log, debug } = require('./general');
+const { CHANCE_FOR_TREASURE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE } = require('./constants');
 const Point = require('./point');
 const Monster = require('./monster');
 
 class Level {
-	constructor(size, hero) {
-		this.size = size;
-
+	constructor(parent, type, hero) {
 		if (!hero)
 			hero = {
-				position: new Point(random(size), random(size)),
+				position: new Point(random(MAP_SIZE), random(MAP_SIZE)),
 				level: 1
 			};
 
+		this.type = type;
+		this.parent = parent;
+		if (parent)
+			this.level = parent.level + 1;
+		else
+			this.level = 1;
+
+		this.children = [];
 		this.start = hero.position;
-		this.data = generateRoutes(this.size, hero.position);
-		this.end = findFurthest(this.data, hero.position);
+		this.data = generateRoutes(MAP_SIZE, hero.position);
+		this.end = [{position: findFurthest(this.data, hero.position)}];
 		this.treasures = generateTreasures(this, hero.level);
 		this.monsters = generateMonsters(this, hero.level);
 		this.shops = generateShops(this);
+
+		if (random() < 10)
+			this.end.push({position: findFreeSpot(this)});
+
+		debug('monsters', this.monsters.length);
 	}
 
 	isTreasure(point) {
@@ -41,6 +52,12 @@ class Level {
 		})[0];
 	}
 
+	isEnd(point) {
+		return this.end.filter((x) => {
+			return point.isSame(x.position);
+		})[0];
+	}
+
 	isValid(a, b) {
 		if (b != null) {
 			return isValid(this.data, new Point(a, b));
@@ -50,6 +67,10 @@ class Level {
 	}
 
 	isFree(point) {
+		if (this.start.isSame(point))
+			return false;
+		if (this.isEnd(point))
+			return false;
 		if (!this.isValid(point))
 			return false;
 		if (this.treasures && this.isTreasure(point))
@@ -68,7 +89,7 @@ class Level {
 			return;
 		}
 
-		if (this.end.isSame(hero.position)) {
+		if (this.isEnd(hero.position)) {
 			log('stairs to next level');
 			log();
 			return;
@@ -125,15 +146,14 @@ function generateMatrix(size) {
 }
 
 function generateTreasures(level, heroLevel) {
-	let size = level.size;
 	let treasures = [];
 
 	if (!heroLevel)
 		heroLevel = 1;
 
-	for (let i=0; i<size; i++) {
-		for (let j=0; j<size; j++) {
-			if (level.end.isSame({x: j, y: i})) {
+	for (let i=0; i<MAP_SIZE; i++) {
+		for (let j=0; j<MAP_SIZE; j++) {
+			if (level.isEnd(new Point({x: j, y: i}))) {
 				continue;
 			}
 			if (level.start.isSame({x: j, y: i})) {
@@ -179,8 +199,7 @@ function findFurthest(level, point) {
 }
 
 function isValid(levelData, point) {
-	let size = levelData.length;
-	if (point.x >= size || point.x < 0 || point.y < 0 || point.y >= size) {
+	if (point.x >= MAP_SIZE || point.x < 0 || point.y < 0 || point.y >= MAP_SIZE) {
 		return false;
 	}
 
@@ -192,8 +211,7 @@ function isValid(levelData, point) {
 }
 
 function ripple(level, point, branch) {
-	let size = level.length;
-	if (point.x >= size || point.x < 0 || point.y < 0 || point.y >= size) {
+	if (point.x >= MAP_SIZE || point.x < 0 || point.y < 0 || point.y >= MAP_SIZE) {
 		return;
 	}
 
@@ -225,26 +243,22 @@ function generateRoutes(size, start) {
 }
 
 function generateMonsters(level, heroLevel) {
-	let size = level.size;
 	let monsters = [];
 
 	if (!heroLevel)
 		heroLevel = 1;
 
-	let minLevel = Math.max(0, heroLevel - 3);
-	let monsterLevel = minLevel < 1 ? random(heroLevel) + 1 : random(6) + minLevel;
+	let minLevel = Math.max(0, Math.max(heroLevel, level.level) - 3);
 
-	for (let i=0; i<size; i++) {
-		for (let j=0; j<size; j++) {
+	for (let i=0; i<MAP_SIZE; i++) {
+		for (let j=0; j<MAP_SIZE; j++) {
 			let point = new Point(j, i);
-			if (level.end.isSame(point)) {
+			if (!level.isFree(point))
 				continue;
-			}
-			if (level.start.isSame(point)) {
-				continue;
-			}
+
+			let monsterLevel = minLevel < 1 ? random(heroLevel) + 1 : random(6) + minLevel;
 			if (level.data[i][j] === 1 && random() < CHANCE_FOR_MONSTER) {
-				monsters.push(new Monster(monsterLevel, null, point));
+				monsters.push(new Monster(monsterLevel, point, level.type));
 			}
 		}
 	}

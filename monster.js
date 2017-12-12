@@ -9,16 +9,14 @@ const Armour = require('./armour');
 
 //generate monsters based on hero level and level type - forest, graveyard, jungle, desert, dungeon, tower
 class Monster {
-	constructor(level, type, position) {
+	constructor(level, position, mapType) {
 		debug('generating new monster');
 
 		if (!level)
 			level = 1;
 
-		if (!type)
-			this.type = getRandomType(level);
-		else
-			this.type = type;
+		this.type = getRandomType(level, mapType);
+		console.log(this.type);
 
 		this.level = level;
 		this.position = position;
@@ -90,6 +88,8 @@ class Monster {
 		this.hp -= damage;
 
 		log(' -- damaged enemy ' + chalk.red(damage));
+
+		return this.hp > 0;
 	}
 
 	attack(hero, attackType) {
@@ -103,7 +103,7 @@ class Monster {
 		if (!this.type.attack.preferred) {
 			let weapons = this.weapons.slice();
 			weapons.sort((a, b) => {
-				return  (b.damage * (b.precision + (100 - b.precision)/2)) - (a.damage * (a.precision + (100 - a.precision)/2));
+				return b.getDamage() - a.getDamage();
 			});
 
 			return weapons[0].attackType;
@@ -151,16 +151,12 @@ class Monster {
 	}
 }
 
-function getRandomType(level) {
-	let typeList = Object.keys(monsters);
-	let selected = null;
-	while (selected == null) {
-		let index = random(typeList.length);
-		let monster = monsters[typeList[index]];
-		if (monster.minLevel <= level)
-			selected = index;
-	}
-	return monsters[typeList[selected]];
+function getRandomType(level, mapType) {
+	let available = monsters.filter((x) => {
+		return x.land.indexOf(mapType) !== -1 && x.minLevel <= level && x.maxLevel >= level;
+	});
+
+	return available[random(available.length)];
 }
 
 module.exports = Monster;

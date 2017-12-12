@@ -14,7 +14,8 @@
 ** skills
 *** paging for selection
 *** dependencies
-*** block
+*** DONE block
+	CLOSED: [2017-12-12 Tue 12:16]
 ** tweaks
 *** initial levels <10 are too quick
 	cap monster levels and type early on, slow down xp gain, leave bigger monsters for later levels
@@ -27,8 +28,10 @@
 *** cast spell/use ability or attack
 *** basic/intermediate/normal/improved/expert/master skills
 ** maps
-*** tree structure instead of linear
-*** dungeons/block of levels, spawning distinct type of enemies
+*** DONE tree structure instead of linear
+	CLOSED: [2017-12-12 Tue 15:46]
+*** DONE dungeons/block of levels, spawning distinct type of enemies
+	CLOSED: [2017-12-12 Tue 15:46]
 *** restrict level/dungeon access by hero level and/or keys
 *** boss creatures
 ** inventory
@@ -36,5 +39,7 @@
 ** heroes
 *** class specialisation
 ** bugs
-*** interact doubles prompt
-*** unknown key acts as pass in combat mode
+*** DONE interact doubles prompt
+	CLOSED: [2017-12-12 Tue 12:18]
+*** DONE unknown key acts as pass in combat mode
+	CLOSED: [2017-12-12 Tue 12:18]
