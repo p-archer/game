@@ -1,0 +1,40 @@
+* ideas
+** shops
+   We need to spend the gold somewhere.
+   Weapons: buy better weapons - base damage increase. They need higher skill levels, have unique abilities (life drain, pierce, etc).
+   Armour: better base armour?
+   Skills: skill books for advanced skills
+   Spells/Abilities: books for spells and stuff
+   Items: potions, quest items
+*** weapon/armour upgrades should be bought
+*** different type: weapon, armour, skills, spells/abilities, items
+** inventory
+*** potions
+	Health, mana, both. Temporary upgrade potions like damage, armour.
+** skills
+*** paging for selection
+*** dependencies
+*** block
+** tweaks
+*** initial levels <10 are too quick
+	cap monster levels and type early on, slow down xp gain, leave bigger monsters for later levels
+*** after a while the hero becomes unbeatable
+*** enemies should attack on their own (+flee)
+*** enemy armour should scale with levels
+** spells and abilities
+*** mana
+*** skill books
+*** cast spell/use ability or attack
+*** basic/intermediate/normal/improved/expert/master skills
+** maps
+*** tree structure instead of linear
+*** dungeons/block of levels, spawning distinct type of enemies
+*** restrict level/dungeon access by hero level and/or keys
+*** boss creatures
+** inventory
+   keys, potions, quest items?
+** heroes
+*** class specialisation
+** bugs
+*** interact doubles prompt
+*** unknown key acts as pass in combat mode
