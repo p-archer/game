@@ -172,6 +172,18 @@ const SkillList = [{
 	bonus: 0.10,
 	cost: 100,
 	description: 'Gain extra gold from beasts by skinning them and selling their hides (10% more gold per level).'
+}, {
+	name: 'blocking',
+	requirements: {
+		level: 0,
+		melee: 0,
+		ranged: 0,
+		magic: 0,
+		skills: []
+	},
+	bonus: 0.05,
+	cost: 250,
+	description: 'Increase damage resistance while blocking (5% more damage block per level).'
 }];
 
 // presence: 0, //lowers enemy damage and resistances

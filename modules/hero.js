@@ -149,7 +149,13 @@ class Hero {
 		let damage = armour.getDamage(amount);
 
 		if (this.state === heroStates.block) {
-			damage /= 2;
+			let blocking = this.getSkill('blocking');
+			if (blocking) {
+				damage *= (0.5 + (blocking.level * blocking.bonus));
+			} else {
+				damage *= 0.5;
+			}
+
 			this.state = heroStates.normal;
 		}
 
