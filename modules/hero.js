@@ -153,9 +153,9 @@ class Hero {
 			this.state = heroStates.normal;
 		}
 
-		log(' -- damaged by enemy ' + chalk.red(damage));
-
 		this.hp -= damage;
+
+		log(' -- damaged by enemy ' + chalk.red(damage) + ' (' + this.hp.toFixed(2) + '/' + this.maxhp.toFixed(2) + ' hp left)');
 
 		if (this.hp <= 0) {
 			log(chalk.red(' -- you have been killed'));

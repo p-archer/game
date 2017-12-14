@@ -7,7 +7,6 @@ const chalk = require('chalk');
 const Weapon = require('./weapon');
 const Armour = require('./armour');
 
-//generate monsters based on hero level and level type - forest, graveyard, jungle, desert, dungeon, tower
 class Monster {
 	constructor(level, position, mapType) {
 		debug('generating new monster for mapType ' + mapType);
@@ -86,7 +85,7 @@ class Monster {
 		let damage = armour.getDamage(amount);
 		this.hp -= damage;
 
-		log(' -- damaged enemy ' + chalk.green(damage));
+		log(' -- damaged enemy ' + chalk.green(damage) + ' (' + this.hp.toFixed(2) + '/' + this.maxhp.toFixed(2) + ' hp left)');
 
 		return this.hp > 0;
 	}
