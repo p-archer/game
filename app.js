@@ -1,11 +1,11 @@
 /* global require, process */
 
-const { log } = require('./general');
-const { MAP_SIZE, directions, states, attackTypes, shops, species } = require('./constants');
+const { log } = require('./modules/general');
+const { MAP_SIZE, directions, states, attackTypes, shops, species } = require('./modules/constants');
 const chalk = require('chalk');
-const Map = require('./map');
-const Hero = require('./hero');
-const state = require('./state');
+const Map = require('./modules/map');
+const Hero = require('./modules/hero');
+const state = require('./modules/state');
 
 const stdin = process.openStdin();
 

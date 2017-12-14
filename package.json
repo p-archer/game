@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+	  "start": "node app.js"
   },
-  "author": "",
+  "author": "Gisus K. Ryst",
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.3.0",
