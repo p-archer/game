@@ -24,14 +24,8 @@ const states = {
 		skills: 'skills'
 	},
 	combat: 'combat',
-	shop: 'shop'
-	// shops: {
-	// 	weapons: 'shop-weapons',
-	// 	armour: 'shop-armour',
-	// 	spells: 'shop-spells',
-	// 	items: 'shop-items',
-	// 	skills: 'shop-skills'
-	// }
+	shop: 'shop',
+	quit: 'quit'
 };
 
 const heroStates = {

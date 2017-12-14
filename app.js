@@ -39,6 +39,20 @@ function setupPrompt(map, hero) {
 			handled = handleMainMenu(input, map, hero);
 		}
 
+		if (state.is(states.quit)) {
+			switch (input) {
+			case 'y':
+				input = '\u0003';
+				break;
+			case 'n':
+				handled = true;
+				state.prevState();
+				map.show(hero);
+				showMenu();
+				break;
+			}
+		}
+
 		if (!handled && state.is(states.wait)) {
 			state.prevState();
 			state.prevState();
@@ -78,14 +92,6 @@ function setupPrompt(map, hero) {
 			handled = handleCombatInput(input, map, hero);
 		}
 
-		// if (!handled && state.is(states.shops.skills)) {
-		// 	// handled = handleShopInput(input, map, hero);
-		// 	let shop = state.get().param;
-		// 	showMenu();
-		// 	log(' --- available skills --- ');
-		// 	shop.showInventory(hero);
-		// }
-
 		if (!handled && state.is(states.shop)) {
 			let shop = state.get().param;
 			handled = handleShopInput(input, map, hero, shop);
@@ -102,8 +108,8 @@ function setupPrompt(map, hero) {
 
 		if (!handled) {
 			switch (input) {
-			case '\u0003':
 			case 'q':
+			case '\u0003':
 				log('bye');
 				log();
 				process.exit();
@@ -217,6 +223,10 @@ function showMenu() {
 		log('d\tmagic attack');
 		log('x\tblock incoming attack');
 		log('c\tcharacter sheet');
+	}
+
+	if (state.is(states.quit)) {
+		log('are you sure you want to quit (y/n)?');
 	}
 
 	if (state.is(states.shop)) {
@@ -372,8 +382,9 @@ function handleMainMenu(input, map, hero) {
 		interact(hero, map);
 		return true;
 	case 'q':
-		input = '\u0003';
-		/* fallthrough */
+		state.newState(states.quit);
+		showMenu();
+		return true;
 	default:
 		return false;
 	}

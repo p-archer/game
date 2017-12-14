@@ -44,3 +44,5 @@
 	CLOSED: [2017-12-12 Tue 12:18]
 *** DONE unknown key acts as pass in combat mode
 	CLOSED: [2017-12-12 Tue 12:18]
+** game
+   Add prompt for quit

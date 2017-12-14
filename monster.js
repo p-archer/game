@@ -145,7 +145,7 @@ class Monster {
 		}
 
 		if (level > 4) {
-			log(' -- enemy hp: ' + this.hp.toFixed(2) + ' base: ' + this.type.maxhp);
+			log(' -- enemy hp: ' + this.hp.toFixed(2) + ' base: ' + this.type.hp);
 			log();
 			for (let weapon of this.weapons) {
 				log(' -- ' + weapon.attackType + ' attack: ' + weapon.getMaxDamage().toFixed(2) + ' base: ' + weapon.getBaseDamage().toFixed(2));
