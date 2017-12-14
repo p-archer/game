@@ -10,22 +10,21 @@ const Armour = require('./armour');
 //generate monsters based on hero level and level type - forest, graveyard, jungle, desert, dungeon, tower
 class Monster {
 	constructor(level, position, mapType) {
-		debug('generating new monster');
+		debug('generating new monster for mapType ' + mapType);
 
 		if (!level)
 			level = 1;
 
 		this.type = getRandomType(level, mapType);
 		console.log(this.type);
+		debug('monster type', this.type.name);
 
 		this.level = level;
 		this.position = position;
 
-		this.maxhp = level * this.type.hp;
+		this.maxhp = Math.pow(1.2, level) * this.type.hp;
 		this.hp = this.maxhp;
 		this.gold = random(level * (this.type.gold.max - this.type.gold.min)) + (this.type.gold.min * level);
-
-		debug('monster type', this.type.name);
 
 		let factors = {
 			armour: {
@@ -50,21 +49,21 @@ class Monster {
 		this.weapons = [
 			new Weapon(attackTypes.melee, {
 				factor: factors.melee,
-				level: level,
+				level: random(level),
 				min: this.type.attack.melee.min,
 				max: this.type.attack.melee.max,
 				precision: this.type.attack.melee.precision
 			}),
 			new Weapon(attackTypes.ranged, {
 				factor: factors.ranged,
-				level: level,
+				level: random(level),
 				min: this.type.attack.ranged.min,
 				max: this.type.attack.ranged.max,
 				precision: this.type.attack.ranged.precision
 			}),
 			new Weapon(attackTypes.magic, {
 				factor: factors.magic,
-				level: level,
+				level: random(level),
 				min: this.type.attack.magic.min,
 				max: this.type.attack.magic.max,
 				precision: this.type.attack.magic.precision
@@ -73,7 +72,7 @@ class Monster {
 
 		let xpFactor = (factors.armour.melee + factors.armour.ranged + factors.armour.magic
 						+ factors.melee + factors.ranged + factors.magic) / 6;
-		this.xp = (xpFactor / 100 * level * (this.type.xp.max - this.type.xp.min)) + (this.type.xp.min * level);
+		this.xp = (xpFactor / 100 * Math.pow(1.1, level) * (this.type.xp.max - this.type.xp.min)) + (this.type.xp.min * level);
 
 		debug('monster xp factor', xpFactor, this.xp);
 	}
@@ -87,7 +86,7 @@ class Monster {
 		let damage = armour.getDamage(amount);
 		this.hp -= damage;
 
-		log(' -- damaged enemy ' + chalk.red(damage));
+		log(' -- damaged enemy ' + chalk.green(damage));
 
 		return this.hp > 0;
 	}
@@ -119,8 +118,8 @@ class Monster {
 			log(' -- level: ' + this.level);
 		}
 
-		if (level > 1) {
-			log(' -- enemy hp: ' + this.hp);
+		if (level > 1 && level < 5) {
+			log(' -- enemy hp: ' + this.hp.toFixed(2));
 		}
 
 		if (level === 3) {
@@ -134,7 +133,7 @@ class Monster {
 			}
 		}
 
-		if (level > 3) {
+		if (level === 4) {
 			log();
 			for (let weapon of this.weapons) {
 				log(' -- ' + weapon.attackType + ' attack: ' + weapon.getMaxDamage().toFixed(2));
@@ -146,6 +145,15 @@ class Monster {
 		}
 
 		if (level > 4) {
+			log(' -- enemy hp: ' + this.hp.toFixed(2) + ' base: ' + this.type.maxhp);
+			log();
+			for (let weapon of this.weapons) {
+				log(' -- ' + weapon.attackType + ' attack: ' + weapon.getMaxDamage().toFixed(2) + ' base: ' + weapon.getBaseDamage().toFixed(2));
+			}
+			log();
+			for (let armour of this.armour) {
+				log(' -- ' + armour.attackType + ' resistance: ' + armour.amount.toFixed(2));
+			}
 			log(' -- gold: ' + this.gold);
 		}
 	}

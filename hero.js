@@ -4,6 +4,7 @@ const { log, debug } = require('./general');
 const { attackTypes, states, directions, MAX_SKILL_LEVEL, heroStates } = require('./constants');
 const Weapon = require('./weapon');
 const Armour = require('./armour');
+const Skills = require('./skills');
 const state = require('./state');
 
 const chalk = require('chalk');
@@ -28,54 +29,11 @@ class Hero {
 			new Armour(attackTypes.ranged, 0),
 			new Armour(attackTypes.magic, 0)
 		];
+		this.skills = Skills.getCoreSkills();
+		this.skills.forEach((x) => {
+			x.level = 0;
+		});
 
-		this.skills = {
-			lockpick: {
-				level: 0,
-				description: 'Skill for opening locks'
-			},
-			inspection: {
-				level: 0,
-				description: 'This skill allows you to inspect enemies before battle. The higher the skill the more information you can gather.'
-			},
-			swordsmanship: {
-				level: 0,
-				attackType: attackTypes.melee,
-				damageBonus: function() {
-					return (this.level * 0.05) + 1;
-				},
-				description: 'Basic skill for using melee weapons.'
-			},
-			archery: {
-				level: 0,
-				attackType: attackTypes.ranged,
-				damageBonus: function() {
-					return (this.level * 0.05) + 1;
-				},
-				description: 'Basic skill for using ranged weapons.'
-			},
-			sorcery: {
-				level: 0,
-				attackType: attackTypes.magic,
-				damageBonus: function() {
-					return (this.level * 0.05) + 1;
-				},
-				description: 'Basic skill for using magic weapons.'
-			}
-			// presence: 0, //lowers enemy damage and resistances
-			// swordsmanship: 0, //melee bonus
-			// archery: 0, //ranged dmg bonus
-			// sorcery: 0, //magic dmg bonus
-			// regeneration: 0,
-			// sneak: 0, //can walk past enemies
-			// alchemy: 0, //potions
-			// hunter: 0, //dmg bonus against beasts
-			// skinning: 0, //loot bonus from beasts
-			// criticals: 0, //critical chance + each attack type
-			// blocking: 0, //block a large portion of dmg
-			// dodging: 0, //dodge attack
-			// parrying: 0, //retaliate bonus
-		};
 		this.skillPoints = 0;
 		this.position = position;
 	}
@@ -127,8 +85,14 @@ class Hero {
 		case states.characterSheet.weapons:
 			log();
 			for (let weapon of this.weapons) {
+				let base = weapon.getBaseDamage();
+				let skillBonus = this.getDamageBonus(weapon.attackType);
+				let levelBonus = Math.pow(1.1, weapon.level);
 				log(' --- ' + weapon.attackType + ' weapon --- ');
-				log('damage\t' + weapon.getMaxDamage().toFixed(2) + ' (+' + ((this.getDamageBonus(weapon.attackType) - 1) * 100).toFixed(0) + '%)');
+				log('base damage\t' + base.toFixed(2) + ' + ' + (base * (skillBonus - 1)).toFixed(2) + ' = ' + (base * skillBonus).toFixed(2));
+				log('skill bonus\t' + ((skillBonus-1) * 100).toFixed(0) + '%');
+				log('level bonus\t' + ((levelBonus-1) * 100).toFixed(0) + '%');
+				log('maximum damage\t' + chalk.green((base * skillBonus * levelBonus).toFixed(2)));
 				log('precision\t' + weapon.precision);
 				log('level\t' + weapon.level);
 				log('xp\t' + weapon.xp.toFixed(2) + '/' + weapon.nextLevel.toFixed(2));
@@ -146,10 +110,9 @@ class Hero {
 		case states.characterSheet.skills:
 			log();
 			log(' --- skills --- ');
-			for (let i=0; i<Object.keys(this.skills).length && i<16; i++) {
-				let skill = Object.keys(this.skills)[i];
-				let level = this.skills[skill].level;
-				log(i.toString(16) + '. ' + skill + '\t' + level + '/' + MAX_SKILL_LEVEL);
+			for (let i=0; i<this.skills.length && i<16; i++) {
+				let skill = this.skills[i];
+				log(i.toString(16) + '. ' + skill.name + '\t' + skill.level + '/' + MAX_SKILL_LEVEL);
 			}
 			log();
 			log('unallocated skill points: ' + this.skillPoints);
@@ -173,7 +136,7 @@ class Hero {
 	}
 
 	openTreasure(treasure) {
-		if (this.skills.lockpick.level >= treasure.lock) {
+		if (this.getSkill('lockpick').level >= treasure.lock) {
 			this.giveGold(treasure.gold);
 			return true;
 		} else {
@@ -245,7 +208,8 @@ class Hero {
 		let damage = weapon.getDamage();
 		let bonus = this.getDamageBonus(attackType);
 
-		weapon.gainXP(damage);
+		weapon.gainXP(damage * bonus);
+		debug('weapon damaging enemy ' + damage * bonus);
 		return monster.takeDamage(damage * bonus, attackType);
 	}
 
@@ -258,7 +222,7 @@ class Hero {
 		let skillMultiplier = 1;
 		for (let skill in this.skills) {
 			if (this.skills[skill].attackType === attackType && this.skills[skill].damageBonus())
-				skillMultiplier *= this.skills[skill].damageBonus();
+				skillMultiplier += this.skills[skill].damageBonus();
 		}
 
 		return skillMultiplier;
@@ -266,26 +230,47 @@ class Hero {
 
 	showSkill(skill) {
 		log();
-		log(' --- ' + skill + ' --- ');
-		log('level\t' + this.skills[skill].level);
+		log(' --- ' + skill.name + ' --- ');
+		log('level\t' + skill.level);
 		log();
-		log(' -- description:\n' + this.skills[skill].description);
+		log(' -- description:\n' + skill.description);
 	}
 
 	upgradeSkill(skill) {
 		if (this.skillPoints > 0) {
-			if (this.skills[skill].level < MAX_SKILL_LEVEL) {
-				this.skills[skill].level++;
+			if (skill.level < MAX_SKILL_LEVEL) {
+				skill.level++;
 				this.skillPoints--;
 
-				log(chalk.green(' -- ' + skill + ' skill upgraded'));
-				debug('skill ' + skill + ' upgraded');
+				log(chalk.green(' -- ' + skill.name + ' skill upgraded'));
+				debug('skill ' + skill.name + ' upgraded');
 			} else {
 				log(chalk.red(' -- max level reached'));
 			}
 		} else {
 			log(chalk.red(' -- not enough skill points'));
 		}
+	}
+
+	getSkill(name) {
+		return this.skills.filter((x) => {
+			return x.name === name;
+		})[0];
+	}
+
+	buySkill(skill) {
+		this.gold -= skill.cost;
+		this.skills.push(skill);
+		this.getSkill(skill.name).level = 0;
+
+		log(chalk.green(' -- skill ' + skill.name + ' has been bought'));
+		log();
+	}
+
+	getWeapon(attackType) {
+		return this.weapons.filter((x) => {
+			return x.attackType === attackType;
+		})[0];
 	}
 }
 

@@ -85,7 +85,7 @@ const monsters = [{
 			min: 0
 		}
 	},
-	hp: 5,
+	hp: 4,
 	gold: {
 		min: 1,
 		max: 3
@@ -139,7 +139,7 @@ const monsters = [{
 	},
 	xp: {
 		min: 2,
-		max: 5
+		max: 4
 	}
 }, {
 	name: 'zombie',
@@ -179,7 +179,7 @@ const monsters = [{
 			min: 0
 		}
 	},
-	hp: 10,
+	hp: 8,
 	gold: {
 		min: 2,
 		max: 6
@@ -238,7 +238,7 @@ const monsters = [{
 	name: 'dryad',
 	land: [mapTypes.forest, mapTypes.enchanted],
 	species: [species.magical, species.fairy],
-	minLevel: 5,
+	minLevel: 10,
 	maxLevel: 40,
 	attack: {
 		melee: {
@@ -247,7 +247,7 @@ const monsters = [{
 			precision: 60
 		},
 		ranged: {
-			max: 4,
+			max: 3,
 			min: 2,
 			precision: 20
 		},
@@ -271,7 +271,7 @@ const monsters = [{
 			min: 5
 		}
 	},
-	hp: 4,
+	hp: 5,
 	gold: {
 		min: 3,
 		max: 6
@@ -284,7 +284,7 @@ const monsters = [{
 	name: 'bear',
 	land: [mapTypes.forest, mapTypes.arctic],
 	species: [species.beast],
-	minLevel: 5,
+	minLevel: 10,
 	maxLevel: 40,
 	attack: {
 		melee: {
@@ -330,7 +330,7 @@ const monsters = [{
 	name: 'centaur',
 	land: [mapTypes.forest, mapTypes.enchanted, mapTypes.swamp],
 	species: [species.mythological],
-	minLevel: 10,
+	minLevel: 20,
 	maxLevel: 50,
 	attack: {
 		melee: {
@@ -431,7 +431,7 @@ const monsters = [{
 			precision: 80
 		},
 		ranged: {
-			max: 5,
+			max: 4,
 			min: 2,
 			precision: 20
 		},
@@ -468,8 +468,8 @@ const monsters = [{
 	name: 'orc',
 	land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.arctic],
 	species: [species.greenskin],
-	minLevel: 10,
-	maxLevel: 40,
+	minLevel: 20,
+	maxLevel: 50,
 	attack: {
 		melee: {
 			max: 6,
@@ -501,29 +501,29 @@ const monsters = [{
 			min: 10
 		}
 	},
-	hp: 7,
+	hp: 6,
 	gold: {
 		min: 2,
 		max: 4
 	},
 	xp: {
 		min: 4,
-		max: 6
+		max: 8
 	}
 }, {
 	name: 'highwayman',
 	land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.forest],
 	species: [species.humanoid],
-	minLevel: 5,
+	minLevel: 10,
 	maxLevel: 40,
 	attack: {
 		melee: {
-			max: 4,
+			max: 3,
 			min: 2,
 			precision: 80
 		},
 		ranged: {
-			max: 3,
+			max: 4,
 			min: 1,
 			precision: 20
 		},
@@ -606,7 +606,7 @@ const monsters = [{
 	name: 'succubus',
 	land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.inferno, mapTypes.tower, mapTypes.magical],
 	species: [species.infernal],
-	minLevel: 10,
+	minLevel: 20,
 	maxLevel: 50,
 	attack: {
 		melee: {
@@ -621,7 +621,7 @@ const monsters = [{
 		},
 		magic: {
 			max: 4,
-			min: 3,
+			min: 2,
 			precision: 100
 		}
 	},
@@ -656,7 +656,7 @@ const monsters = [{
 	maxLevel: 50,
 	attack: {
 		melee: {
-			max: 8,
+			max: 7,
 			min: 5,
 			precision: 80
 		},
@@ -698,11 +698,11 @@ const monsters = [{
 	name: 'jackal',
 	land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.desert],
 	species: [species.mythological, species.beast],
-	minLevel: 5,
+	minLevel: 10,
 	maxLevel: 40,
 	attack: {
 		melee: {
-			max: 4,
+			max: 3,
 			min: 2,
 			precision: 80
 		},
@@ -720,7 +720,7 @@ const monsters = [{
 	armour: {
 		melee: {
 			max: 35,
-			min: 0
+			min: 20
 		},
 		ranged: {
 			max: 25,
@@ -737,7 +737,7 @@ const monsters = [{
 		max: 6
 	},
 	xp: {
-		min: 4,
+		min: 3,
 		max: 6
 	}
 }, {
@@ -790,12 +790,12 @@ const monsters = [{
 	name: 'genie',
 	land: [mapTypes.enchanted, mapTypes.tower, mapTypes.magical],
 	species: [species.magical],
-	minLevel: 5,
+	minLevel: 10,
 	maxLevel: 40,
 	attack: {
 		melee: {
 			max: 3,
-			min: 2,
+			min: 1,
 			precision: 80
 		},
 		ranged: {
@@ -804,7 +804,7 @@ const monsters = [{
 			precision: 0
 		},
 		magic: {
-			max: 5,
+			max: 4,
 			min: 2,
 			precision: 100
 		}
@@ -840,8 +840,8 @@ const monsters = [{
 	maxLevel: 100,
 	attack: {
 		melee: {
-			max: 5,
-			min: 3,
+			max: 4,
+			min: 2,
 			precision: 80
 		},
 		ranged: {
@@ -928,7 +928,7 @@ const monsters = [{
 	name: 'elf',
 	land: [mapTypes.forest, mapTypes.enchanted],
 	species: [species.humanoid],
-	minLevel: 5,
+	minLevel: 10,
 	maxLevel: 30,
 	attack: {
 		melee: {
@@ -937,7 +937,7 @@ const monsters = [{
 			precision: 80
 		},
 		ranged: {
-			max: 5,
+			max: 4,
 			min: 2,
 			precision: 50
 		},
@@ -1060,11 +1060,11 @@ const monsters = [{
 	},
 	xp: {
 		min: 5,
-		max: 7
+		max: 8
 	}
 }, {
 	name: 'kobold',
-	land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.inferno],
+	land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.inferno, mapTypes.desert],
 	species: [species.greenskin],
 	minLevel: 0,
 	maxLevel: 20,
@@ -1113,7 +1113,7 @@ const monsters = [{
 	land: [mapTypes.dungeon, mapTypes.swamp],
 	species: [species.mythological],
 	minLevel: 10,
-	maxLevel: 40,
+	maxLevel: 50,
 	attack: {
 		melee: {
 			max: 2,
@@ -1121,7 +1121,7 @@ const monsters = [{
 			precision: 80
 		},
 		ranged: {
-			max: 5,
+			max: 4,
 			min: 3,
 			precision: 30
 		},
@@ -1156,7 +1156,7 @@ const monsters = [{
 	}
 }, {
 	name: 'imp',
-	land: [mapTypes.dungeon, mapTypes.inferno, mapTypes.magical],
+	land: [mapTypes.dungeon, mapTypes.inferno, mapTypes.magical, mapTypes.desert],
 	species: [species.infernal, species.magical],
 	minLevel: 0,
 	maxLevel: 20,

@@ -1,7 +1,7 @@
 /* global require, process */
 
 const { log } = require('./general');
-const { MAP_SIZE, directions, states, attackTypes } = require('./constants');
+const { MAP_SIZE, directions, states, attackTypes, shops, species } = require('./constants');
 const chalk = require('chalk');
 const Map = require('./map');
 const Hero = require('./hero');
@@ -71,10 +71,6 @@ function setupPrompt(map, hero) {
 			}
 		}
 
-		// if (state.is(states.characterSheet.weapons)) {
-		// }
-		// if (state.is(states.characterSheet.armour)) {
-		// }
 		if (!handled && state.is(states.characterSheet.skills)) {
 			handled = handleSkillsInput(input, map, hero);
 		}
@@ -82,8 +78,17 @@ function setupPrompt(map, hero) {
 			handled = handleCombatInput(input, map, hero);
 		}
 
+		// if (!handled && state.is(states.shops.skills)) {
+		// 	// handled = handleShopInput(input, map, hero);
+		// 	let shop = state.get().param;
+		// 	showMenu();
+		// 	log(' --- available skills --- ');
+		// 	shop.showInventory(hero);
+		// }
+
 		if (!handled && state.is(states.shop)) {
-			handled = handleShopInput(input, map, hero);
+			let shop = state.get().param;
+			handled = handleShopInput(input, map, hero, shop);
 		}
 
 		if (!handled && !state.is(states.normal)) {
@@ -152,7 +157,9 @@ function interact(hero, map) {
 
 	let shop = level.isShop(hero.position);
 	if (shop) {
-		state.newState(states.shop, shop.type);
+		state.newState(states.shop, shop);
+		log(' --- inventory --- ');
+		shop.showInventory(hero);
 		showMenu();
 	}
 }
@@ -194,13 +201,13 @@ function showMenu() {
 	}
 	if (state.is(states.characterSheet.skills)) {
 		if (state.get().param) {
-			log(' --- ' + state.get().param + ' --- ');
+			log(' --- ' + state.get().param.name + ' --- ');
 			log('u\tupgrade');
 			log('q\tback');
 		} else {
 			log(' --- skills --- ');
 			log('q\tback to character sheet');
-			log('[1-f]\tcorresponding skill');
+			log('[0-f]\tcorresponding skill');
 		}
 	}
 
@@ -213,13 +220,8 @@ function showMenu() {
 	}
 
 	if (state.is(states.shop)) {
-		let shopType = state.get().param;
-		log(' --- ' + shopType + ' shop --- ');
-		log('a\tbuy');
-		log('s\tsell');
-		log('d\texchange');
-		log('f\tfull heal');
 		log('q\tback');
+		log('f\tfull heal (1 gold per hp)');
 	}
 
 	log();
@@ -260,14 +262,19 @@ function handleCombatInput(input, map, hero) {
 		if (hero.attack(monster, attackType)) {
 			monster.attack(hero, attackType);
 		} else {
+			let xp = monster.xp;
+			let bonusXP = getBonusXP(hero, monster);
+			let gold = monster.gold;
+			let bonusGold = getBonusGold(hero, monster);
 			level.removeMonster(monster);
 			log(chalk.green(' -- enemy dead'));
-			log(' -- looted ' + chalk.yellow(monster.gold) + ' gold');
-			log(' -- gained ' + chalk.yellow(monster.xp.toFixed(2)) + ' xp');
+			log(' -- looted ' + chalk.yellow(gold.toFixed(2)) + ' + ' + chalk.yellow(bonusGold.toFixed(2) + ' gold'));
+			log(' -- gained ' + chalk.yellow(xp.toFixed(2)) + ' + ' + chalk.yellow(bonusXP.toFixed(2) + ' xp'));
 			log();
 			log(' * press any key to continue *');
-			hero.gainXP(monster.xp);
-			hero.giveGold(monster.gold);
+
+			hero.gainXP(xp + bonusXP);
+			hero.giveGold(gold + bonusGold);
 
 			state.newState(states.wait);
 			return true;
@@ -281,14 +288,19 @@ function handleCombatInput(input, map, hero) {
 	log(' -- attacking with ' + chalk.cyan(attackType));
 	monster.attack(hero, attackType);
 	if (!hero.attack(monster, attackType)) {
+		let xp = monster.xp;
+		let bonusXP = getBonusXP(hero, monster);
+		let gold = monster.gold;
+		let bonusGold = getBonusGold(hero, monster);
 		level.removeMonster(monster);
 		log(chalk.green(' -- enemy dead'));
-		log(' -- looted ' + chalk.yellow(monster.gold) + ' gold');
-		log(' -- gained ' + chalk.yellow(monster.xp.toFixed(2)) + ' xp');
+		log(' -- looted ' + chalk.yellow(gold.toFixed(2)) + ' + ' + chalk.yellow(bonusGold.toFixed(2) + ' gold'));
+		log(' -- gained ' + chalk.yellow(xp.toFixed(2)) + ' + ' + chalk.yellow(bonusXP.toFixed(2) + ' xp'));
 		log();
 		log(' * press any key to continue *');
-		hero.gainXP(monster.xp);
-		hero.giveGold(monster.gold);
+
+		hero.gainXP(xp + bonusXP);
+		hero.giveGold(gold + bonusGold);
 
 		state.newState(states.wait);
 		return true;
@@ -301,7 +313,7 @@ function handleCombatInput(input, map, hero) {
 function handleSkillsInput(input, map, hero) {
 	let param = state.get().param;
 	if (!param) {
-		let skills = Object.keys(hero.skills);
+		let skills = hero.skills;
 		let num = parseInt(input, 16);
 
 		if (!isNaN(num) && num < skills.length) {
@@ -367,18 +379,43 @@ function handleMainMenu(input, map, hero) {
 	}
 }
 
-function handleShopInput(input, map, hero) {
+function handleShopInput(input, map, hero, shop) {
+	if (shop.type === shops.skills) {
+		let num = parseInt(input, 16);
+		let inventory = shop.getInventory(hero);
+		if (!isNaN(num) && num < inventory.length) {
+			let skill = inventory[num];
+			if (hero.gold >= skill.cost) {
+				hero.buySkill(skill);
+			} else {
+				log(chalk.red(' -- not enough gold to buy skill'));
+			}
+
+			return true;
+		}
+	}
+
 	switch (input) {
-	case 'a':
-		return true;
-	case 's':
-		return true;
-	case 'd':
-		return true;
 	case 'f':
 		hero.heal();
 		return true;
 	default:
 		return false;
 	}
+}
+
+function getBonusGold(hero, monster) {
+	let types = monster.type.species;
+
+	if (types.has(species.beast)) {
+		let skinning = hero.getSkill('skinning');
+		if (skinning)
+			return (monster.gold * (skinning.level * skinning.bonus));
+	}
+
+	return 0;
+}
+
+function getBonusXP(hero, monster) {
+	return 0;
 }

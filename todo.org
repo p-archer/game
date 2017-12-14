@@ -19,7 +19,8 @@
 ** tweaks
 *** initial levels <10 are too quick
 	cap monster levels and type early on, slow down xp gain, leave bigger monsters for later levels
-*** after a while the hero becomes unbeatable
+*** DONE after a while the hero becomes unbeatable
+	CLOSED: [2017-12-13 Wed 16:07]
 *** enemies should attack on their own (+flee)
 *** enemy armour should scale with levels
 ** spells and abilities
@@ -34,8 +35,8 @@
 	CLOSED: [2017-12-12 Tue 15:46]
 *** restrict level/dungeon access by hero level and/or keys
 *** boss creatures
-** inventory
-   keys, potions, quest items?
+*** DONE make levels less open - force corridors
+	CLOSED: [2017-12-13 Wed 16:07]
 ** heroes
 *** class specialisation
 ** bugs

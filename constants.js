@@ -8,10 +8,10 @@ const MAX_SKILL_LEVEL = 5;
 const ARMOUR_GAIN_FACTOR = 0.01;
 
 const directions = {
-	north: 0,
-	south: 1,
-	east: 2,
-	west: 3
+	north: 'north',
+	south: 'south',
+	east: 'east',
+	west: 'west'
 };
 
 const states = {
@@ -25,6 +25,13 @@ const states = {
 	},
 	combat: 'combat',
 	shop: 'shop'
+	// shops: {
+	// 	weapons: 'shop-weapons',
+	// 	armour: 'shop-armour',
+	// 	spells: 'shop-spells',
+	// 	items: 'shop-items',
+	// 	skills: 'shop-skills'
+	// }
 };
 
 const heroStates = {
@@ -39,11 +46,11 @@ const attackTypes = {
 };
 
 const shops = {
-	weapons: 'weapons',
-	armour: 'armour',
-	spells: 'spells',
-	items: 'items',
-	skills: 'skills'
+	weapons: 'shop-weapons',
+	armour: 'shop-armour',
+	spells: 'shop-spells',
+	items: 'shop-items',
+	skills: 'shop-skills'
 };
 
 const mapTypes = {

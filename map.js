@@ -27,6 +27,9 @@ class Map {
 		console.clear();
 		log(' -- map: ' + this.current.level + ' type: ' + this.current.type);
 
+		let line = (new Array(size+2).fill('\u25a7')).join(' ');
+		log(chalk.gray(line));
+
 		for (let i=0; i<size; i++) {
 			let str = this.current.data[i].reduce((acc, x, index) => {
 				let point = new Point(index, i);
@@ -56,8 +59,10 @@ class Map {
 				}
 			}, ''); //add borders
 
-			log(str);
+			log(chalk.gray('\u25a7') + str + ' ' + chalk.gray('\u25a7'));
 		}
+		log(chalk.gray(line));
+
 		if (hero)
 			hero.showStats();
 		log();

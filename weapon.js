@@ -15,9 +15,11 @@ class Weapon {
 			this.damage = options.damage;
 		}
 
-		this.level = options.level || 1;
+		this.level = options.level || 0;
 		this.xp = 0;
 		this.nextLevel = 10 * Math.pow(1.2, this.level);
+
+		debug('created ' + this.attackType + ' weapon with base damage ' + this.damage);
 	}
 
 	gainXP(amount) {
@@ -41,7 +43,12 @@ class Weapon {
 		let a = this.damage * this.precision;
 		let b = this.damage * (100 - this.precision);
 
-		return (a + random(b)) * Math.pow(1.1, this.level) / 100;
+		let damage = (a + random(b)) * Math.pow(1.1, this.level) / 100;
+		return damage;
+	}
+
+	getBaseDamage() {
+		return this.damage;
 	}
 
 	getMaxDamage() {

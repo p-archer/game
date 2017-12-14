@@ -1,9 +1,10 @@
 /* global require, module */
 
 const { random, log, debug } = require('./general');
-const { CHANCE_FOR_TREASURE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE } = require('./constants');
+const { CHANCE_FOR_TREASURE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE, directions } = require('./constants');
 const Point = require('./point');
 const Monster = require('./monster');
+const Shop = require('./shop');
 
 class Level {
 	constructor(parent, type, hero) {
@@ -98,7 +99,7 @@ class Level {
 		let monster = this.isMonster(hero.position);
 		if (monster) {
 			log('you have found a hostile entity');
-			monster.showStats(hero.skills.inspection.level);
+			monster.showStats(hero.getSkill('inspection').level);
 			log();
 			return;
 		}
@@ -163,7 +164,7 @@ function generateTreasures(level, heroLevel) {
 				let diff = random(heroLevel/5)+1;
 				treasures.push({
 					position: new Point(j, i),
-					gold: (diff * 2) + random(diff * 3),
+					gold: random(Math.pow(5, diff)),
 					lock: diff,
 				});
 			}
@@ -237,9 +238,72 @@ function ripple(level, point, branch) {
 
 function generateRoutes(size, start) {
 	let matrix = generateMatrix(size);
-	ripple(matrix, start);
+	// ripple(matrix, start);
+
+	let length = random(MAP_SIZE * MAP_SIZE /2) + 2*MAP_SIZE;
+	let steps = 0, previousDirection = null, position = start;
+
+	debug('generating map (desired length: ' + length + ')');
+
+	while (steps < length) {
+		let possibleDirections = getPossibleDirections(matrix, position);
+		let direction = null;
+
+		debug('possible directions', possibleDirections.join(' '));
+
+		if (!previousDirection || possibleDirections.indexOf(previousDirection) === -1) {
+			direction = possibleDirections[random(possibleDirections.length)];
+		} else {
+			if (random() < 25) {
+				direction = possibleDirections[random(possibleDirections.length)];
+			} else {
+				direction = previousDirection;
+			}
+		}
+
+		debug('chosen direction', direction);
+
+		switch (direction) {
+		case directions.north:
+			matrix[position.y-1][position.x] = 100;
+			position = new Point(position.x, position.y-1);
+			break;
+		case directions.south:
+			matrix[position.y+1][position.x] = 100;
+			position = new Point(position.x, position.y+1);
+			break;
+		case directions.west:
+			matrix[position.y][position.x-1] = 100;
+			position = new Point(position.x-1, position.y);
+			break;
+		case directions.east:
+			matrix[position.y][position.x+1] = 100;
+			position = new Point(position.x+1, position.y);
+			break;
+		default:
+			steps = length;
+		}
+
+		previousDirection = direction;
+		steps++;
+	}
 
 	return matrix;
+}
+
+function getPossibleDirections(map, point) {
+	let array = [];
+
+	if (point.x - 1 > 0 && map[point.y][point.x-1] === 0)
+		array.push(directions.west);
+	if (point.x + 1 < MAP_SIZE && map[point.y][point.x+1] === 0)
+		array.push(directions.east);
+	if (point.y - 1 > 0 && map[point.y-1][point.x] === 0)
+		array.push(directions.north);
+	if (point.y + 1 < MAP_SIZE && map[point.y+1][point.x] === 0)
+		array.push(directions.south);
+
+	return array;
 }
 
 function generateMonsters(level, heroLevel) {
@@ -248,7 +312,7 @@ function generateMonsters(level, heroLevel) {
 	if (!heroLevel)
 		heroLevel = 1;
 
-	let minLevel = Math.max(0, Math.max(heroLevel, level.level) - 3);
+	let minLevel = Math.max(0, Math.max(heroLevel, level.level) - 5);
 
 	for (let i=0; i<MAP_SIZE; i++) {
 		for (let j=0; j<MAP_SIZE; j++) {
@@ -267,13 +331,11 @@ function generateMonsters(level, heroLevel) {
 }
 
 function generateShops(level) {
-	if (random() < CHANCE_FOR_SHOP) {
+	if (random() < 100) {
+	// if (random() < CHANCE_FOR_SHOP) {
 		let spot = findFreeSpot(level);
 		if (spot) {
-			return [{
-				type: getRandomShopType(),
-				position: spot
-			}];
+			return [new Shop(getRandomShopType(), spot)];
 		}
 	}
 
@@ -281,6 +343,8 @@ function generateShops(level) {
 }
 
 function getRandomShopType() {
+	return shops.skills;
+
 	let index = random(Object.keys(shops).length);
 	let key = Object.keys(shops)[index];
 	return shops[key];

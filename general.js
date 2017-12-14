@@ -38,6 +38,24 @@ function debug() {
 function init() {
 	let str = '[' + moment().format() + ']: game started\n';
 	fs.writeFileSync(logFile, str, 'utf-8');
+
+	Array.prototype.has = function(item) {
+		if (typeof item === 'string') {
+			return this.indexOf(item) !== -1;
+		}
+
+		if (typeof item === 'object') {
+			let has = true;
+			for (let key in item) {
+				let mapped = this.map((x) => x[key]);
+				has = has && mapped.indexOf(item[key]) !== -1;
+			}
+
+			return has;
+		}
+
+		return false;
+	};
 }
 
 module.exports = {
