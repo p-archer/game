@@ -6,6 +6,7 @@ const skillList = require('./skill.catalogue');
 function Skills() {
 	let self = this;
 
+	self.getAll = getAll;
 	self.getAvailable = getAvailable;
 	self.getCoreSkills = getCoreSkills;
 
@@ -22,6 +23,10 @@ function Skills() {
 		});
 
 		return skills;
+	}
+
+	function getAll() {
+		return skillList;
 	}
 
 	function getAvailable(hero) {

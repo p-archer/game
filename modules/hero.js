@@ -1,7 +1,7 @@
 /* global module, require, process */
 
-const { log, debug } = require('./general');
-const { attackTypes, states, directions, MAX_SKILL_LEVEL, heroStates } = require('./constants');
+const { log, debug, random } = require('./general');
+const { attackTypes, states, directions, MAX_SKILL_LEVEL, heroStates, HP_GAIN_FACTOR, XP_GAIN_FACTOR, WEAPON_GAIN_FACTOR } = require('./constants');
 const Weapon = require('./weapon');
 const Armour = require('./armour');
 const Skills = require('./skills');
@@ -87,7 +87,7 @@ class Hero {
 			for (let weapon of this.weapons) {
 				let base = weapon.getBaseDamage();
 				let skillBonus = this.getDamageBonus(weapon.attackType);
-				let levelBonus = Math.pow(1.1, weapon.level);
+				let levelBonus = Math.pow(WEAPON_GAIN_FACTOR, weapon.level);
 				log(' --- ' + weapon.attackType + ' weapon --- ');
 				log('base damage\t' + base.toFixed(2) + ' + ' + (base * (skillBonus - 1)).toFixed(2) + ' = ' + (base * skillBonus).toFixed(2));
 				log('skill bonus\t' + ((skillBonus-1) * 100).toFixed(0) + '%');
@@ -150,6 +150,7 @@ class Hero {
 
 		if (this.state === heroStates.block) {
 			let blocking = this.getSkill('blocking');
+
 			if (blocking) {
 				damage *= (0.5 + (blocking.level * blocking.bonus));
 			} else {
@@ -157,6 +158,38 @@ class Hero {
 			}
 
 			this.state = heroStates.normal;
+		}
+
+		let parry = this.getSkill('parrying');
+		let dodge = this.getSkill('dodge');
+		let reflect = this.getSkill('reflect');
+
+		switch (attackType) {
+		case attackTypes.melee:
+			if (parry) {
+				if (random() < 100 * parry.level * parry.bonus) {
+					damage *= 0.5;
+					this.state = heroStates.parried;
+					log(chalk.yellow(' -- parried enemy attack'));
+				}
+			}
+			break;
+		case attackTypes.ranged:
+			if (dodge) {
+				if (random() < 100 * dodge.level * dodge.bonus) {
+					damage = 0;
+					log(chalk.yellow(' -- dodged enemy attack'));
+				}
+			}
+			break;
+		case attackTypes.magic:
+			if (reflect) {
+				if (random() < 100 * reflect.level * reflect.bonus) {
+					this.state = heroStates.reflected;
+					log(chalk.yellow(' -- reflected enemy attack'));
+				}
+			}
+			break;
 		}
 
 		this.hp -= damage;
@@ -199,8 +232,8 @@ class Hero {
 
 	levelUp() {
 		this.xp -= this.nextLevel;
-		this.nextLevel *= 1.2;
-		this.maxhp *= 1.2;
+		this.nextLevel *= XP_GAIN_FACTOR;
+		this.maxhp *= HP_GAIN_FACTOR;
 		this.hp = this.maxhp;
 		this.level++;
 
@@ -213,6 +246,12 @@ class Hero {
 		let weapon = this.weapons.filter(x => x.attackType === attackType)[0];
 		let damage = weapon.getDamage();
 		let bonus = this.getDamageBonus(attackType);
+
+		if (this.state === heroStates.parried) {
+			log(' -- applying bonus damage from parry');
+			damage *= 1.5;
+			this.state = heroStates.normal;
+		}
 
 		weapon.gainXP(damage * bonus);
 		debug('weapon damaging enemy ' + damage * bonus);

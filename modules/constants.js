@@ -3,9 +3,12 @@
 const MAP_SIZE = 12;
 const CHANCE_FOR_TREASURE = 2;
 const CHANCE_FOR_MONSTER = 10;
-const CHANCE_FOR_SHOP = 20;
+const CHANCE_FOR_SHOP = 50;
 const MAX_SKILL_LEVEL = 5;
 const ARMOUR_GAIN_FACTOR = 0.01;
+const WEAPON_GAIN_FACTOR = 1.05;
+const HP_GAIN_FACTOR = 1.05;
+const XP_GAIN_FACTOR = 1.1;
 
 const directions = {
 	north: 'north',
@@ -30,7 +33,9 @@ const states = {
 
 const heroStates = {
 	normal: 'normal',
-	block: 'block'
+	block: 'block',
+	parried: 'parried',
+	reflected: 'reflected',
 };
 
 const attackTypes = {
@@ -48,16 +53,16 @@ const shops = {
 };
 
 const mapTypes = {
-	arctic: 'arctic',
-	crypt: 'crypt',
-	desert: 'desert',
-	dungeon: 'dungeon',
-	enchanted: 'enchanted forest',
-	inferno: 'inferno',
-	forest: 'forest',
-	magical: 'arcane dimension',
-	swamp: 'swamp',
-	tower: 'tower',
+	arctic: 'arctic', //melee heavy, some ranged
+	crypt: 'crypt', //mixed (melee heavy)
+	desert: 'desert', //
+	dungeon: 'dungeon', //melee
+	enchanted: 'enchanted forest', //magic
+	inferno: 'inferno', //magic
+	forest: 'forest', //melee
+	magical: 'arcane dimension', //magic
+	swamp: 'swamp', //ranged
+	tower: 'tower', //magic
 };
 
 const species = {
@@ -80,6 +85,9 @@ module.exports = {
 	CHANCE_FOR_TREASURE: CHANCE_FOR_TREASURE,
 	MAP_SIZE: MAP_SIZE,
 	MAX_SKILL_LEVEL: MAX_SKILL_LEVEL,
+	HP_GAIN_FACTOR: HP_GAIN_FACTOR,
+	XP_GAIN_FACTOR: XP_GAIN_FACTOR,
+	WEAPON_GAIN_FACTOR: WEAPON_GAIN_FACTOR,
 	attackTypes: attackTypes,
 	directions: directions,
 	heroStates: heroStates,

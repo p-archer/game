@@ -13,11 +13,13 @@
 	Health, mana, both. Temporary upgrade potions like damage, armour.
 ** skills
 *** paging for selection
-*** dependencies
+*** DONE dependencies
+	CLOSED: [2017-12-14 Thu 14:57]
 *** DONE block
 	CLOSED: [2017-12-12 Tue 12:16]
 ** tweaks
-*** initial levels <10 are too quick
+*** DONE initial levels <10 are too quick
+	CLOSED: [2017-12-19 Tue 16:41]
 	cap monster levels and type early on, slow down xp gain, leave bigger monsters for later levels
 *** DONE after a while the hero becomes unbeatable
 	CLOSED: [2017-12-13 Wed 16:07]
@@ -25,9 +27,11 @@
 *** enemy armour should scale with levels
 ** spells and abilities
 *** mana
-*** skill books
+*** DONE skill books
+	CLOSED: [2017-12-14 Thu 14:57]
 *** cast spell/use ability or attack
-*** basic/intermediate/normal/improved/expert/master skills
+*** DONE basic/intermediate/normal/improved/expert/master skills
+	CLOSED: [2017-12-19 Tue 16:35]
 ** maps
 *** DONE tree structure instead of linear
 	CLOSED: [2017-12-12 Tue 15:46]
@@ -45,4 +49,7 @@
 *** DONE unknown key acts as pass in combat mode
 	CLOSED: [2017-12-12 Tue 12:18]
 ** game
-   Add prompt for quit
+*** DONE Add prompt for quit
+	CLOSED: [2017-12-14 Thu 14:58]
+** monsters
+*** scaling is really bad

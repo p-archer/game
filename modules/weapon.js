@@ -1,6 +1,7 @@
 /* global module, require */
 
 const { random, log, debug } = require('./general');
+const { WEAPON_GAIN_FACTOR, XP_GAIN_FACTOR } = require('./constants');
 const chalk = require('chalk');
 
 class Weapon {
@@ -17,7 +18,7 @@ class Weapon {
 
 		this.level = options.level || 0;
 		this.xp = 0;
-		this.nextLevel = 10 * Math.pow(1.2, this.level);
+		this.nextLevel = 10 * Math.pow(XP_GAIN_FACTOR, this.level);
 
 		debug('created ' + this.attackType + ' weapon with base damage ' + this.damage);
 	}
@@ -32,7 +33,7 @@ class Weapon {
 
 	levelUp() {
 		this.xp -= this.nextLevel;
-		this.nextLevel *= 1.2;
+		this.nextLevel *= XP_GAIN_FACTOR;
 		this.level++;
 
 		log(chalk.green(' -- you became more proficient with ' + this.attackType + ' weapons'));
@@ -43,7 +44,7 @@ class Weapon {
 		let a = this.damage * this.precision;
 		let b = this.damage * (100 - this.precision);
 
-		let damage = (a + random(b)) * Math.pow(1.1, this.level) / 100;
+		let damage = (a + random(b)) * Math.pow(WEAPON_GAIN_FACTOR, this.level) / 100;
 		return damage;
 	}
 
@@ -52,7 +53,7 @@ class Weapon {
 	}
 
 	getMaxDamage() {
-		return this.damage * Math.pow(1.1, this.level);
+		return this.damage * Math.pow(WEAPON_GAIN_FACTOR, this.level);
 	}
 
 	damageToString() {

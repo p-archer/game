@@ -9,9 +9,10 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 30,
 	attack: {
+		preferred: attackTypes.magic,
 		melee: {
-			max: 1,
-			min: 1,
+			max: 0,
+			min: 0,
 			precision: 80
 		},
 		ranged: {
@@ -31,7 +32,7 @@ const monsters = [{
 			min: 0
 		},
 		ranged: {
-			max: 0,
+			max: 10,
 			min: 0
 		},
 		magic: {
@@ -55,6 +56,7 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 25,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 1,
 			min: 1,
@@ -95,7 +97,7 @@ const monsters = [{
 		max: 4
 	}
 }, {
-	name: 'skeleton',
+	name: 'skeleton warrior',
 	land: [mapTypes.dungeon, mapTypes.crypt, mapTypes.tower],
 	species: [species.undead],
 	minLevel: 0,
@@ -108,7 +110,101 @@ const monsters = [{
 			precision: 80
 		},
 		ranged: {
+			max: 0,
+			min: 0,
+			precision: 15
+		},
+		magic: {
+			max: 0,
+			min: 0,
+			precision: 0
+		}
+	},
+	armour: {
+		melee: {
+			max: 20,
+			min: 0
+		},
+		ranged: {
+			max: 60,
+			min: 50
+		},
+		magic: {
+			max: 10,
+			min: 0
+		}
+	},
+	hp: 4,
+	gold: {
+		min: 1,
+		max: 4
+	},
+	xp: {
+		min: 1,
+		max: 4
+	}
+}, {
+	name: 'skeleton magi',
+	land: [mapTypes.magical, mapTypes.tower],
+	species: [species.undead],
+	minLevel: 0,
+	maxLevel: 50,
+	attack: {
+		preferred: attackTypes.magic,
+		melee: {
+			max: 0,
+			min: 0,
+			precision: 80
+		},
+		ranged: {
+			max: 0,
+			min: 0,
+			precision: 15
+		},
+		magic: {
 			max: 2,
+			min: 1,
+			precision: 0
+		}
+	},
+	armour: {
+		melee: {
+			max: 10,
+			min: 0
+		},
+		ranged: {
+			max: 60,
+			min: 50
+		},
+		magic: {
+			max: 20,
+			min: 0
+		}
+	},
+	hp: 4,
+	gold: {
+		min: 1,
+		max: 4
+	},
+	xp: {
+		min: 2,
+		max: 5
+	}
+}, {
+	name: 'skeleton archer',
+	land: [mapTypes.dungeon, mapTypes.crypt, mapTypes.swamp],
+	species: [species.undead],
+	minLevel: 0,
+	maxLevel: 50,
+	attack: {
+		preferred: attackTypes.ranged,
+		melee: {
+			max: 1,
+			min: 1,
+			precision: 80
+		},
+		ranged: {
+			max: 3,
 			min: 1,
 			precision: 15
 		},
@@ -140,6 +236,53 @@ const monsters = [{
 	xp: {
 		min: 2,
 		max: 4
+	}
+}, {
+	name: 'skeleton knight',
+	land: [mapTypes.dungeon, mapTypes.crypt],
+	species: [species.undead],
+	minLevel: 10,
+	maxLevel: 50,
+	attack: {
+		preferred: attackTypes.melee,
+		melee: {
+			max: 4,
+			min: 2,
+			precision: 80
+		},
+		ranged: {
+			max: 0,
+			min: 0,
+			precision: 15
+		},
+		magic: {
+			max: 0,
+			min: 0,
+			precision: 0
+		}
+	},
+	armour: {
+		melee: {
+			max: 40,
+			min: 20
+		},
+		ranged: {
+			max: 60,
+			min: 50
+		},
+		magic: {
+			max: 10,
+			min: 0
+		}
+	},
+	hp: 6,
+	gold: {
+		min: 3,
+		max: 6
+	},
+	xp: {
+		min: 4,
+		max: 6
 	}
 }, {
 	name: 'zombie',
@@ -195,6 +338,7 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 20,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 1,
 			min: 1,
@@ -241,6 +385,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 40,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 1,
 			min: 1,
@@ -287,6 +432,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 40,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 4,
 			min: 2,
@@ -317,7 +463,7 @@ const monsters = [{
 			min: 0
 		}
 	},
-	hp: 10,
+	hp: 8,
 	gold: {
 		min: 2,
 		max: 5
@@ -333,6 +479,7 @@ const monsters = [{
 	minLevel: 20,
 	maxLevel: 50,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 4,
 			min: 2,
@@ -379,6 +526,7 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 20,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 1,
 			min: 1,
@@ -425,6 +573,7 @@ const monsters = [{
 	minLevel: 5,
 	maxLevel: 30,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 2,
 			min: 1,
@@ -471,6 +620,7 @@ const monsters = [{
 	minLevel: 20,
 	maxLevel: 50,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 6,
 			min: 4,
@@ -517,6 +667,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 40,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 3,
 			min: 2,
@@ -563,6 +714,7 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 20,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 1,
 			min: 1,
@@ -609,6 +761,7 @@ const monsters = [{
 	minLevel: 20,
 	maxLevel: 50,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 3,
 			min: 2,
@@ -639,14 +792,14 @@ const monsters = [{
 			min: 0
 		}
 	},
-	hp: 7,
+	hp: 4,
 	gold: {
 		min: 6,
 		max: 10
 	},
 	xp: {
-		min: 5,
-		max: 8
+		min: 4,
+		max: 6
 	}
 }, {
 	name: 'giant',
@@ -655,6 +808,7 @@ const monsters = [{
 	minLevel: 20,
 	maxLevel: 50,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 7,
 			min: 5,
@@ -701,9 +855,10 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 40,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 3,
-			min: 2,
+			min: 1,
 			precision: 80
 		},
 		ranged: {
@@ -731,14 +886,14 @@ const monsters = [{
 			min: 0
 		}
 	},
-	hp: 5,
+	hp: 4,
 	gold: {
 		min: 4,
 		max: 6
 	},
 	xp: {
 		min: 3,
-		max: 6
+		max: 5
 	}
 }, {
 	name: 'whisp',
@@ -747,6 +902,7 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 20,
 	attack: {
+		preferred: attackTypes.magic,
 		melee: {
 			max: 0,
 			min: 0,
@@ -793,8 +949,9 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 40,
 	attack: {
+		preferred: attackTypes.magic,
 		melee: {
-			max: 3,
+			max: 2,
 			min: 1,
 			precision: 80
 		},
@@ -839,6 +996,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 100,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 4,
 			min: 2,
@@ -850,8 +1008,8 @@ const monsters = [{
 			precision: 0
 		},
 		magic: {
-			max: 4,
-			min: 2,
+			max: 3,
+			min: 1.5,
 			precision: 100
 		}
 	},
@@ -869,7 +1027,7 @@ const monsters = [{
 			min: 20
 		}
 	},
-	hp: 6,
+	hp: 5,
 	gold: {
 		min: 4,
 		max: 6
@@ -885,6 +1043,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 100,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 1,
 			min: 1,
@@ -897,7 +1056,7 @@ const monsters = [{
 		},
 		magic: {
 			max: 3,
-			min: 2,
+			min: 1.5,
 			precision: 100
 		}
 	},
@@ -915,7 +1074,7 @@ const monsters = [{
 			min: 20
 		}
 	},
-	hp: 6,
+	hp: 4,
 	gold: {
 		min: 4,
 		max: 6
@@ -931,6 +1090,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 30,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 2,
 			min: 1,
@@ -939,7 +1099,7 @@ const monsters = [{
 		ranged: {
 			max: 4,
 			min: 2,
-			precision: 50
+			precision: 30
 		},
 		magic: {
 			max: 2,
@@ -977,6 +1137,7 @@ const monsters = [{
 	minLevel: 20,
 	maxLevel: 50,
 	attack: {
+		preferred: attackTypes.melee,
 		melee: {
 			max: 4,
 			min: 2,
@@ -1007,7 +1168,7 @@ const monsters = [{
 			min: 10
 		}
 	},
-	hp: 8,
+	hp: 6,
 	gold: {
 		min: 6,
 		max: 7
@@ -1053,7 +1214,7 @@ const monsters = [{
 			min: 10
 		}
 	},
-	hp: 8,
+	hp: 7,
 	gold: {
 		min: 3,
 		max: 4
@@ -1069,6 +1230,7 @@ const monsters = [{
 	minLevel: 0,
 	maxLevel: 20,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 1,
 			min: 1,
@@ -1115,6 +1277,7 @@ const monsters = [{
 	minLevel: 10,
 	maxLevel: 50,
 	attack: {
+		preferred: attackTypes.ranged,
 		melee: {
 			max: 2,
 			min: 1,
@@ -1123,7 +1286,7 @@ const monsters = [{
 		ranged: {
 			max: 4,
 			min: 3,
-			precision: 30
+			precision: 25
 		},
 		magic: {
 			max: 0,
@@ -1145,7 +1308,7 @@ const monsters = [{
 			min: 10
 		}
 	},
-	hp: 5,
+	hp: 4,
 	gold: {
 		min: 3,
 		max: 6

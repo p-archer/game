@@ -173,6 +173,78 @@ const SkillList = [{
 	cost: 100,
 	description: 'Gain extra gold from beasts by skinning them and selling their hides (10% more gold per level).'
 }, {
+	name: 'dodge',
+	requirements: {
+		level: 10,
+		melee: 0,
+		ranged: 10,
+		magic: 0,
+		skills: []
+	},
+	bonus: 0.03,
+	cost: 1000,
+	description: 'Dodge incoming ranged attacks (3% to dodge per level).'
+}, {
+	name: 'stunning hit',
+	requirements: {
+		level: 25,
+		melee: 25,
+		ranged: 0,
+		magic: 0,
+		skills: [{name: 'advanced swordsmanship', level: 1}]
+	},
+	bonus: 0.03,
+	cost: 2500,
+	description: 'Chance to stun enemy with melee attack (3% per level).'
+}, {
+	name: 'critical shot',
+	requirements: {
+		level: 25,
+		melee: 0,
+		ranged: 25,
+		magic: 0,
+		skills: [{name: 'advanced archery', level: 1}]
+	},
+	bonus: 0.03,
+	cost: 2500,
+	description: 'Chance to inflict double damage with ranged attack (3% per level).'
+}, {
+	name: 'disintegrate',
+	requirements: {
+		level: 25,
+		melee: 0,
+		ranged: 0,
+		magic: 25,
+		skills: [{name: 'advanced sorcery', level: 1}]
+	},
+	bonus: 0.02,
+	cost: 2500,
+	description: 'Instant kill under a certain percentage of hp (2% per level).'
+}, {
+	name: 'reflect',
+	requirements: {
+		level: 10,
+		melee: 0,
+		ranged: 0,
+		magic: 10,
+		skills: []
+	},
+	bonus: 0.03,
+	cost: 1000,
+	description: 'Reflect magic damage to origin (3% chance per level).'
+}, {
+	name: 'parrying',
+	requirements: {
+		level: 10,
+		melee: 10,
+		ranged: 0,
+		magic: 0,
+		skills: []
+	},
+	bonus: 0.03,
+	cost: 1000,
+	description: 'Parry incoming melee attacks (-50% damage) and retaliate with bonus (+50%) damage (3% chance per level).'
+}, {
 	name: 'blocking',
 	requirements: {
 		level: 0,
@@ -191,10 +263,6 @@ const SkillList = [{
 // sneak: 0, //can walk past enemies
 // alchemy: 0, //potions
 // hunter: 0, //dmg bonus against beasts
-// skinning: 0, //loot bonus from beasts
-// criticals: 0, //critical chance + each attack type
-// blocking: 0, //block a large portion of dmg
-// dodging: 0, //dodge attack
 // parrying: 0, //retaliate bonus
 
 module.exports = SkillList;

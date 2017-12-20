@@ -1,7 +1,7 @@
 /* global module, require */
 
 const { random, log, debug } = require('./general');
-const { attackTypes } = require('./constants');
+const { attackTypes, heroStates, HP_GAIN_FACTOR } = require('./constants');
 const monsters = require('./monster.catalogue');
 const chalk = require('chalk');
 const Weapon = require('./weapon');
@@ -21,7 +21,7 @@ class Monster {
 		this.level = level;
 		this.position = position;
 
-		this.maxhp = Math.pow(1.2, level) * this.type.hp;
+		this.maxhp = Math.pow(HP_GAIN_FACTOR, level) * this.type.hp;
 		this.hp = this.maxhp;
 		this.gold = random(level * (this.type.gold.max - this.type.gold.min)) + (this.type.gold.min * level);
 
@@ -71,7 +71,7 @@ class Monster {
 
 		let xpFactor = (factors.armour.melee + factors.armour.ranged + factors.armour.magic
 						+ factors.melee + factors.ranged + factors.magic) / 6;
-		this.xp = (xpFactor / 100 * Math.pow(1.1, level) * (this.type.xp.max - this.type.xp.min)) + (this.type.xp.min * level);
+		this.xp = (xpFactor / 100 * Math.pow(HP_GAIN_FACTOR, level) * (this.type.xp.max - this.type.xp.min)) + (this.type.xp.min * level);
 
 		debug('monster xp factor', xpFactor, this.xp);
 	}
@@ -95,6 +95,11 @@ class Monster {
 		let damage = weapon.getDamage();
 
 		hero.takeDamage(damage, attackType);
+
+		if (hero.state === heroStates.reflected) {
+			hero.state = heroStates.normal;
+			this.takeDamage(damage, attackType);
+		}
 	}
 
 	getPreferredAttackType() {

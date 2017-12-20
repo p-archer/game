@@ -161,10 +161,10 @@ function generateTreasures(level, heroLevel) {
 				continue;
 			}
 			if (level.data[i][j] === 1 && random() < CHANCE_FOR_TREASURE) {
-				let diff = random(heroLevel/5)+1;
+				let diff = Math.min(5, random(heroLevel/5)+1);
 				treasures.push({
 					position: new Point(j, i),
-					gold: random(Math.pow(5, diff)),
+					gold: random(Math.pow(5, diff)) + random(Math.pow(5, diff)),
 					lock: diff,
 				});
 			}
@@ -254,7 +254,7 @@ function generateRoutes(size, start) {
 		if (!previousDirection || possibleDirections.indexOf(previousDirection) === -1) {
 			direction = possibleDirections[random(possibleDirections.length)];
 		} else {
-			if (random() < 25) {
+			if (random() < 10) {
 				direction = possibleDirections[random(possibleDirections.length)];
 			} else {
 				direction = previousDirection;
@@ -331,8 +331,8 @@ function generateMonsters(level, heroLevel) {
 }
 
 function generateShops(level) {
-	if (random() < 100) {
-	// if (random() < CHANCE_FOR_SHOP) {
+	// if (random() < 100) {
+	if (random() < CHANCE_FOR_SHOP) {
 		let spot = findFreeSpot(level);
 		if (spot) {
 			return [new Shop(getRandomShopType(), spot)];

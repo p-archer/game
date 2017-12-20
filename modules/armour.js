@@ -1,7 +1,7 @@
 /* global module, require */
 
 const { log, debug } = require('./general');
-const { ARMOUR_GAIN_FACTOR } = require('./constants');
+const { ARMOUR_GAIN_FACTOR, XP_GAIN_FACTOR } = require('./constants');
 const chalk = require('chalk');
 
 class Armour {
@@ -25,7 +25,7 @@ class Armour {
 	levelUp() {
 		this.amount += ((100 - this.amount) * ARMOUR_GAIN_FACTOR);
 		this.xp -= this.nextLevel;
-		this.nextLevel *= 1.2;
+		this.nextLevel *= XP_GAIN_FACTOR;
 		this.level++;
 
 		log(chalk.green(' -- you became more proficient with ' + this.attackType + ' armour'));
