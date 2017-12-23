@@ -2,40 +2,37 @@
 
 const { states } = require('./constants');
 
-function state() {
-	let self = this;
+let stack = [{state: states.characterSelection, param: null}];
 
-	self.newState = newState;
-	self.prevState = prevState;
-	self.is = is;
-	self.get = get;
-
-	init();
-
-	return self;
-
-	function init() {
-		self.stack = [{state: states.normal, param: null}];
-	}
-
-	function newState(state, param) {
-		if (!self.is(state) || param) {
-			self.stack.push({state: state, param: param});
-		}
-	}
-
-	function prevState() {
-		if (self.stack.length > 1)
-			self.stack.pop();
-	}
-
-	function is(state) {
-		return self.get().state === state;
-	}
-
-	function get() {
-		return self.stack[self.stack.length -1];
+function newState(state, param) {
+	if (!is(state) || param) {
+		stack.push({state: state, param: param});
 	}
 }
 
-module.exports = state();
+function resetTo(state, param) {
+	stack = [{state: state, param: param}];
+}
+
+function prevState() {
+	if (stack.length > 1)
+		stack.pop();
+}
+
+function is(state) {
+	return get().state === state;
+}
+
+function get() {
+	return stack[stack.length -1];
+}
+
+module.exports = {
+	state: {
+		newState: newState,
+		resetTo: resetTo,
+		prevState: prevState,
+		is: is,
+		get: get
+	}
+};

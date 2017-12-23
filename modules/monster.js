@@ -1,7 +1,7 @@
 /* global module, require */
 
 const { random, log, debug } = require('./general');
-const { attackTypes, heroStates, HP_GAIN_FACTOR } = require('./constants');
+const { attackTypes, heroStates, HP_GAIN_FACTOR, species } = require('./constants');
 const monsters = require('./monster.catalogue');
 const chalk = require('chalk');
 const Weapon = require('./weapon');
@@ -20,10 +20,11 @@ class Monster {
 
 		this.level = level;
 		this.position = position;
+		this.movement = this.type.movement;
 
 		this.maxhp = Math.pow(HP_GAIN_FACTOR, level) * this.type.hp;
 		this.hp = this.maxhp;
-		this.gold = random(level * (this.type.gold.max - this.type.gold.min)) + (this.type.gold.min * level);
+		this.gold = ((this.type.gold.max - this.type.gold.min) * random() / 100 + this.type.gold.min) * level;
 
 		let factors = {
 			armour: {
@@ -45,60 +46,66 @@ class Monster {
 			new Armour(attackTypes.ranged, (factors.armour.ranged / 100 * (this.type.armour.ranged.max - this.type.armour.ranged.min)) + (this.type.armour.ranged.min)),
 			new Armour(attackTypes.magic, (factors.armour.magic / 100 * (this.type.armour.magic.max - this.type.armour.magic.min)) + (this.type.armour.magic.min))
 		];
-		this.weapons = [
-			new Weapon(attackTypes.melee, {
-				factor: factors.melee,
-				level: random(level),
-				min: this.type.attack.melee.min,
-				max: this.type.attack.melee.max,
-				precision: this.type.attack.melee.precision
-			}),
-			new Weapon(attackTypes.ranged, {
-				factor: factors.ranged,
-				level: random(level),
-				min: this.type.attack.ranged.min,
-				max: this.type.attack.ranged.max,
-				precision: this.type.attack.ranged.precision
-			}),
-			new Weapon(attackTypes.magic, {
-				factor: factors.magic,
-				level: random(level),
-				min: this.type.attack.magic.min,
-				max: this.type.attack.magic.max,
-				precision: this.type.attack.magic.precision
-			}),
-		];
+		this.weapon = new Weapon({
+			attackType: this.type.attack.attackType,
+			level: random(level),
+			min: this.type.attack.min,
+			max: this.type.attack.max,
+			range: this.type.attack.range
+		});
 
-		let xpFactor = (factors.armour.melee + factors.armour.ranged + factors.armour.magic
-						+ factors.melee + factors.ranged + factors.magic) / 6;
-		this.xp = (xpFactor / 100 * Math.pow(HP_GAIN_FACTOR, level) * (this.type.xp.max - this.type.xp.min)) + (this.type.xp.min * level);
-
-		debug('monster xp factor', xpFactor, this.xp);
+		this.xp = Math.pow(HP_GAIN_FACTOR, level) * ((this.type.xp.max - this.type.xp.min) * (random() / 100) + this.type.xp.min);
 	}
 
 	isAlive() {
 		return this.hp > 0;
 	}
 
-	takeDamage(amount, attackType) {
-		let armour = this.armour.filter(x => x.attackType === attackType)[0];
-		let damage = armour.getDamage(amount);
+	takeDamage(combat) {
+		let hero = combat.hero;
+		let armour = this.armour.filter(x => x.attackType === hero.weapon.attackType)[0];
+		let rawDamage = hero.getDamage(combat);
+		let damage = armour.getDamage(rawDamage);
 		this.hp -= damage;
 
-		log(' -- damaged enemy ' + chalk.green(damage) + ' (' + this.hp.toFixed(2) + '/' + this.maxhp.toFixed(2) + ' hp left)');
+		let inspection = hero.getSkill('inspection').level;
+		switch (inspection) {
+		case 0:
+			if (damage > 0)
+				log(chalk.green(' -- damaged enemy'));
+			else
+				log(chalk.red(' -- attack failed'));
+			break;
+		case 1:
+			log(' -- damaged enemy ' + chalk.green(damage));
+			break;
+		default:
+			log(' -- damaged enemy ' + chalk.green(damage) + ' (' + this.hp.toFixed(2) + '/' + this.maxhp.toFixed(2) + ' hp left)');
+			break;
+		}
+
+		if (this.hp <= 0) {
+			let bonusXP = getBonusXP(hero, this);
+			let bonusGold = getBonusGold(hero, this);
+			log(chalk.green(' -- enemy dead'));
+			log(' -- looted ' + chalk.yellow(this.gold.toFixed(2)) + ' + ' + chalk.yellow(bonusGold.toFixed(2) + ' gold'));
+			log(' -- gained ' + chalk.yellow(this.xp.toFixed(2)) + ' + ' + chalk.yellow(bonusXP.toFixed(2) + ' xp'));
+			log();
+			log(' * press any key to continue *');
+
+			hero.gainXP(this.xp + bonusXP);
+			hero.giveGold(this.gold + bonusGold);
+		}
 
 		return this.hp > 0;
 	}
 
-	attack(hero, attackType) {
-		let weapon = this.weapons.filter(x => x.attackType === attackType)[0];
-		let damage = weapon.getDamage();
+	attack(combat) {
+		combat.hero.takeDamage(combat);
 
-		hero.takeDamage(damage, attackType);
-
-		if (hero.state === heroStates.reflected) {
-			hero.state = heroStates.normal;
-			this.takeDamage(damage, attackType);
+		if (combat.hero.state === heroStates.reflected) {
+			combat.hero.state = heroStates.normal;
+			this.takeDamage(combat);
 		}
 	}
 
@@ -128,9 +135,7 @@ class Monster {
 
 		if (level === 3) {
 			log();
-			for (let weapon of this.weapons) {
-				log(' -- ' + weapon.attackType + ' attack: ' + weapon.damageToString());
-			}
+			log(' -- ' + this.weapon.attackType + ' attack: ' + this.weapon.damageToString());
 			log();
 			for (let armour of this.armour) {
 				log(' -- ' + armour.attackType + ' resistance: ' + armour.amountToString());
@@ -139,9 +144,7 @@ class Monster {
 
 		if (level === 4) {
 			log();
-			for (let weapon of this.weapons) {
-				log(' -- ' + weapon.attackType + ' attack: ' + weapon.getMaxDamage().toFixed(2));
-			}
+			log(' -- ' + this.weapon.attackType + ' attack: ' + chalk.red(this.weapon.getMinDamage().toFixed(2) + ' - ' + this.weapon.getMaxDamage().toFixed(2)));
 			log();
 			for (let armour of this.armour) {
 				log(' -- ' + armour.attackType + ' resistance: ' + armour.amount.toFixed(2));
@@ -151,14 +154,12 @@ class Monster {
 		if (level > 4) {
 			log(' -- enemy hp: ' + this.hp.toFixed(2) + ' base: ' + this.type.hp);
 			log();
-			for (let weapon of this.weapons) {
-				log(' -- ' + weapon.attackType + ' attack: ' + weapon.getMaxDamage().toFixed(2) + ' base: ' + weapon.getBaseDamage().toFixed(2));
-			}
+			log(' -- ' + this.weapon.attackType + ' attack: ' + chalk.red(this.weapon.getMinDamage().toFixed(2) + ' - ' + this.weapon.getMaxDamage().toFixed(2)));
 			log();
 			for (let armour of this.armour) {
 				log(' -- ' + armour.attackType + ' resistance: ' + armour.amount.toFixed(2));
 			}
-			log(' -- gold: ' + this.gold);
+			log(' -- gold: ' + this.gold.toFixed(2));
 		}
 	}
 }
@@ -169,6 +170,22 @@ function getRandomType(level, mapType) {
 	});
 
 	return available[random(available.length)];
+}
+
+function getBonusGold(hero, monster) {
+	let types = monster.type.species;
+
+	if (types.has(species.beast)) {
+		let skinning = hero.getSkill('skinning');
+		if (skinning)
+			return (monster.gold * (skinning.level * skinning.bonus));
+	}
+
+	return 0;
+}
+
+function getBonusXP(hero, monster) {
+	return 0;
 }
 
 module.exports = Monster;

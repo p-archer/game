@@ -56,6 +56,11 @@ function init() {
 
 		return false;
 	};
+
+	String.prototype.toFixed = function(length) {
+		let padding = new Array(length - this.length).join(' ');
+		return this + padding;
+	};
 }
 
 module.exports = {

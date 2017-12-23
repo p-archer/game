@@ -1,26 +1,33 @@
 /* global module, require */
 
 const { random, log, debug } = require('./general');
-const { WEAPON_GAIN_FACTOR, XP_GAIN_FACTOR } = require('./constants');
+const { WEAPON_GAIN_FACTOR, XP_GAIN_FACTOR, attackTypes } = require('./constants');
 const chalk = require('chalk');
 
 class Weapon {
-	constructor(attackType, options) {
-		this.attackType = attackType;
-		this.precision = options.precision || 0;
-
-		this.factor = options.factor || 1;
-		if (!options.damage) {
-			this.damage = options.min + (this.factor * (options.max - options.min) / 100);
-		} else {
-			this.damage = options.damage;
+	constructor(weapon) {
+		this.attackType = weapon.attackType;
+		this.name = weapon.name;
+		switch (weapon.attackType) {
+		case attackTypes.melee:
+			this.range = 1;
+			break;
+		case attackTypes.magic:
+			this.range = 1000;
+			break;
 		}
 
-		this.level = options.level || 0;
-		this.xp = 0;
+		if (weapon.range)
+			this.range = weapon.range;
+
+		this.min = weapon.min;
+		this.max = weapon.max;
+
+		this.level = weapon.level || 0;
+		this.xp = weapon.xp || 0;
 		this.nextLevel = 10 * Math.pow(XP_GAIN_FACTOR, this.level);
 
-		debug('created ' + this.attackType + ' weapon with base damage ' + this.damage);
+		debug('created ' + this.attackType + ' weapon with base damage ' + this.min + ' - ' + this.max);
 	}
 
 	gainXP(amount) {
@@ -40,24 +47,38 @@ class Weapon {
 		debug('weapon ' + this.attackType + ' levelled up');
 	}
 
-	getDamage() {
-		let a = this.damage * this.precision;
-		let b = this.damage * (100 - this.precision);
+	getDamage(dist) {
+		if (dist === 1) {
+			if (this.attackType === attackTypes.ranged) {
+				log(chalk.yellow(' -- ranged weapon penalty for close combat ') + chalk.red(50 + '% damage'));
+				return 0.5 * (this.min + (random() * (this.max - this.min) / 100)) * Math.pow(WEAPON_GAIN_FACTOR, this.level);
+			}
 
-		let damage = (a + random(b)) * Math.pow(WEAPON_GAIN_FACTOR, this.level) / 100;
-		return damage;
-	}
+			if (this.attackType === attackTypes.magic) {
+				log(chalk.yellow(' -- magic weapon penalty for close combat ') + chalk.red(50 + '% chance for failure'));
+				if (random() < 50) {
+					return (this.min + (random() * (this.max - this.min) / 100)) * Math.pow(WEAPON_GAIN_FACTOR, this.level);
+				} else {
+					return null;
+				}
+			}
+		}
 
-	getBaseDamage() {
-		return this.damage;
-	}
+		if (dist <= this.range)
+			return (this.min + (random() * (this.max - this.min) / 100)) * Math.pow(WEAPON_GAIN_FACTOR, this.level);
 
-	getMaxDamage() {
-		return this.damage * Math.pow(WEAPON_GAIN_FACTOR, this.level);
+		if (dist < this.range * 2) {
+			let precision = (1 - ((dist - this.range) / this.range)) * 100;
+			log(chalk.yellow(' -- outside optimal range (chance to hit is ' + precision.toFixed(2) + '%)'));
+			if (random() < precision)
+				return (this.min + (random() * (this.max - this.min) / 100)) * Math.pow(WEAPON_GAIN_FACTOR, this.level);
+		}
+
+		return null;
 	}
 
 	damageToString() {
-		let value = this.damage * this.factor/100;
+		let value = this.max;
 		if (value === 0)
 			return 'none';
 		if (value <= 1)
@@ -70,6 +91,14 @@ class Weapon {
 			return 'strong';
 
 		return 'overwhelming';
+	}
+
+	getMinDamage() {
+		return this.min * Math.pow(WEAPON_GAIN_FACTOR, this.level);
+	}
+
+	getMaxDamage() {
+		return this.max * Math.pow(WEAPON_GAIN_FACTOR, this.level);
 	}
 }
 

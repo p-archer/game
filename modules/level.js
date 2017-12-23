@@ -331,7 +331,6 @@ function generateMonsters(level, heroLevel) {
 }
 
 function generateShops(level) {
-	// if (random() < 100) {
 	if (random() < CHANCE_FOR_SHOP) {
 		let spot = findFreeSpot(level);
 		if (spot) {
@@ -343,8 +342,6 @@ function generateShops(level) {
 }
 
 function getRandomShopType() {
-	return shops.skills;
-
 	let index = random(Object.keys(shops).length);
 	let key = Object.keys(shops)[index];
 	return shops[key];

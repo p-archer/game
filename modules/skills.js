@@ -17,9 +17,9 @@ function Skills() {
 	function init() {
 	}
 
-	function getCoreSkills() {
+	function getCoreSkills(hc) {
 		let skills = skillList.filter((x) => {
-			return x.core;
+			return x.core && x.core.has(hc);
 		});
 
 		return skills;
@@ -33,11 +33,14 @@ function Skills() {
 		let skills = skillList.filter((x) => {
 			if (x.requirements.level > hero.level)
 				return false;
-			if (x.requirements.melee > hero.getWeapon(attackTypes.melee).level)
+
+			if (x.requirements.melee && (hero.weapon.attackType !== attackTypes.melee || x.requirements.melee > hero.weapon.level))
 				return false;
-			if (x.requirements.ranged > hero.getWeapon(attackTypes.ranged).level)
+
+			if (x.requirements.ranged && (hero.weapon.attackType !== attackTypes.ranged || x.requirements.ranged > hero.weapon.level))
 				return false;
-			if (x.requirements.magic > hero.getWeapon(attackTypes.magic).level)
+
+			if (x.requirements.magic && (hero.weapon.attackType !== attackTypes.magic || x.requirements.magic > hero.weapon.level))
 				return false;
 
 			let skillsMet = true;

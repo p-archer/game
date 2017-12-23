@@ -1,10 +1,10 @@
 /* global require, module */
 
-const { attackTypes } = require('./constants');
+const { attackTypes, heroClass } = require('./constants');
 
 const SkillList = [{
 	name: 'lockpick',
-	core: true,
+	core: [heroClass.warrior, heroClass.archer, heroClass.mage],
 	requirements: {
 		level: 0,
 		melee: 0,
@@ -16,7 +16,7 @@ const SkillList = [{
 	description: 'Skill for opening locks'
 }, {
 	name: 'inspection',
-	core: true,
+	core: [heroClass.warrior, heroClass.archer, heroClass.mage],
 	requirements: {
 		level: 0,
 		melee: 0,
@@ -27,7 +27,7 @@ const SkillList = [{
 	description: 'This skill allows you to inspect enemies before battle. The higher the skill the more information you can gather.'
 }, {
 	name: 'swordsmanship',
-	core: true,
+	core: [heroClass.warrior],
 	requirements: {
 		level: 0,
 		melee: 0,
@@ -39,10 +39,11 @@ const SkillList = [{
 	damageBonus: function() {
 		return (this.level * 0.05);
 	},
-	description: 'Basic skill for using melee weapons.'
+	description: 'Basic skill for using melee weapons.',
+	cost: 250,
 }, {
 	name: 'archery',
-	core: true,
+	core: [heroClass.archer],
 	requirements: {
 		level: 0,
 		melee: 0,
@@ -54,10 +55,11 @@ const SkillList = [{
 	damageBonus: function() {
 		return (this.level * 0.05);
 	},
-	description: 'Basic skill for using ranged weapons.'
+	description: 'Basic skill for using ranged weapons.',
+	cost: 250,
 }, {
 	name: 'sorcery',
-	core: true,
+	core: [heroClass.mage],
 	requirements: {
 		level: 0,
 		melee: 0,
@@ -69,7 +71,8 @@ const SkillList = [{
 	damageBonus: function() {
 		return (this.level * 0.05);
 	},
-	description: 'Basic skill for using magic weapons.'
+	description: 'Basic skill for using magic weapons.',
+	cost: 250,
 }, {
 	name: 'improved swordsmanship',
 	requirements: {
@@ -170,7 +173,7 @@ const SkillList = [{
 		skills: []
 	},
 	bonus: 0.10,
-	cost: 100,
+	cost: 200,
 	description: 'Gain extra gold from beasts by skinning them and selling their hides (10% more gold per level).'
 }, {
 	name: 'dodge',
@@ -263,6 +266,5 @@ const SkillList = [{
 // sneak: 0, //can walk past enemies
 // alchemy: 0, //potions
 // hunter: 0, //dmg bonus against beasts
-// parrying: 0, //retaliate bonus
 
 module.exports = SkillList;

@@ -6,25 +6,13 @@ const monsters = [{
 	name: 'fairy',
 	land: [mapTypes.forest, mapTypes.enchanted, mapTypes.magical],
 	species: [species.fairy, species.magical],
-	minLevel: 0,
-	maxLevel: 30,
+	minLevel: 10,
+	maxLevel: 40,
+	movement: 12,
 	attack: {
-		preferred: attackTypes.magic,
-		melee: {
-			max: 0,
-			min: 0,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 3,
-			min: 1,
-			precision: 100
-		}
+		attackType: attackTypes.magic,
+		max: 3,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -55,23 +43,11 @@ const monsters = [{
 	species: [species.beast],
 	minLevel: 0,
 	maxLevel: 25,
+	movement: 15,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -102,23 +78,11 @@ const monsters = [{
 	species: [species.undead],
 	minLevel: 0,
 	maxLevel: 50,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 15
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -147,25 +111,13 @@ const monsters = [{
 	name: 'skeleton magi',
 	land: [mapTypes.magical, mapTypes.tower],
 	species: [species.undead],
-	minLevel: 0,
+	minLevel: 5,
 	maxLevel: 50,
+	movement: 6,
 	attack: {
-		preferred: attackTypes.magic,
-		melee: {
-			max: 0,
-			min: 0,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 15
-		},
-		magic: {
-			max: 2,
-			min: 1,
-			precision: 0
-		}
+		attackType: attackTypes.magic,
+		max: 2,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -194,25 +146,14 @@ const monsters = [{
 	name: 'skeleton archer',
 	land: [mapTypes.dungeon, mapTypes.crypt, mapTypes.swamp],
 	species: [species.undead],
-	minLevel: 0,
+	minLevel: 5,
 	maxLevel: 50,
+	movement: 6,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 3,
-			min: 1,
-			precision: 15
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.ranged,
+		max: 2,
+		min: 1,
+		range: 15
 	},
 	armour: {
 		melee: {
@@ -243,23 +184,11 @@ const monsters = [{
 	species: [species.undead],
 	minLevel: 10,
 	maxLevel: 50,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 4,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 15
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 4,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -290,23 +219,11 @@ const monsters = [{
 	species: [species.undead],
 	minLevel: 5,
 	maxLevel: 30,
+	movement: 6,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 2,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 2,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -337,23 +254,11 @@ const monsters = [{
 	species: [species.beast],
 	minLevel: 0,
 	maxLevel: 20,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -384,23 +289,12 @@ const monsters = [{
 	species: [species.magical, species.fairy],
 	minLevel: 10,
 	maxLevel: 40,
+	movement: 15,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 60
-		},
-		ranged: {
-			max: 3,
-			min: 2,
-			precision: 20
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 100
-		}
+		attackType: attackTypes.ranged,
+		max: 4,
+		min: 2,
+		range: 20
 	},
 	armour: {
 		melee: {
@@ -431,23 +325,11 @@ const monsters = [{
 	species: [species.beast],
 	minLevel: 10,
 	maxLevel: 40,
+	movement: 12,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 4,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 5,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -473,28 +355,52 @@ const monsters = [{
 		max: 7
 	}
 }, {
-	name: 'centaur',
+	name: 'centaur archer',
 	land: [mapTypes.forest, mapTypes.enchanted, mapTypes.swamp],
 	species: [species.mythological],
 	minLevel: 20,
 	maxLevel: 50,
+	movement: 20,
 	attack: {
-		preferred: attackTypes.melee,
+		attackType: attackTypes.ranged,
+		max: 5,
+		min: 3,
+		range: 15
+	},
+	armour: {
 		melee: {
-			max: 4,
-			min: 2,
-			precision: 80
+			max: 30,
+			min: 10
 		},
 		ranged: {
-			max: 5,
-			min: 2,
-			precision: 20
+			max: 25,
+			min: 5
 		},
 		magic: {
 			max: 0,
-			min: 0,
-			precision: 0
+			min: 0
 		}
+	},
+	hp: 5,
+	gold: {
+		min: 3,
+		max: 7
+	},
+	xp: {
+		min: 5,
+		max: 8
+	}
+}, {
+	name: 'centaur lancer',
+	land: [mapTypes.forest, mapTypes.enchanted, mapTypes.swamp],
+	species: [species.mythological],
+	minLevel: 20,
+	maxLevel: 50,
+	movement: 20,
+	attack: {
+		attackType: attackTypes.melee,
+		max: 4,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -525,23 +431,11 @@ const monsters = [{
 	species: [species.greenskin],
 	minLevel: 0,
 	maxLevel: 20,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -572,23 +466,12 @@ const monsters = [{
 	species: [species.lizard],
 	minLevel: 5,
 	maxLevel: 30,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 2,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 4,
-			min: 2,
-			precision: 20
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.ranged,
+		max: 4,
+		min: 2,
+		range: 15
 	},
 	armour: {
 		melee: {
@@ -619,23 +502,11 @@ const monsters = [{
 	species: [species.greenskin],
 	minLevel: 20,
 	maxLevel: 50,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 6,
-			min: 4,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 6,
+		min: 4,
 	},
 	armour: {
 		melee: {
@@ -666,23 +537,11 @@ const monsters = [{
 	species: [species.humanoid],
 	minLevel: 10,
 	maxLevel: 40,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 3,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 4,
-			min: 1,
-			precision: 20
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 4,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -713,23 +572,11 @@ const monsters = [{
 	species: [species.infernal],
 	minLevel: 0,
 	maxLevel: 20,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 2,
-			min: 1,
-			precision: 100
-		}
+		attackType: attackTypes.melee,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -760,23 +607,11 @@ const monsters = [{
 	species: [species.infernal],
 	minLevel: 20,
 	maxLevel: 50,
+	movement: 15,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 3,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 4,
-			min: 3,
-			precision: 25
-		},
-		magic: {
-			max: 4,
-			min: 2,
-			precision: 100
-		}
+		attackType: attackTypes.magic,
+		max: 4,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -807,23 +642,11 @@ const monsters = [{
 	species: [species.giant],
 	minLevel: 20,
 	maxLevel: 50,
+	movement: 6,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 7,
-			min: 5,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 8,
+		min: 5,
 	},
 	armour: {
 		melee: {
@@ -854,23 +677,11 @@ const monsters = [{
 	species: [species.mythological, species.beast],
 	minLevel: 10,
 	maxLevel: 40,
+	movement: 15,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 3,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 0
-		}
+		attackType: attackTypes.melee,
+		max: 3,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -901,23 +712,11 @@ const monsters = [{
 	species: [species.magical],
 	minLevel: 0,
 	maxLevel: 20,
+	movement: 12,
 	attack: {
-		preferred: attackTypes.magic,
-		melee: {
-			max: 0,
-			min: 0,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 1,
-			min: 1,
-			precision: 100
-		}
+		attackType: attackTypes.magic,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {
@@ -948,23 +747,11 @@ const monsters = [{
 	species: [species.magical],
 	minLevel: 10,
 	maxLevel: 40,
+	movement: 15,
 	attack: {
-		preferred: attackTypes.magic,
-		melee: {
-			max: 2,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 4,
-			min: 2,
-			precision: 100
-		}
+		attackType: attackTypes.magic,
+		max: 4,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -995,23 +782,11 @@ const monsters = [{
 	species: [species.magical],
 	minLevel: 10,
 	maxLevel: 100,
+	movement: 12,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 4,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 0
-		},
-		magic: {
-			max: 3,
-			min: 1.5,
-			precision: 100
-		}
+		attackType: attackTypes.melee,
+		max: 5,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -1042,23 +817,12 @@ const monsters = [{
 	species: [species.magical],
 	minLevel: 10,
 	maxLevel: 100,
+	movement: 8,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 5,
-			min: 3,
-			precision: 25
-		},
-		magic: {
-			max: 3,
-			min: 1.5,
-			precision: 100
-		}
+		attackType: attackTypes.ranged,
+		max: 6,
+		min: 3,
+		range: 25
 	},
 	armour: {
 		melee: {
@@ -1089,23 +853,12 @@ const monsters = [{
 	species: [species.humanoid],
 	minLevel: 10,
 	maxLevel: 30,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 2,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 4,
-			min: 2,
-			precision: 30
-		},
-		magic: {
-			max: 2,
-			min: 1,
-			precision: 100
-		}
+		attackType: attackTypes.ranged,
+		max: 4,
+		min: 2,
+		range: 30
 	},
 	armour: {
 		melee: {
@@ -1136,23 +889,12 @@ const monsters = [{
 	species: [species.humanoid],
 	minLevel: 20,
 	maxLevel: 50,
+	movement: 10,
 	attack: {
-		preferred: attackTypes.melee,
-		melee: {
-			max: 4,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 6,
-			min: 2,
-			precision: 30
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 100
-		}
+		attackType: attackTypes.ranged,
+		max: 6,
+		min: 2,
+		range: 30
 	},
 	armour: {
 		melee: {
@@ -1183,22 +925,11 @@ const monsters = [{
 	species: [species.greenskin],
 	minLevel: 10,
 	maxLevel: 50,
+	movement: 12,
 	attack: {
-		melee: {
-			max: 4,
-			min: 2,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 30
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 100
-		}
+		attackType: attackTypes.melee,
+		max: 4,
+		min: 2,
 	},
 	armour: {
 		melee: {
@@ -1229,23 +960,12 @@ const monsters = [{
 	species: [species.greenskin],
 	minLevel: 0,
 	maxLevel: 20,
+	movement: 8,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 3,
-			min: 1,
-			precision: 20
-		},
-		magic: {
-			max: 1,
-			min: 1,
-			precision: 100
-		}
+		attackType: attackTypes.ranged,
+		max: 2,
+		min: 1,
+		range: 15
 	},
 	armour: {
 		melee: {
@@ -1268,7 +988,7 @@ const monsters = [{
 	},
 	xp: {
 		min: 2,
-		max: 3
+		max: 4
 	}
 }, {
 	name: 'medusa',
@@ -1276,23 +996,12 @@ const monsters = [{
 	species: [species.mythological],
 	minLevel: 10,
 	maxLevel: 50,
+	movement: 8,
 	attack: {
-		preferred: attackTypes.ranged,
-		melee: {
-			max: 2,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 4,
-			min: 3,
-			precision: 25
-		},
-		magic: {
-			max: 0,
-			min: 0,
-			precision: 100
-		}
+		attackType: attackTypes.ranged,
+		max: 4,
+		min: 3,
+		range: 10
 	},
 	armour: {
 		melee: {
@@ -1323,22 +1032,11 @@ const monsters = [{
 	species: [species.infernal, species.magical],
 	minLevel: 0,
 	maxLevel: 20,
+	movement: 10,
 	attack: {
-		melee: {
-			max: 1,
-			min: 1,
-			precision: 80
-		},
-		ranged: {
-			max: 0,
-			min: 0,
-			precision: 30
-		},
-		magic: {
-			max: 1,
-			min: 1,
-			precision: 100
-		}
+		attackType: attackTypes.magic,
+		max: 1,
+		min: 1,
 	},
 	armour: {
 		melee: {

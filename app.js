@@ -1,11 +1,11 @@
 /* global require, process */
 
 const { log } = require('./modules/general');
-const { MAP_SIZE, directions, states, attackTypes, shops, species } = require('./modules/constants');
+const { MAP_SIZE, attackTypes, directions, states, shops, heroClass } = require('./modules/constants');
 const chalk = require('chalk');
 const Map = require('./modules/map');
 const Hero = require('./modules/hero');
-const state = require('./modules/state');
+const { state } = require('./modules/state');
 
 const stdin = process.openStdin();
 
@@ -25,7 +25,6 @@ function init() {
 
 	setupPrompt(map, hero);
 
-	map.show(hero);
 	showMenu();
 	showPrompt();
 }
@@ -34,6 +33,33 @@ function setupPrompt(map, hero) {
 	stdin.on('data', (input) => {
 		process.stdout.write(input + '\n');
 		let handled = null;
+
+		if (state.is(states.characterSelection)) {
+			switch (input) {
+			case '1':
+				hero.setClass(heroClass.warrior);
+				handled = true;
+				break;
+			case '2':
+				hero.setClass(heroClass.archer);
+				handled = true;
+				break;
+			case '3':
+				hero.setClass(heroClass.mage);
+				handled = true;
+				break;
+			case 'q':
+				input = '\u0003';
+				break;
+			}
+
+			if (handled) {
+				state.resetTo(states.normal);
+				map.show(hero);
+				showMenu();
+				return;
+			}
+		}
 
 		if (state.is(states.normal)) {
 			handled = handleMainMenu(input, map, hero);
@@ -145,7 +171,8 @@ function interact(hero, map) {
 
 	let monster = level.isMonster(hero.position);
 	if (monster) {
-		state.newState(states.combat);
+		let combat = startCombat(hero, monster);
+		state.newState(states.combat, combat);
 		showMenu();
 	}
 
@@ -163,6 +190,7 @@ function interact(hero, map) {
 
 	let shop = level.isShop(hero.position);
 	if (shop) {
+		console.clear();
 		state.newState(states.shop, shop);
 		log(' --- inventory --- ');
 		shop.showInventory(hero);
@@ -187,6 +215,15 @@ function showMenu() {
 		log();
 		log(' --- interaction --- ');
 		log('e\topen/toggle');
+	}
+
+	if (state.is(states.characterSelection)) {
+		console.clear();
+		log();
+		log(' --- character selection --- ');
+		log('1\twarrior (melee weapons)');
+		log('2\tarcher (ranged weapons)');
+		log('3\tmage (magic weapons and spells)');
 	}
 
 	if (state.is(states.characterSheet.main)) {
@@ -218,11 +255,16 @@ function showMenu() {
 	}
 
 	if (state.is(states.combat)) {
-		log('a\tmelee attack');
-		log('s\tranged attack');
-		log('d\tmagic attack');
-		log('x\tblock incoming attack');
-		log('c\tcharacter sheet');
+		let combatState = state.get().param;
+		let distance = Math.abs(combatState.heroPos - combatState.monsterPos);
+		showCombatState(combatState);
+
+		if (distance > 1)
+			log('a\tapproach enemy');
+		log('s\tattack with weapon (' + chalk.blueBright(combatState.hero.weapon.name) + ')');
+		log('d\tcast spell or use ability');
+		log('x\tguard stance');
+		log('q\tflee');
 	}
 
 	if (state.is(states.quit)) {
@@ -245,20 +287,25 @@ function showPrompt() {
 function handleCombatInput(input, map, hero) {
 	let level = map.current;
 	let monster = level.isMonster(hero.position);
-	let attackType = null;
+	let combatState = state.get().param;
+	let distance = Math.abs(combatState.heroPos - combatState.monsterPos);
 
 	switch(input) {
 	case 'x':
 		hero.block(monster);
 		break;
 	case 'a':
-		attackType = attackTypes.melee;
+		if (distance > 1) {
+			combatState.heroPos = Math.min(combatState.monsterPos-1, combatState.heroPos + combatState.hero.movement);
+			showCombatState(combatState);
+		} else {
+			log(chalk.red(' -- already in melee range'));
+		}
 		break;
 	case 's':
-		attackType = attackTypes.ranged;
+		handleHeroAttack(combatState, level);
 		break;
 	case 'd':
-		attackType = attackTypes.magic;
 		break;
 	case 'q':
 		state.prevState();
@@ -267,54 +314,8 @@ function handleCombatInput(input, map, hero) {
 		return false;
 	}
 
-	if (attackType) {
-		log(' -- attacking with ' + chalk.cyan(attackType));
-		if (hero.attack(monster, attackType)) {
-			monster.attack(hero, attackType);
-		} else {
-			let xp = monster.xp;
-			let bonusXP = getBonusXP(hero, monster);
-			let gold = monster.gold;
-			let bonusGold = getBonusGold(hero, monster);
-			level.removeMonster(monster);
-			log(chalk.green(' -- enemy dead'));
-			log(' -- looted ' + chalk.yellow(gold.toFixed(2)) + ' + ' + chalk.yellow(bonusGold.toFixed(2) + ' gold'));
-			log(' -- gained ' + chalk.yellow(xp.toFixed(2)) + ' + ' + chalk.yellow(bonusXP.toFixed(2) + ' xp'));
-			log();
-			log(' * press any key to continue *');
-
-			hero.gainXP(xp + bonusXP);
-			hero.giveGold(gold + bonusGold);
-
-			state.newState(states.wait);
-			return true;
-		}
-	}
-
 	//monster's turn
-	attackType = monster.getPreferredAttackType();
-	log();
-	log(' -- enemy\'s turn');
-	log(' -- attacking with ' + chalk.cyan(attackType));
-	monster.attack(hero, attackType);
-	if (!hero.attack(monster, attackType)) {
-		let xp = monster.xp;
-		let bonusXP = getBonusXP(hero, monster);
-		let gold = monster.gold;
-		let bonusGold = getBonusGold(hero, monster);
-		level.removeMonster(monster);
-		log(chalk.green(' -- enemy dead'));
-		log(' -- looted ' + chalk.yellow(gold.toFixed(2)) + ' + ' + chalk.yellow(bonusGold.toFixed(2) + ' gold'));
-		log(' -- gained ' + chalk.yellow(xp.toFixed(2)) + ' + ' + chalk.yellow(bonusXP.toFixed(2) + ' xp'));
-		log();
-		log(' * press any key to continue *');
-
-		hero.gainXP(xp + bonusXP);
-		hero.giveGold(gold + bonusGold);
-
-		state.newState(states.wait);
-		return true;
-	}
+	handleMonsterAttack(combatState, level);
 	log();
 
 	return true;
@@ -371,9 +372,6 @@ function handleMainMenu(input, map, hero) {
 		hero.showStats(state.get());
 		showMenu();
 		return true;
-	case 'h':
-		showMenu();
-		return true;
 	case '\t':
 	case 'm':
 		map.show(hero);
@@ -385,19 +383,38 @@ function handleMainMenu(input, map, hero) {
 		state.newState(states.quit);
 		showMenu();
 		return true;
-	default:
-		return false;
 	}
+
+	return false;
 }
 
 function handleShopInput(input, map, hero, shop) {
+	if (shop.type === shops.weapons) {
+		let num = parseInt(input, 16);
+		let inventory = shop.getInventory(hero);
+		if (!isNaN(num) && num < inventory.length) {
+			let weapon = inventory[num];
+			if (hero.gold >= weapon.cost) {
+				hero.buyWeapon(weapon);
+			} else {
+				log(chalk.red(' -- not enough gold to buy skill'));
+			}
+
+			return true;
+		}
+	}
+
 	if (shop.type === shops.skills) {
 		let num = parseInt(input, 16);
 		let inventory = shop.getInventory(hero);
 		if (!isNaN(num) && num < inventory.length) {
 			let skill = inventory[num];
 			if (hero.gold >= skill.cost) {
+				console.clear();
 				hero.buySkill(skill);
+				log(' --- inventory --- ');
+				shop.showInventory(hero);
+				showMenu();
 			} else {
 				log(chalk.red(' -- not enough gold to buy skill'));
 			}
@@ -415,18 +432,85 @@ function handleShopInput(input, map, hero, shop) {
 	}
 }
 
-function getBonusGold(hero, monster) {
-	let types = monster.type.species;
+function showCombatState(combat) {
+	// console.clear();
+	log();
+	let str = '';
 
-	if (types.has(species.beast)) {
-		let skinning = hero.getSkill('skinning');
-		if (skinning)
-			return (monster.gold * (skinning.level * skinning.bonus));
+	for (let i=0; i<combat.size; i++) {
+		if (i === combat.heroPos) {
+			str += chalk.green('x');
+			continue;
+		}
+		if (i === combat.monsterPos) {
+			str += chalk.red('x');
+			continue;
+		}
+
+		str += '_';
 	}
 
-	return 0;
+	log(str);
+	log();
 }
 
-function getBonusXP(hero, monster) {
-	return 0;
+function startCombat(hero, monster) {
+	return { heroPos: 1, monsterPos: 31, hero: hero, monster: monster, size: 33, history: [] };
+}
+
+function handleHeroAttack(combatState, level) {
+	let distance = Math.abs(combatState.heroPos - combatState.monsterPos);
+	let hero = combatState.hero;
+	let monster = combatState.monster;
+
+	if (distance === 1) {
+		log(' -- attacking enemy');
+		if (hero.attack(combatState)) {
+			monster.attack(combatState);
+		} else {
+			level.removeMonster(monster);
+			state.newState(states.wait);
+		}
+	} else {
+		if (hero.weapon.attackType === attackTypes.melee) {
+			log(chalk.red(' -- not in melee range'));
+		} else {
+			log(' -- attacking enemy');
+			if (!hero.attack(combatState)) {
+				level.removeMonster(monster);
+				state.newState(states.wait);
+			}
+		}
+	}
+}
+
+function handleMonsterAttack(combatState, level) {
+	let distance = Math.abs(combatState.heroPos - combatState.monsterPos);
+	let hero = combatState.hero;
+	let monster = combatState.monster;
+
+	if (monster.hp <= 0)
+		return;
+
+	log();
+	log(' -- enemy\'s turn');
+
+	if (distance === 1) {
+		log(' -- attacking with ' + chalk.cyan(monster.weapon.attackType));
+
+		monster.attack(combatState);
+		if (!hero.attack(combatState)) {
+			level.removeMonster(monster);
+			state.newState(states.wait);
+		}
+	} else {
+		if (monster.weapon.attackType === attackTypes.melee || distance > monster.weapon.range) {
+			log(' -- approaching hero');
+			combatState.monsterPos = Math.max(combatState.heroPos+1, combatState.monsterPos - monster.movement);
+			showCombatState(combatState);
+		} else {
+			log(' -- attacking with ' + chalk.cyan(monster.weapon.attackType));
+			monster.attack(combatState);
+		}
+	}
 }

@@ -7,8 +7,8 @@ const CHANCE_FOR_SHOP = 50;
 const MAX_SKILL_LEVEL = 5;
 const ARMOUR_GAIN_FACTOR = 0.01;
 const WEAPON_GAIN_FACTOR = 1.05;
-const HP_GAIN_FACTOR = 1.05;
-const XP_GAIN_FACTOR = 1.1;
+const HP_GAIN_FACTOR = 1.10;
+const XP_GAIN_FACTOR = 1.10;
 
 const directions = {
 	north: 'north',
@@ -18,8 +18,7 @@ const directions = {
 };
 
 const states = {
-	normal: 'normal',
-	wait: 'wait',
+	characterSelection: 'character-selection',
 	characterSheet: {
 		main: 'character sheet',
 		weapons: 'weapons',
@@ -27,8 +26,10 @@ const states = {
 		skills: 'skills'
 	},
 	combat: 'combat',
+	normal: 'normal',
 	shop: 'shop',
-	quit: 'quit'
+	quit: 'quit',
+	wait: 'wait',
 };
 
 const heroStates = {
@@ -46,9 +47,9 @@ const attackTypes = {
 
 const shops = {
 	weapons: 'shop-weapons',
-	armour: 'shop-armour',
-	spells: 'shop-spells',
-	items: 'shop-items',
+	// armour: 'shop-armour',
+	// spells: 'shop-spells',
+	// items: 'shop-items',
 	skills: 'shop-skills'
 };
 
@@ -78,6 +79,12 @@ const species = {
 	undead: 'undead',
 };
 
+const heroClass = {
+	warrior: 'warrior',
+	archer: 'archer',
+	mage: 'mage'
+};
+
 module.exports = {
 	ARMOUR_GAIN_FACTOR: ARMOUR_GAIN_FACTOR,
 	CHANCE_FOR_MONSTER: CHANCE_FOR_MONSTER,
@@ -90,6 +97,7 @@ module.exports = {
 	WEAPON_GAIN_FACTOR: WEAPON_GAIN_FACTOR,
 	attackTypes: attackTypes,
 	directions: directions,
+	heroClass: heroClass,
 	heroStates: heroStates,
 	mapTypes: mapTypes,
 	shops: shops,
