@@ -1,80 +1,75 @@
 * ideas
-** shops
+** shops [0/2]
    We need to spend the gold somewhere.
    Weapons: buy better weapons - base damage increase. They need higher skill levels, have unique abilities (life drain, pierce, etc).
    Armour: better base armour?
    Skills: skill books for advanced skills
    Spells/Abilities: books for spells and stuff
    Items: potions, quest items
-*** weapon/armour upgrades should be bought
-*** different type: weapon, armour, skills, spells/abilities, items
-** inventory
-*** potions
+*** TODO weapon/armour upgrades should be bought
+*** TODO different type: weapon, armour, skills, spells/abilities, items
+** inventory [1/2]
+*** TODO potions
 	Health, mana, both. Temporary upgrade potions like damage, armour.
-** skills
-*** paging for selection
+*** DONE restructure weapons [3/3]
+	CLOSED: [2018-01-16 Tue 09:59]
+**** DONE move each type to a dedicated file
+	 CLOSED: [2018-01-14 Sun 22:33]
+**** DONE use yaml or cson
+	 CLOSED: [2018-01-14 Sun 22:33]
+**** DONE add special abilities to weapons
+	 CLOSED: [2018-01-16 Tue 09:59]
+** skills [2/3]
+*** TODO paging for selection
 *** DONE dependencies
 	CLOSED: [2017-12-14 Thu 14:57]
 *** DONE block
 	CLOSED: [2017-12-12 Tue 12:16]
-** tweaks
+** tweaks [3/3]
 *** DONE initial levels <10 are too quick
 	CLOSED: [2017-12-19 Tue 16:41]
 	cap monster levels and type early on, slow down xp gain, leave bigger monsters for later levels
 *** DONE after a while the hero becomes unbeatable
 	CLOSED: [2017-12-13 Wed 16:07]
-*** enemies should attack on their own (+flee)
-*** enemy armour should scale with levels
-** spells and abilities
-*** mana
+*** CANCELLED enemies should attack on their own (+flee)
+	CLOSED: [2018-01-11 Thu 15:46]
+** spells and abilities [4/4]
+*** DONE mana
+	CLOSED: [2018-01-14 Sun 22:33]
 *** DONE skill books
 	CLOSED: [2017-12-14 Thu 14:57]
-*** cast spell/use ability or attack
+*** DONE cast spell/use ability or attack
+	CLOSED: [2018-01-14 Sun 22:33]
 *** DONE basic/intermediate/normal/improved/expert/master skills
 	CLOSED: [2017-12-19 Tue 16:35]
-** maps
+** maps [4/7]
 *** DONE tree structure instead of linear
 	CLOSED: [2017-12-12 Tue 15:46]
 *** DONE dungeons/block of levels, spawning distinct type of enemies
 	CLOSED: [2017-12-12 Tue 15:46]
-*** restrict level/dungeon access by hero level and/or keys
-*** boss creatures
+*** TODO restrict level/dungeon access by hero level and/or keys
+*** TODO boss creatures
 *** DONE make levels less open - force corridors
 	CLOSED: [2017-12-13 Wed 16:07]
-** heroes
-*** class specialisation
-** bugs
+*** TODO shops should have items based on level type
+*** DONE items should be prefixed and suffixed with random names and abilities
+	CLOSED: [2018-01-19 Fri 11:08]
+** heroes [0/1]
+*** TODO class specialisation
+** bugs [6/9]
 *** DONE interact doubles prompt
 	CLOSED: [2017-12-12 Tue 12:18]
 *** DONE unknown key acts as pass in combat mode
 	CLOSED: [2017-12-12 Tue 12:18]
-*** TODO move weapon (and type) level to hero
+*** DONE move weapon (and type) level to hero
+	CLOSED: [2018-01-11 Thu 15:46]
 	This is to avoid issues like a level45 bow being exchanged for a level45 wand when the hero never used magic before.
-** game
-*** DONE Add prompt for quit
-	CLOSED: [2017-12-14 Thu 14:58]
-** monsters
-*** scaling is really bad
-** redo combat [4/7]
-*** DONE distance
-	CLOSED: [2017-12-22 Fri 17:56]
-	Combat starts with two players on the opposite side with a certain distance from each other (skills can manipulate this).
-	Movement attribute decides the max distance that can be travelled in one move (perhaps do something like flee or whatnot).
-	This would increase the distinction between melee and ranged attackers.
-*** TODO speed
-	Instead of having a static turn-based behaviour it would be better to have one based on time slots. Someone with speed 10 would have two turns, while someone with 5 would have only one.
-	This would give way to high damage, slow and quick, but weaker weapons.
-*** DONE ranged/melee
-	CLOSED: [2017-12-22 Fri 17:56]
-	Ranged attacks would be penalised by distance, i.e. too far = lower chance to hit; point-blank range chance to hit penalised without skill.
-*** TODO add abilities
-	Stuff like 'pommel strike' or 'power shot' would really increase the game's enjoyment factor.
-*** DONE adjust magic attack
-	CLOSED: [2017-12-22 Fri 17:56]
-	It will be considered ranged, with no range penalty, but serious chance of failure for point-blank range.
-*** DONE ranged precision
-	CLOSED: [2017-12-22 Fri 17:56]
-	This should be turned into chance to hit. Also, adding 'optimal distance' for ranged weapon might be a good idea.
-*** TODO new skills
-	Point-blank shot is required for ranged weapons (not core skill). Combat casting for point-blank magic attacks.
-	
+*** DONE critical hit and miss
+	CLOSED: [2018-01-16 Tue 09:59]
+*** TODO bleed should only work on living, fleshy targets
+*** TODO bleed should stack and apply slow
+*** DONE abilities menu empty looks bad
+	CLOSED: [2018-01-20 Sat 11:04]
+*** TODO enchanted forest has only wisps in the beginning
+*** DONE burning hero logs enemy's burning
+	CLOSED: [2018-02-05 Mon 11:39]

@@ -1,19 +1,14 @@
 /* global require, module */
+require('coffee-script/register');
 
-const { random, log, debug } = require('./general');
-const { CHANCE_FOR_TREASURE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE, directions } = require('./constants');
+const { random, log, debug, err } = require('./general');
+const { CHANCE_FOR_TREASURE, CHANCE_FOR_ADDITIONAL_EXIT, GOLD_RANGE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE, directions } = require('./constants');
 const Point = require('./point');
-const Monster = require('./monster');
-const Shop = require('./shop');
+const Monster = require('./monsters/monsters.coffee');
+const Shop = require('./shop.coffee');
 
 class Level {
 	constructor(parent, type, hero) {
-		if (!hero)
-			hero = {
-				position: new Point(random(MAP_SIZE), random(MAP_SIZE)),
-				level: 1
-			};
-
 		this.type = type;
 		this.parent = parent;
 		if (parent)
@@ -21,18 +16,15 @@ class Level {
 		else
 			this.level = 1;
 
-		this.children = [];
 		this.start = hero.position;
-		this.data = generateRoutes(MAP_SIZE, hero.position);
-		this.end = [{position: findFurthest(this.data, hero.position)}];
+		this.data = generateRoutes(MAP_SIZE, this.start);
+		this.end = [{position: findFurthest(this.data, this.start)}];
 		this.treasures = generateTreasures(this, hero.level);
 		this.monsters = generateMonsters(this, hero.level);
-		this.shops = generateShops(this);
+		this.shops = generateShops(this, hero);
 
-		if (random() < 10)
+		if (random() < CHANCE_FOR_ADDITIONAL_EXIT)
 			this.end.push({position: findFreeSpot(this)});
-
-		debug('monsters', this.monsters.length);
 	}
 
 	isTreasure(point) {
@@ -99,7 +91,7 @@ class Level {
 		let monster = this.isMonster(hero.position);
 		if (monster) {
 			log('you have found a hostile entity');
-			monster.showStats(hero.getSkill('inspection').level);
+			Monster.showStats(monster, hero.skills.inspection.level);
 			log();
 			return;
 		}
@@ -152,23 +144,15 @@ function generateTreasures(level, heroLevel) {
 	if (!heroLevel)
 		heroLevel = 1;
 
-	for (let i=0; i<MAP_SIZE; i++) {
-		for (let j=0; j<MAP_SIZE; j++) {
-			if (level.isEnd(new Point({x: j, y: i}))) {
-				continue;
-			}
-			if (level.start.isSame({x: j, y: i})) {
-				continue;
-			}
-			if (level.data[i][j] === 1 && random() < CHANCE_FOR_TREASURE) {
-				let diff = Math.min(5, random(heroLevel/5)+1);
-				treasures.push({
-					position: new Point(j, i),
-					gold: random(Math.pow(5, diff)) + random(Math.pow(5, diff)),
-					lock: diff,
-				});
-			}
-		}
+	while (random() < CHANCE_FOR_TREASURE) {
+		let diff = Math.min(5, random(heroLevel/5)+1);
+		let max = GOLD_RANGE[diff-1];
+		let min = diff > 1 ? GOLD_RANGE[diff-2] : 1;
+		treasures.push({
+			position: findFreeSpot(level),
+			gold: min + random(max - min),
+			lock: diff,
+		});
 	}
 
 	return treasures;
@@ -240,7 +224,7 @@ function generateRoutes(size, start) {
 	let matrix = generateMatrix(size);
 	// ripple(matrix, start);
 
-	let length = random(MAP_SIZE * MAP_SIZE /2) + 2*MAP_SIZE;
+	let length = random(MAP_SIZE * MAP_SIZE /2) + 4*MAP_SIZE;
 	let steps = 0, previousDirection = null, position = start;
 
 	debug('generating map (desired length: ' + length + ')');
@@ -322,7 +306,9 @@ function generateMonsters(level, heroLevel) {
 
 			let monsterLevel = minLevel < 1 ? random(heroLevel) + 1 : random(6) + minLevel;
 			if (level.data[i][j] === 1 && random() < CHANCE_FOR_MONSTER) {
-				monsters.push(new Monster(monsterLevel, point, level.type));
+				let monster = Monster.getRandomType(monsterLevel, level.type);
+				monster.position = point;
+				monsters.push(Monster.createFromTemplate(monster, monsterLevel));
 			}
 		}
 	}
@@ -330,11 +316,12 @@ function generateMonsters(level, heroLevel) {
 	return monsters;
 }
 
-function generateShops(level) {
+function generateShops(level, hero) {
 	if (random() < CHANCE_FOR_SHOP) {
 		let spot = findFreeSpot(level);
 		if (spot) {
-			return [new Shop(getRandomShopType(), spot)];
+			let shop = { type: getRandomShopType(), position: spot };
+			return [Shop.create(shop, hero)];
 		}
 	}
 
@@ -342,8 +329,8 @@ function generateShops(level) {
 }
 
 function getRandomShopType() {
-	let index = random(Object.keys(shops).length);
-	let key = Object.keys(shops)[index];
+	let index = random(shops.keys.length);
+	let key = shops.keys[index];
 	return shops[key];
 }
 

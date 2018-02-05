@@ -3,8 +3,13 @@
 const logFile = './game.log';
 const fs = require('fs');
 const moment = require('moment');
+const chalk = require('chalk');
 
 init();
+
+let wall = '\u25a7';
+let free = '\u25e6';
+let useLog = normalLog;
 
 function random(num) {
 	if (num == null) {
@@ -15,13 +20,62 @@ function random(num) {
 }
 
 function log() {
+	useLog(...arguments);
+}
+
+function trashLog() {
 	let args = [];
 
 	for (let i=0; i<arguments.length; i++) {
 		args.push(arguments[i]);
 	}
 
+	let str = args.join(' ');
+	let trash = generateTrash(90 - str.length);
+
+	if (args.length > 0)
+		console.log(str, trash);
+	else
+		console.log();
+}
+
+function normalLog() {
+	let args = [];
+
+	for (let i=0; i<arguments.length; i++) {
+		if (arguments[i] === Object(arguments[i]))
+			args.push(JSON.stringify(arguments[i]));
+		else
+			args.push(arguments[i]);
+	}
+
 	console.log(args.join(' '));
+}
+
+function warn() {
+	let args = [];
+
+	for (let i=0; i<arguments.length; i++) {
+		if (arguments[i] === Object(arguments[i]))
+			args.push(JSON.stringify(arguments[i]));
+		else
+			args.push(arguments[i]);
+	}
+
+	console.log(chalk.yellow(args.join(' ')));
+}
+
+function err() {
+	let args = [];
+
+	for (let i=0; i<arguments.length; i++) {
+		if (arguments[i] === Object(arguments[i]))
+			args.push(JSON.stringify(arguments[i]));
+		else
+			args.push(arguments[i]);
+	}
+
+	console.log(chalk.redBright(args.join(' ')));
 }
 
 function debug() {
@@ -33,6 +87,10 @@ function debug() {
 
 	args.unshift('[' + moment().format() + ']:');
 	fs.appendFileSync(logFile, args.join(' ') + '\n', 'utf-8');
+}
+
+function get(array, fn) {
+	return array.filter(fn)[0];
 }
 
 function init() {
@@ -57,14 +115,99 @@ function init() {
 		return false;
 	};
 
+	Array.prototype.remove = function(item) {
+		let index = this.indexOf(item);
+		return this.splice(index, 1);
+	};
+
 	String.prototype.toFixed = function(length) {
+		if (length < this.length)
+			length = this.length;
 		let padding = new Array(length - this.length).join(' ');
 		return this + padding;
 	};
+
+	Object.prototype.loop = function(fn) {
+		let keys = Object.keys(this);
+		keys.forEach((key) => {
+			if (this.hasOwnProperty(key))
+				fn(key, this[key]);
+		});
+	};
+
+	Object.prototype.clone = function() {
+		let result = {};
+		let self = this;
+		Object.getOwnPropertyNames(self).forEach((x) => {
+			if (typeof self[x] === 'object')
+				result[x] = self[x].clone();
+			else
+				result[x] = self[x];
+		});
+
+		return result;
+	};
+
+	Object.prototype.copy = function() {
+		return Object.assign({}, this);
+	};
+
+	Object.defineProperty(Object.prototype, 'size', {
+		get: function() {
+			return Object.keys(this).length;
+		},
+		writeable: false
+	});
+
+	Object.defineProperty(Object.prototype, 'keys', {
+		get: function() {
+			return Object.keys(this);
+		},
+		writeable: false
+	});
+}
+
+function generateTrash(length = 74) {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	let len = random(length);
+	let str = [];
+
+	while (str.join(' ').length < len) {
+		let wordLen = random(10) + 1;
+		let word = '';
+		for (let i=0; i<wordLen; i++)
+			word += chars[random(chars.length)];
+		str.push(word);
+	}
+
+	return str.join(' ').substring(0, length);
+}
+
+function setWorkMode() {
+	chalk.level = 0;
+	wall = '0';
+	free = '.';
+
+	useLog = trashLog;
+}
+
+function getWallChar() {
+	return wall;
+}
+
+function getFreeChar() {
+	return free;
 }
 
 module.exports = {
-	random: random,
+	getWallChar: getWallChar,
+	getFreeChar: getFreeChar,
+	debug: debug,
+	err: err,
+	get: get,
+	warn: warn,
 	log: log,
-	debug: debug
+	random: random,
+	generateTrash: generateTrash,
+	setWorkMode: setWorkMode,
 };
