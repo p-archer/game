@@ -14,6 +14,9 @@
 
   npm start # to start the game
   #+END_SRC
+
+  Might not even work on Windows - because it's a horrid crime against humanity - but if you disable the 3 lines in /app.js/ starting at line 21, you might get it working to some extent (clears probably won't work, which will make the whole thing super ugly).
+
 * Playing
   The game is an early pre-alpha phase, so expect lots of errors and missing content. For the latest release I removed all the bits and pieces that weren't ready for testing yet (hopefully all of them).
 
