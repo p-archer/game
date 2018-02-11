@@ -12,8 +12,8 @@ getDamage = (weapon) ->
 swords =
     shortSword:
         name: 'short sword'
-        min: 2
-        max: 3
+        min: 3
+        max: 4
         range: 1
         attackType: attackTypes.melee
         requirements:
@@ -26,8 +26,8 @@ swords =
 
     scimitar:
         name: 'scimitar'
-        min: 2
-        max: 3.5
+        min: 3
+        max: 4.5
         range: 1
         attackType: attackTypes.melee
         requirements:
@@ -40,13 +40,13 @@ swords =
 
     broadSword:
         name: 'broad sword'
-        min: 4.5
-        max: 5.5
+        min: 5.5
+        max: 6.5
         range: 1
         attackType: attackTypes.melee
         requirements:
             level: 12
-            melee: 10
+            mastery: 10
             skills: [{name: skills.improvedMelee, level: 3}]
         cost: 800
         quality: 2
@@ -55,13 +55,13 @@ swords =
 
     longSword:
         name: 'long sword'
-        min: 3.5
-        max: 5
+        min: 4.5
+        max: 6
         range: 1
         attackType: attackTypes.melee
         requirements:
             level: 10
-            melee: 10
+            mastery: 10
             skills: [{name: skills.improvedMelee, level: 1}]
         cost: 500
         quality: 2
@@ -70,13 +70,13 @@ swords =
 
     elvenSword:
         name: 'elven sword'
-        min: 4.5
-        max: 6.5
+        min: 5.5
+        max: 7.5
         range: 1
         attackType: attackTypes.melee
         requirements:
             level: 20
-            melee: 20
+            mastery: 20
             skills: [{name: skills.advancedMelee, level: 1}]
         cost: 2000
         quality: 3
@@ -85,13 +85,13 @@ swords =
 
     orcishSword:
         name: 'orcish sabre'
-        min: 5
-        max: 8
+        min: 6
+        max: 9
         range: 1
         attackType: attackTypes.melee
         requirements:
             level: 20
-            melee: 20
+            mastery: 20
             skills: [{name: skills.advancedMelee, level: 1}]
         cost: 2500
         quality: 3
@@ -102,7 +102,7 @@ for key, sword of swords
     sword.init = (sword) ->
         chance = random(5) + 1
         description = sword.description + ' (critical chance ' + chance + '%)'
-        modifier = () -> if random() < chance then return [weaponStates.critical] else return []
+        modifier = () -> if random() < chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
         return Object.assign {}, sword, { description: description, modifier: modifier }
 
 module.exports = swords

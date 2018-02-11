@@ -9,7 +9,7 @@ const { mapTypes } = require('./constants');
 
 class Map {
 	constructor(hero) {
-		let type = getRandomLevelType();
+		let type = getRandomLevelType(hero.level);
 		let initialLevel = new Level(null, type, hero);
 		this.current = initialLevel;
 	}
@@ -19,7 +19,7 @@ class Map {
 		console.clear();
 		let wall = getWallChar();
 		let free = getFreeChar();
-		log(' -- map: ' + this.current.level + ' type: ' + this.current.type);
+		log(' -- map: ' + this.current.level + ' type: ' + this.current.type.name);
 
 		let line = (new Array(size+2).fill(wall)).join(' ');
 		log(chalk.gray(line));
@@ -67,7 +67,7 @@ class Map {
 		let type = this.current.type;
 		let depth = getDepth(this.current);
 		if (forceNew || depth % 10 === 0)
-			type = getRandomLevelType();
+			type = getRandomLevelType(hero.level);
 		return new Level(this.current, type, hero);
 	}
 
@@ -85,9 +85,14 @@ function getDepth(level) {
 	return 1 + getDepth(level.parent);
 }
 
-function getRandomLevelType() {
-	let index = random(Object.keys(mapTypes).length);
-	let key = Object.keys(mapTypes)[index];
+function getRandomLevelType(level) {
+	let maps = [];
+	mapTypes.loop((key, map) => {
+		if (map.level <= level)
+			maps.push(key);
+	});
+	let index = random(maps.length);
+	let key = maps[index];
 
 	return mapTypes[key];
 }

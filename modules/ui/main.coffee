@@ -21,7 +21,11 @@ interact = (state, hero, map) ->
         return [ { state: states.normal }, hero, map ]
 
     # monster
-    if level.isMonster hero.position then return [{ state: states.combat.main }, Hero.create(Object.assign({}, hero, { combatPos: 10 })), map ]
+    if level.isMonster hero.position
+        heroPos = 10
+        if hero.skills.tactics?
+            heroPos -= hero.skills.tactics.level
+        return [{ state: states.combat.main }, Hero.create(Object.assign({}, hero, { combatPos: heroPos, state: [] })), map ]
 
     # chest
     if level.isTreasure hero.position then return [ state, openTreasure(hero, map)... ]
@@ -32,22 +36,26 @@ interact = (state, hero, map) ->
     return [state, hero, map]
 
 outputter = (state, hero, map) ->
+    map.show hero
+    map.current.showCellData hero
+
     if state.param?
         log ''
         log 'movement\t\t w, a, s, d'
         log 'interact\t\t e'
         log ''
-        log 'character menu\t c'
+        log 'character menu\t\t c'
+        log 'this menu\t\t h'
         log 'quit\t\t\t q'
+        state.param = null
 
-    map.show hero
-    map.current.showCellData hero
     return
 
 mutator = (state, input, hero, map) ->
     switch input
         when 'q' then return [ true, { state: states.quit }, hero, map ]
         when 'c' then return [ true, { state: states.characterSheet.main }, hero, map ]
+        when 'h', '\t' then return [ true, { state: states.normal, param: 'showHelp' }, hero, map ]
         when 'a' then return [ true, { state: states.normal }, Hero.move(hero, map.current, directions.west), map ]
         when 'd' then return [ true, { state: states.normal }, Hero.move(hero, map.current, directions.east), map ]
         when 'w' then return [ true, { state: states.normal }, Hero.move(hero, map.current, directions.north), map ]

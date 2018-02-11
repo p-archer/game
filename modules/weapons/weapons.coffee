@@ -1,5 +1,4 @@
 { err, log, random } = require '../general'
-{ getDamageBonusFromSkills } = require '../entity.coffee'
 { heroStates, WEAPON_GAIN_FACTOR, attackTypes } = require '../constants'
 
 # melee: swords (med damage, 1 range, fast), axes (high damage, 1 range, slow), spears (med damage, 2-3 range, med speed), great sword (high damage, 2 range, slow)
@@ -17,7 +16,7 @@ swords = require './swords.coffee'
 tomes = require './tomes.coffee'
 wands = require './wands.coffee'
 
-weaponList = Object.assign {}, swords, bows, spears, wands, tomes
+weaponList = Object.assign {}, swords, bows, wands, tomes
 
 getAll = () ->
     return weaponList
@@ -36,27 +35,21 @@ getByQuality = (quality) ->
 
 isAvailable = (hero, weapon) ->
     if hero.level < weapon.requirements.level
-        err ' -- required level not reached (you have: ' + hero.level + ', required: ' + weapon.requirements.level + ')'
+        err ' > required level not reached (you have: ' + hero.level + ', required: ' + weapon.requirements.level + ')'
         return false
-    if weapon.requirements.melee? and weapon.requirements.melee > hero.masteries.melee.level
-        err ' -- melee mastery requirement not reached (you have: ' + hero.masteries.melee.level + ', required: ' + weapon.requirements.melee + ')'
-        return false
-    if weapon.requirements.ranged? and weapon.requirements.ranged > hero.masteries.ranged.level
-        err ' -- ranged mastery requirement not reached (you have: ' + hero.masteries.ranged.level + ', required: ' + weapon.requirements.ranged + ')'
-        return false
-    if weapon.requirements.magic? and weapon.requirements.magic > hero.masteries.magic.level
-        err ' -- magic mastery requirement not reached (you have: ' + hero.masteries.magic.level + ', required: ' + weapon.requirements.magic + ')'
+    if weapon.requirements.mastery? and weapon.requirements.mastery > hero.mastery.level
+        err ' > mastery requirement not reached (you have: ' + hero.mastery.level + ', required: ' + weapon.requirements.mastery + ')'
         return false
 
     if weapon.requirements.skills?
         for req in weapon.requirements.skills
             target = hero.skills[req.skill.key]
             if not target? or target.level < req.level
-                err ' -- required skill ' + req.skill.name + ' of level ' + req.level + ' missing'
+                err '> required skill ' + req.skill.name + ' of level ' + req.level + ' missing'
                 return false
 
     if hero.gold < weapon.cost
-        err ' -- not enough gold to buy weapon'
+        err '> not enough gold to buy weapon'
         return false
 
     return true
@@ -86,17 +79,37 @@ create = (weapon) ->
         newWeapon = weapon.init newWeapon
     return Object.freeze newWeapon
 
+getSkillBonus = (skills, attackType) ->
+    skillMultiplier = 1
+    for own key, skill of skills
+        if skill? and skill.attackType is attackType and skill.damageBonus?
+            skillMultiplier += skill.damageBonus()
+
+    return skillMultiplier
+
+getMasteryBonus = (mastery) ->
+    return Math.pow WEAPON_GAIN_FACTOR, mastery.level-1
+
 getDamage = (actor, enemy) ->
-    if enemy? and actor.weapon.attackType is attackTypes.ranged
+    if enemy? and actor.quiver? and actor.broadheads?
         damage = actor.weapon.getDamage actor, Math.abs actor.combatPos - enemy.combatPos
     else
         damage = actor.weapon.getDamage actor, 1
 
-    mastery = actor.masteries[actor.weapon.attackType]
-    masteryBonus = Math.pow(WEAPON_GAIN_FACTOR, mastery.level-1)
-    skillBonus = getDamageBonusFromSkills actor, actor.weapon.attackType
+    masteryBonus = getMasteryBonus actor.mastery
+    skillBonus = getSkillBonus actor.skills, actor.weapon.attackType
 
     return damage * masteryBonus * skillBonus
+getEffects = (source) ->
+    effects = [
+        (if source.weapon.modifier? then source.weapon.modifier() else [])...
+        (if source.weapon.suffix? then source.weapon.suffix.apply() else [])...
+    ]
+
+    if source.broadheads?
+        broadhead = source.broadheads[source.broadhead]
+        effects = [ effects..., broadhead.use()... ]
+    return effects
 
 module.exports =
     create: create
@@ -104,4 +117,7 @@ module.exports =
     getAvailable: getAvailable
     getByQuality: getByQuality
     getDamage: getDamage
+    getEffects: getEffects
+    getMasteryBonus: getMasteryBonus
+    getSkillBonus: getSkillBonus
     isAvailable: isAvailable

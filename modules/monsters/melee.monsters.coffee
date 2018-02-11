@@ -150,6 +150,35 @@ monsters =
         xp:
             min: 6
             max: 8
+    fox:
+        name: 'fox'
+        land: [mapTypes.forest, mapTypes.swamp, mapTypes.enchanted]
+        species: [species.beast]
+        minLevel: 0
+        maxLevel: 40
+        movement: 14
+        attack:
+            attackType: attackTypes.melee
+            max: 0.6
+            min: 1.0
+        armour:
+            type: armourTypes.light
+            melee:
+                max: 20
+                min: 0
+            ranged:
+                max: 10
+                min: 0
+            magic:
+                max: 0
+                min: 0
+        maxhp: 3
+        gold:
+            min: 2
+            max: 3
+        xp:
+            min: 2
+            max: 3
     giant:
         name: 'giant'
         land: [mapTypes.arctic, mapTypes.enchanted, mapTypes.desert]
@@ -346,12 +375,12 @@ monsters =
             magic:
                 max: 10
                 min: 0
-        maxhp: 4
+        maxhp: 5
         gold:
-            min: 1
+            min: 2
             max: 4
         xp:
-            min: 2
+            min: 3
             max: 5
     spider:
         name: 'spider'
@@ -377,11 +406,11 @@ monsters =
                 min: 0
         maxhp: 3
         gold:
-            min: 1
-            max: 2
+            min: 2
+            max: 3
         xp:
             min: 1
-            max: 2
+            max: 3
     troll:
         name: 'troll'
         land: [mapTypes.forest, mapTypes.dungeon, mapTypes.swamp]
@@ -417,11 +446,11 @@ monsters =
         species: [species.beast]
         minLevel: 0
         maxLevel: 50
-        movement: 15
+        movement: 18
         attack:
             attackType: attackTypes.melee
-            max: 1
-            min: 1
+            max: 0.8
+            min: 1.2
         armour:
             type: armourTypes.light
             melee:
@@ -436,10 +465,39 @@ monsters =
         maxhp: 5
         gold:
             min: 2
+            max: 4.5
+        xp:
+            min: 3
+            max: 3.5
+    wolverine:
+        name: 'wolverine'
+        land: [mapTypes.forest, mapTypes.arctic]
+        species: [species.beast]
+        minLevel: 0
+        maxLevel: 30
+        movement: 12
+        attack:
+            attackType: attackTypes.melee
+            max: 1
+            min: 1
+        armour:
+            type: armourTypes.light
+            melee:
+                max: 25
+                min: 5
+            ranged:
+                max: 15
+                min: 5
+            magic:
+                max: 10
+                min: 0
+        maxhp: 3
+        gold:
+            min: 1
             max: 3.5
         xp:
             min: 2
-            max: 3.5
+            max: 3
     zombie:
         name: 'zombie'
         land: [mapTypes.dungeon, mapTypes.crypt]

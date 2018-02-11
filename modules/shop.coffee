@@ -1,6 +1,6 @@
 chalk = require 'chalk'
 
-{ log, debug, err, random } = require './general'
+{ log, debug, warn, err, random, getPercent } = require './general'
 { shops, QUALITY_RANGE } = require './constants'
 { getRandomPrefix } = require './weapons/prefixes.coffee'
 { getRandomSuffix } = require './weapons/suffixes.coffee'
@@ -27,22 +27,26 @@ showInventory = (shop) ->
         when shops.skills then showSkills shop.inventory
         when shops.weapons then showWeapons shop.inventory
 remove = (shop, key) ->
-    item = shop.inventory[key]
-    shop = create Object.assign {}, shop, { inventory: shop.inventory.filter((x) -> x isnt item) }
+    item = shop.inventory()[key]
+    newInventory = shop.inventory().filter((x) -> x isnt item)
+    shop = create Object.assign {}, shop, { inventory: () -> return newInventory }
     return [ shop, item ]
 
 getSkills = (hero) ->
-    list = Skills.getAvailable hero
-    results = []
-    for own key, skill of list
-        results.push skill
-        results[results.length-1].key = key
-    return results
+    return () ->
+        list = Skills.getAvailable hero
+        results = []
+        for own key, skill of list
+            results.push skill
+            results[results.length-1].key = key
+        return results
 
 showSkills = (inventory) ->
     index = 0
-    for skill in inventory
+    for skill in inventory()
         log ''+index++ + '\t' + skill.name.toFixed(32) + '\tcost: ' + chalk.yellow skill.cost + ' gold'
+    if inventory().length is 0
+        warn 'no skills to sell yet, perhaps you need a few more levels'
 
 getWeapons = (hero) ->
     quality = getQualityRange hero.level
@@ -53,9 +57,10 @@ getWeapons = (hero) ->
 
 showWeapons = (inventory) ->
     index = 0
-    for weapon in inventory
-        name = if weapon.prefix then weapon.prefix.name + ' ' + weapon.name else weapon.name
-        name = if weapon.suffix then name + ' of ' + weapon.suffix.name else name
+    for weapon in inventory()
+        name = weapon.name
+        if weapon.prefix? then name = weapon.prefix.name + ' ' + weapon.name
+        if weapon.suffix? then name = name + ' of ' + weapon.suffix.name
         log ''+index++ + '\t' + chalk.blueBright name.toFixed(32) + '\t' + chalk.green(weapon.min.toFixed(2) + ' - ' + weapon.max.toFixed(2)) + ' range: ' + weapon.range
 
         log '\tcost'.toFixed(32) + '\t' + chalk.yellow weapon.cost + ' gold'
@@ -63,8 +68,8 @@ showWeapons = (inventory) ->
         if weapon.prefix then log '\t' + chalk.yellow(weapon.prefix.name).toFixed(32) + '\t' + weapon.prefix.description
         if weapon.suffix then log '\t' + chalk.yellow(weapon.suffix.name).toFixed(32) + '\t' + weapon.suffix.description
         if weapon.spell then log '\t' + chalk.yellow(weapon.spell.name).toFixed(32) + '\t' + weapon.spell.description
-        if weapon.spellAmplification then log '\t' + chalk.yellow('spell amplification ' + (weapon.spellAmplification*100-100) + '%')
-        if weapon.manaAdjustment then log '\t' + chalk.yellow('mana cost adjustment ' + (weapon.manaAdjustment*100-100) + '%')
+        if weapon.spellAmplification then log '\t' + chalk.yellow('spell amplification ' + getPercent(weapon.spellAmplification))
+        if weapon.manaAdjustment then log '\t' + chalk.yellow('mana cost adjustment ' + getPercent(weapon.manaAdjustment, true))
         log()
 
 getQualityRange = (level) ->
@@ -80,12 +85,12 @@ generateWeapons = (hero) ->
         keys = weapons.keys
         key = random keys.length
         item = weapons[keys[key]]
-        weapon = Weapons.create item
-        weapon = getRandomPrefix weapon, hero
-        weapon = getRandomSuffix weapon, hero
+        weaponBase = Weapons.create item
+        weapon = Weapons.create(getRandomSuffix(getRandomPrefix(weaponBase, hero), hero))
         inventory.push weapon
 
-    return inventory
+    return () ->
+        return inventory
 
 module.exports =
     create: create

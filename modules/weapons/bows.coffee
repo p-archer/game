@@ -7,19 +7,18 @@ skills = require '../skills/skills.coffee'
 
 getDamage = (weapon) ->
     return (actor, distance) ->
-        arrow = actor.arrow
-        damage = (weapon.min + (random() * (weapon.max - weapon.min) / 100)) * arrow.damage
-        range = weapon.range * arrow.range
+        arrow = actor.quiver[actor.arrow]
+        broadhead = actor.broadheads[actor.broadhead]
+        damage = (weapon.min + (random() * (weapon.max - weapon.min) / 100)) * arrow.damage * broadhead.damage
+        range = weapon.range * arrow.range * broadhead.range
         if distance > 1
             cth = 1 - Math.max 0, (distance/range - 1)
-            if cth < 1 then log chalk.yellow ' -- enemy outside optimal range (chance to hit: ' + chalk.redBright((cth*100).toFixed(0) + '%') + ')'
-            if random() < cth * 100 then return damage else
-                err ' -- ranged attack missed'
+            if random() < cth * 100 then return damage else err '> ranged attack missed'
             return 0
         else
             pointBlankShot = actor.skills.pointBlankShot
             meleePenality = if pointBlankShot? then 0.5 - (pointBlankShot.level * pointBlankShot.bonus) else 0.5
-            log chalk.yellow ' -- ranged attack at point-blank range (damage reduction: ' + chalk.redBright((meleePenality * 100).toFixed(0) + '%') + ')'
+            log chalk.yellow '> ranged attack at point-blank range (damage reduction: ' + chalk.redBright((meleePenality * 100).toFixed(2) + '%') + ')'
             return (1 - meleePenality) * damage
 
 bows =
@@ -44,7 +43,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 5
-            ranged: 5
+            mastery: 5
             skills: [{skill: skills.ranged, level: 2}]
         cost: 100
         quality: 1
@@ -59,7 +58,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 5
-            ranged: 5
+            mastery: 5
             skills: [{skill: skills.ranged, level: 3}]
         cost: 150
         quality: 1
@@ -74,7 +73,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 10
-            ranged: 10
+            mastery: 10
             skills: [{skill: skills.improvedRanged, level: 1}]
         cost: 500
         quality: 2
@@ -89,7 +88,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 13
-            ranged: 10
+            mastery: 10
             skills: [{skill: skills.improvedRanged, level: 3}]
         cost: 700
         quality: 2
@@ -104,7 +103,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 12
-            ranged: 10
+            mastery: 10
             skills: [{skill: skills.improvedRanged, level: 2}]
         cost: 700
         quality: 2
@@ -119,7 +118,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 25
-            ranged: 25
+            mastery: 25
             skills: [{skill: skills.advancedRanged, level: 1}]
         cost: 1500
         quality: 3
@@ -134,7 +133,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 25
-            ranged: 25
+            mastery: 25
             skills: [{skill: skills.advancedRanged, level: 2}]
         cost: 2000
         quality: 3
@@ -150,7 +149,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 25
-            ranged: 25
+            mastery: 25
             skills: [{skill: skills.advancedRanged, level: 3}]
         cost: 2000
         quality: 3
@@ -165,7 +164,7 @@ bows =
         attackType: attackTypes.ranged
         requirements:
             level: 40
-            ranged: 40
+            mastery: 40
             skills: [{skill: skills.advancedRanged, level: 5}]
         cost: 5000
         quality: 4
@@ -176,8 +175,7 @@ for key, bow of bows
     bow.init = (weapon) ->
         chance = random(5) + 1
         description = weapon.description + ' (critical chance ' + chance + '%)'
-        modifier = () -> if random() < chance then return [ weaponStates.critical ] else return []
-        # modifier = () -> if random() < 100 then return [ weaponStates.critical ] else return []
+        modifier = () -> if random() < chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
 
         return Object.assign {}, weapon, { description: description, modifier: modifier }
 

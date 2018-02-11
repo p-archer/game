@@ -73,3 +73,16 @@
 *** TODO enchanted forest has only wisps in the beginning
 *** DONE burning hero logs enemy's burning
 	CLOSED: [2018-02-05 Mon 11:39]
+** game mechanics
+*** arrows and broadheads
+**** DONE gain xp based on usage
+	 CLOSED: [2018-02-09 Fri 23:48]
+**** DONE gain levels
+	 CLOSED: [2018-02-09 Fri 23:48]
+**** DONE higher levels unlock better gear
+	 CLOSED: [2018-02-09 Fri 23:48]
+**** DONE can go with branches or levels
+	 CLOSED: [2018-02-09 Fri 23:48]
+	 Branches create specialisation options, levels is just a general solution
+*** monster weapons and armour
+	i.e. a robe on a wolf doesn't quite feel right

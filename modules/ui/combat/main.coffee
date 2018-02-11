@@ -1,14 +1,15 @@
-{ log, err } = require '../../general'
-{ states, attackTypes } = require '../../constants'
+{ log, err, warn, getPercent } = require '../../general'
+{ states, attackTypes, heroStates, actions } = require '../../constants'
 
 chalk = require 'chalk'
-Entity = require '../../entity.coffee'
 Hero = require '../../hero.coffee'
 Monster = require '../../monsters/monsters.coffee'
 inspector = require '../../inspector.coffee'
 
 handleMonstersTurn = (monster, hero, map, exitState) ->
-    [ monster, isAlive ] = Entity.applyStatuses monster, Monster.create, Monster.takeDamage
+    log()
+    log chalk.magenta ' -- ' + monster.name + '\'s turn --'
+    [ monster, isAlive ] = applyStatuses monster, Monster.create, Monster.takeDamage
     if not isAlive
         [ gold, xp ] = Monster.dead monster, hero
         hero = Hero.giveGold hero, gold
@@ -16,17 +17,60 @@ handleMonstersTurn = (monster, hero, map, exitState) ->
         map = Monster.remove map, hero.position
         return [ true, { state: states.wait, param: states.normal } , hero, map ]
 
-    [ monster, damage, effects ] = Monster.takeAction monster, hero
-    [ hero, _ ] = Hero.takeDamage hero, monster.weapon.attackType, damage, effects
+    action = monster.getAction monster, hero
+    [ monster, damage, effects ] = Monster.takeAction monster, hero, action
+    [ hero, _, hp, mana ] = Hero.takeDamage hero, monster.weapon.attackType, damage, effects
+    monster = Monster.create Object.assign {}, monster, { hp: monster.hp + hp, mana: monster.mana + mana }
     Monster.adjust map, hero.position, monster
+
+    # TODO retaliate, but only on attack
+    distance = Math.abs hero.combatPos - monster.combatPos
+    if action is actions.attack and distance is 1
+        # hero retaliate
+        [ damage, effects ] = Hero.attack hero, monster
+        hero = Hero.learn hero, damage
+        [ monster, isAlive, hp, mana ] = Monster.takeDamage monster, hero.weapon.attackType, damage, effects
+        hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana }
+        if not isAlive
+            [ gold, xp ] = Monster.dead monster, hero
+            hero = Hero.giveGold hero, gold
+            hero = Hero.gainXP hero, xp
+            map = Monster.remove map, hero.position
+            return [ true, { state: states.wait, param: states.normal } , hero, map ]
+
     return [ true, exitState, hero, map ]
+applyStatuses = (actor, create, takeDamage) ->
+    effects = [actor.state...].filter (x) ->
+        return x.ticks isnt 0
+
+    effects = effects.map (x) ->
+        x.ticks--
+        return x
+
+    # TODO stack bleeding, increase ticks for burning
+    damage = 0
+    for state in effects
+        # maybe burning can be turned into magical damage?
+        switch state.effect
+            when heroStates.bleeding
+                log chalk.blueBright '> ' + actor.name + ' is bleeding'
+                damage = actor.maxhp * 0.1
+            when heroStates.burning
+                log chalk.blueBright '> ' + actor.name + ' is burning'
+                damage = actor.maxhp * 0.1
+            when heroStates.poisoned
+                log chalk.blueBright '> ' + actor.name + ' is poisoned'
+                damage = actor.hp * 0.1
+
+    actor = create Object.assign {}, actor, { state: [effects...] }
+    return takeDamage actor, attackTypes.pure, damage, []
 
 retreat = (state, map, hero, monster) ->
     if hero.combatPos is 1
         log '> can not retreat any further'
         return [ true, state, hero, map ]
     else
-        [ hero, _ ] = Entity.applyStatuses hero, Hero.create, Hero.takeDamage
+        [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
         hero = Hero.create Object.assign {}, hero, { combatPos: Math.max(1, hero.combatPos - hero.movement) }
 
         return handleMonstersTurn monster, hero, map, { state: state.state }
@@ -36,7 +80,7 @@ approach = (state, map, hero, monster) ->
         log '> already in melee range'
         return [ true, state, hero, map ]
     else
-        [ hero, _ ] = Entity.applyStatuses hero, Hero.create, Hero.takeDamage
+        [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
         hero = Hero.create Object.assign {}, hero, { combatPos: Math.min(monster.combatPos - 1, hero.combatPos + hero.movement) }
 
         return handleMonstersTurn monster, hero, map, { state: state.state }
@@ -46,9 +90,11 @@ attack = (state, map, hero, monster) ->
         log '> not in attack range'
         return [ true, state, hero, map ]
     else
-        [ hero, _ ] = Entity.applyStatuses hero, Hero.create, Hero.takeDamage
+        [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
         [ damage, effects ] = Hero.attack hero, monster
-        [ monster, isAlive ] = Monster.takeDamage monster, hero.weapon.attackType, damage, effects
+        hero = Hero.learn hero, damage
+        [ monster, isAlive, hp, mana ] = Monster.takeDamage monster, hero.weapon.attackType, damage, effects
+        hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana }
         if not isAlive
             [ gold, xp ] = Monster.dead monster, hero
             hero = Hero.giveGold hero, gold
@@ -62,36 +108,45 @@ attack = (state, map, hero, monster) ->
             [ monster, damage, effects ] = Monster.attack monster, hero
             [ hero, _ ] = Hero.takeDamage hero, monster.weapon.attackType, damage, effects
 
-        # TODO hero retaliate
         # monster's turn
         return handleMonstersTurn monster, hero, map, { state: state.state }
 useSpell = (state, map, hero, spell) ->
-    [ success, rest... ] = Hero.useSpell spell, hero, map
-    if success
-        [ hero, damage, effects ] = rest
-        [ hero, _ ] = Entity.applyStatuses hero, Hero.create, Hero.takeDamage
-        monster = map.current.isMonster hero.position
-        [ monster, isAlive ] = Monster.takeDamage monster, attackTypes.magic, damage, effects
-        if not isAlive
-            [ gold, xp ] = Monster.dead monster, hero
-            hero = Hero.giveGold hero, gold
-            hero = Hero.gainXP hero, xp
-            map = Monster.remove map, hero.position
-            return [ true, { state: states.wait, param: states.normal }, hero, map ]
-
-        # monster's turn
-        return handleMonstersTurn monster, hero, map, null
-    else
+    # TODO mana adjustment based on weapon and skills
+    # TODO damage adjustment based on weapon and skills
+    requiredMana = spell.mana
+    if hero.weapon.manaAdjustment?
+        requiredMana *= hero.weapon.manaAdjustment
+    if requiredMana > hero.mana
+        err '> not enough mana'
         return [ true, state, hero, map ]
+
+    [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
+    hero = Hero.create Object.assign {}, hero, { mana: hero.mana - requiredMana }
+    monster = map.current.isMonster hero.position
+
+    takeDamage = (damage, effects, target) ->
+        return Monster.takeDamage target || monster, attackTypes.magic, damage, effects
+    hero = Hero.learn hero, 1 # damage is there to check if it missed or not
+    [ monster, isAlive, hp, mana ] = Hero.useSpell spell, hero, monster, takeDamage
+    hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana }
+    if not isAlive
+        [ gold, xp ] = Monster.dead monster, hero
+        hero = Hero.giveGold hero, gold
+        hero = Hero.gainXP hero, xp
+        map = Monster.remove map, hero.position
+        return [ true, { state: states.wait, param: states.normal }, hero, map ]
+
+    # monster's turn
+    return handleMonstersTurn monster, hero, map, null
 switchArrowType = (state, map, hero) ->
-    index = hero.quiver.indexOf hero.arrow
+    index = hero.arrow
     if ++index >= hero.quiver.length then index = 0
-    hero = Hero.create Object.assign {}, hero, { arrow: hero.quiver[index] }
+    hero = Hero.create Object.assign {}, hero, { arrow: index }
     return [ true, { state: state.state }, hero, map ]
 switchBroadhead = (state, map, hero) ->
-    index = hero.broadheads.indexOf hero.broadhead
+    index = hero.broadhead
     if ++index >= hero.broadheads.length then index = 0
-    hero = Hero.create Object.assign {}, hero, { broadhead: hero.broadheads[index] }
+    hero = Hero.create Object.assign {}, hero, { broadhead: index }
     return [ true, { state: state.state }, hero, map ]
 
 outputter = (state, hero, map, exitState) ->
@@ -101,38 +156,59 @@ outputter = (state, hero, map, exitState) ->
     monsterPos = monster.combatPos || 40 # +tactics
     inspector.init hero, monster
 
-    for i in [0...51]
+    for i in [0...52]
         switch i
             when heroPos then str += chalk.green 'x'
             when monsterPos then str += chalk.redBright 'x'
             else str += '_'
-    str += '  distance: ' + (monsterPos - heroPos)
+    distance = Math.abs heroPos - monsterPos
+    str += '  distance: ' + distance
 
     # console.clear()
     log()
     log str
     log()
-    log 'a\tfall back'
-    log 'd\tapproach enemy'
+    log 'a/d\tfall back/approach'
     switch hero.weapon.attackType
         when attackTypes.melee
-            log 'e\tattack with ' + chalk.blueBright(hero.weapon.name)
-            log ''
+            name = hero.weapon.name
+            if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + name
+            if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
+            log 'e\tattack with ' + chalk.blueBright(name) + ' (' + Hero.getDamageStr(hero) + ')'
+            log()
         when attackTypes.ranged
-            log 'e\tattack with ' + chalk.blueBright(hero.weapon.name)
-            log '\tusing ' + chalk.yellow(hero.arrow.name) + ' with ' + chalk.yellow(hero.broadhead.name)
-            log '\trange: ' +  (hero.arrow.range - 1)*100 + '% damage: ' + (hero.arrow.damage - 1)*100 + '%'
-            log '\teffects: ' + hero.broadhead.description
-            log ''
-            log '1\tswitch arrow type'
-            log '2\tswitch broadheads'
+            arrow = hero.quiver[hero.arrow]
+            broadhead = hero.broadheads[hero.broadhead]
+            range = hero.weapon.range * arrow.range * broadhead.range
+
+            cth = 1 - Math.max 0, (distance/range - 1)
+            cthStr = ''
+            if cth is 1 then cthStr = chalk.green '100%'
+            if cth < 1 and cth >= 0.8 then cthStr = chalk.yellow (cth*100).toFixed(0) + '%'
+            if cth < 0.8 then cthStr = chalk.redBright (cth*100).toFixed(0) + '%'
+
+            name = hero.weapon.name
+            if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + name
+            if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
+            log 'e\tattack with ' + chalk.blueBright(name) + ' chance to hit: ' + cthStr
+            log '\tusing ' + chalk.yellow(arrow.name) + ' with ' + chalk.yellow(broadhead.name)
+            log '\trange: ' +  getPercent(arrow.range * broadhead.range) + ' (' + chalk.green(range.toFixed(0)) + ') damage: ' + getPercent(arrow.damage * broadhead.damage) + ' (' + chalk.green(Hero.getDamageStr(hero)) + ')'
+            log '\tarrow: ' + arrow.description()
+            log '\tbroadhead: ' + broadhead.description()
+            log()
+            if hero.quiver.length > 1
+                log '1\tswitch arrow type'
+            if hero.broadheads.length > 1
+                log '2\tswitch broadheads'
         when attackTypes.magic
-            log 'e\tattack with ' + chalk.blueBright(hero.weapon.name)
-            log '\tspellAmplification: ' + (hero.weapon.spellAmplification-1)*100 + '% mana consumption: ' + (hero.weapon.manaAdjustment-1)*100 + '%'
-            log ''
-    log 'f\tuse ability'
-    log()
-    log 'q\tdisengage'
+            name = hero.weapon.name
+            if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + name
+            if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
+            log 'e\tattack with ' + chalk.blueBright(name) + ' (' + chalk.green(Hero.getDamageStr(hero)) + ')'
+            log '\tspell amplification: ' + getPercent(hero.weapon.spellAmplification) + ' mana consumption: ' + getPercent(hero.weapon.manaAdjustment, true)
+            log()
+    if (hero.abilities? and hero.abilities.length > 0) or hero.weapon.spell?
+        log 'f\tuse ability'
 
     return
 
@@ -141,6 +217,7 @@ mutator = (state, input, hero, map) ->
     if not monster.combatPos? then monster = Monster.adjust map, hero.position, { combatPos: 40 }
     if not hero.combatPos? then hero = Hero.create Object.assign {}, hero, { combatPos: 10 }
 
+    # TODO hero frozen or stunned
     switch input
         when 'a' then return retreat state, map, hero, monster
         when 'd' then return approach state, map, hero, monster
@@ -153,10 +230,13 @@ mutator = (state, input, hero, map) ->
 
 abilitiesOutputter = (state, hero, map) ->
     index = 0
-    for own key, ability of hero.abilities
-        log ''+index++ + '\t' + ability.name.toFixed(24) + ability.description
+    # for own key, ability of hero.abilities
+    for ability in hero.abilities
+        requiredMana = ability.mana * (if hero.weapon.manaAdjustment? then hero.weapon.manaAdjustment else 1)
+        log ''+index++ + '\t' + chalk.yellow(ability.name.toFixed(24)) + chalk.blueBright(requiredMana.toFixed(2) + ' mana') + '\t' + ability.description
     if hero.weapon.spell
-        log 'f\t' + hero.weapon.spell.name.toFixed(24) + hero.weapon.spell.description
+        requiredMana = hero.weapon.spell.mana * (if hero.weapon.manaAdjustment? then hero.weapon.manaAdjustment else 1)
+        log 'f\t' + chalk.yellow(hero.weapon.spell.name.toFixed(24)) + chalk.blueBright(requiredMana.toFixed(2) + ' mana') + '\t' + hero.weapon.spell.description
     return
 
 abilitiesMutator = (state, input, hero, map) ->
@@ -165,7 +245,7 @@ abilitiesMutator = (state, input, hero, map) ->
         spell = hero.weapon.spell
 
     num = parseInt input, 10
-    abilities = hero.abilities.keys
+    abilities = hero.abilities
     if (not isNaN num) and num < abilities.length
         spell = hero.abilities[num]
 

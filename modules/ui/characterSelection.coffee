@@ -4,9 +4,20 @@
 Point = require '../point'
 Hero = require '../hero.coffee'
 Map = require '../map'
+Abilities = require '../abilities/abilities.coffee'
+abilities = Abilities.getNames()
+Skills = require '../skills/skills.coffee'
 
 initGame = (hc) ->
-    hero = Hero.create { position: new Point(random(MAP_SIZE), random(MAP_SIZE)), heroClass: hc, skillPoints: 10 }
+    hero = Hero.create {
+        position: new Point(random(MAP_SIZE), random(MAP_SIZE))
+        heroClass: hc
+        level: 1
+        skillPoints: 10
+        # gold: 1000
+        # abilities: [ Abilities.getAll()[abilities.manaDrain.key] ]
+    }
+    hero = Hero.buySkill hero, Object.assign {}, Skills.getAll().tactics, { key: 'tactics' }
     map = new Map hero
 
     return [ hero, map ]

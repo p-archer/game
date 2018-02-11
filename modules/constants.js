@@ -3,7 +3,7 @@
 const ARMOUR_GAIN_FACTOR = 0.01;
 const CHANCE_FOR_ADDITIONAL_EXIT = 40;
 const CHANCE_FOR_MONSTER = 15;
-const CHANCE_FOR_SHOP = 65;
+const CHANCE_FOR_SHOP = 95;
 const CHANCE_FOR_TREASURE = 35;
 const GOLD_RANGE = [10, 50, 200, 500, 1000];
 const HP_GAIN_FACTOR = 1.05;
@@ -12,7 +12,7 @@ const MAP_SIZE = 12;
 const MAX_SKILL_LEVEL = 5;
 const QUALITY_RANGE = [0, 15, 25, 40, 80, 160];
 const WEAPON_GAIN_FACTOR = 1.025;
-const XP_GAIN_FACTOR = 1.10;
+const XP_GAIN_FACTOR = 1.20;
 
 const directions = {
 	north: 'north',
@@ -22,7 +22,8 @@ const directions = {
 };
 
 const actions = {
-	move: 'move',
+	approach: 'approach',
+	retreat: 'retreat',
 	attack: 'attack',
 	useSpell: 'useSpell'
 };
@@ -76,17 +77,23 @@ const shops = {
 	skills: 'shop-skills'
 };
 
+const mapStyles = {
+	plain: 'plain',
+	ripple: 'ripple',
+	corridors: 'corridors',
+};
+
 const mapTypes = {
-	arctic: 'arctic', //melee heavy, some ranged
-	crypt: 'crypt', //mixed (melee heavy)
-	desert: 'desert', //
-	dungeon: 'dungeon', //melee
-	enchanted: 'enchanted forest', //magic
-	inferno: 'inferno', //magic
-	forest: 'forest', //melee
-	magical: 'arcane dimension', //magic
-	swamp: 'swamp', //ranged
-	tower: 'tower', //magic
+	arctic: { name: 'arctic', level: 0, style: mapStyles.plain }, //melee heavy, some ranged
+	crypt: { name: 'crypt', level: 0, style: mapStyles.corridors }, //mixed (melee heavy)
+	desert: { name: 'desert', level: 5, style: mapStyles.plain }, //
+	dungeon: { name: 'dungeon', level: 5, style: mapStyles.corridors }, //melee
+	enchanted: { name: 'enchanted forest', level: 15, style: mapStyles.plain }, //magic
+	inferno: { name: 'inferno', level: 10, style: mapStyles.ripple }, //magic
+	forest: { name: 'forest', level: 0, style: mapStyles.plain }, //melee
+	magical: { name: 'arcane dimension', level: 10, style: mapStyles.ripple }, //magic
+	swamp: { name: 'swamp', level: 10, style: mapStyles.corridors }, //ranged
+	tower: { name: 'tower', level: 20, style: mapStyles.ripple }, //magic
 };
 
 const species = {
@@ -121,6 +128,8 @@ const weaponStates = {
 	poisoning: 'weapon-state-poison',
 	leeching: 'weapon-state-leech',
 	manaLeeching: 'weapon-state-manaleech',
+	lifeDrain: 'weapon-state-lifedrain',
+	manaDrain: 'weapon-state-manadrain',
 	burning: 'weapon-state-burning',
 	freezing: 'weapon-state-freezing',
 };
@@ -152,6 +161,7 @@ module.exports = {
 	directions: directions,
 	heroClass: heroClass,
 	heroStates: heroStates,
+	mapStyles: mapStyles,
 	mapTypes: mapTypes,
 	shops: shops,
 	species: species,

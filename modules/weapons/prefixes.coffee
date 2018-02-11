@@ -1,5 +1,5 @@
 { attackTypes } = require '../constants'
-{ random, err } = require '../general'
+{ random, err, warn } = require '../general'
 
 prefixes =
     superior:
@@ -11,6 +11,7 @@ prefixes =
         apply: (weapon) ->
             weapon.min *= 1.1
             weapon.max *= 1.1
+            return weapon
     exceptional:
         name: 'exceptional'
         description: '20% increased damage'
@@ -20,6 +21,7 @@ prefixes =
         apply: (weapon) ->
             weapon.min *= 1.2
             weapon.max *= 1.2
+            return weapon
     elite:
         name: 'elite'
         description: '30% increased damage'
@@ -29,6 +31,7 @@ prefixes =
         apply: (weapon) ->
             weapon.min *= 1.3
             weapon.max *= 1.3
+            return weapon
     longRange:
         name: 'long range'
         description: '+2 increased range'
@@ -38,6 +41,7 @@ prefixes =
         costMultiplier: 1.5
         apply: (weapon) ->
             weapon.range += 2
+            return weapon
     marksmans:
         name: 'marksman\'s'
         description: '+5 increased range'
@@ -47,24 +51,27 @@ prefixes =
         costMultiplier: 2
         apply: (weapon) ->
             weapon.range += 5
+            return weapon
     apprentices:
         name: 'apprentice\'s'
         description: '-10% mana cost for spells'
-        minLevel: 0
+        minLevel: 10
         probability: 8
         exclusive: attackTypes.magic
         costMultiplier: 2
         apply: (weapon) ->
             weapon.manaAdjustment *= 0.9
+            return weapon
     acolytes:
         name: 'acolytes\'s'
         description: '-25% mana cost for spells'
-        minLevel: 0
+        minLevel: 20
         probability: 4
         exclusive: attackTypes.magic
         costMultiplier: 3
         apply: (weapon) ->
             weapon.manaAdjustment *= 0.75
+            return weapon
 
 getRandomPrefix = (weapon, hero) ->
     result = null
@@ -77,9 +84,9 @@ getRandomPrefix = (weapon, hero) ->
         else
             num -= prefix.probability
     if result
-        weapon.prefix = result
-        weapon.cost *= result.costMultiplier
-        result.apply weapon
+        newWeapon = Object.assign {}, weapon, { prefix: result, cost: weapon.cost * result.costMultiplier }
+        return result.apply newWeapon
+
     return weapon
 
 module.exports =

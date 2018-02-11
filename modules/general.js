@@ -27,7 +27,10 @@ function trashLog() {
 	let args = [];
 
 	for (let i=0; i<arguments.length; i++) {
-		args.push(arguments[i]);
+		if (arguments[i] === Object(arguments[i]))
+			args.push(JSON.stringify(arguments[i]));
+		else
+			args.push(arguments[i]);
 	}
 
 	let str = args.join(' ');
@@ -199,12 +202,27 @@ function getFreeChar() {
 	return free;
 }
 
+function getPercent(value, inverted) {
+	if (value > 1)
+		if (!inverted)
+			return chalk.green('+' + ((value-1) * 100).toFixed(0) + '%');
+		else
+			return chalk.yellow('+' + ((value-1) * 100).toFixed(0) + '%');
+	if (value === 1)
+		return '+0%';
+	if (value < 1)
+		if (!inverted)
+			return chalk.yellow(((value-1) * 100).toFixed(0) + '%');
+		else
+			return chalk.green(((value-1) * 100).toFixed(0) + '%');
+}
+
 module.exports = {
 	getWallChar: getWallChar,
 	getFreeChar: getFreeChar,
 	debug: debug,
 	err: err,
-	get: get,
+	getPercent: getPercent,
 	warn: warn,
 	log: log,
 	random: random,

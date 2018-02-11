@@ -5,7 +5,6 @@ require('coffee-script/register');
 const { log, err, warn, setWorkMode } = require('./modules/general');
 const { states } = require('./modules/constants');
 const { state } = require('./modules/state');
-const chalk = require('chalk');
 const ui = require('./modules/ui/ui.coffee');
 
 const stdin = process.openStdin();
@@ -17,7 +16,7 @@ console.clear = () => {
 init();
 
 function init() {
-	setWorkMode();
+	// setWorkMode();
 
 	stdin.setRawMode(true);
 	stdin.resume();

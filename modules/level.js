@@ -2,7 +2,7 @@
 require('coffee-script/register');
 
 const { random, log, debug, err } = require('./general');
-const { CHANCE_FOR_TREASURE, CHANCE_FOR_ADDITIONAL_EXIT, GOLD_RANGE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE, directions } = require('./constants');
+const { mapStyles, CHANCE_FOR_TREASURE, CHANCE_FOR_ADDITIONAL_EXIT, GOLD_RANGE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE, directions } = require('./constants');
 const Point = require('./point');
 const Monster = require('./monsters/monsters.coffee');
 const Shop = require('./shop.coffee');
@@ -17,9 +17,11 @@ class Level {
 			this.level = 1;
 
 		this.start = hero.position;
-		this.data = generateRoutes(MAP_SIZE, this.start);
+		this.data = generateRoutes(type.style, this.start);
+		err(type.name, type.style);
 		this.end = [{position: findFurthest(this.data, this.start)}];
-		this.treasures = generateTreasures(this, hero.level);
+		// this.treasures = generateTreasures(this, hero.level);
+		this.treasures = [];
 		this.monsters = generateMonsters(this, hero.level);
 		this.shops = generateShops(this, hero);
 
@@ -158,7 +160,8 @@ function generateTreasures(level, heroLevel) {
 	return treasures;
 }
 
-function findFurthest(level, point) {
+function findFurthest(matrix, point) {
+	let level = [...matrix];
 	let q = [{x: point.x, y: point.y, dist: 0}];
 	let current;
 	while (q.length > 0) {
@@ -166,15 +169,19 @@ function findFurthest(level, point) {
 
 		if (isValid(level, {x: current.x+1, y: current.y}) && level[current.y][current.x+1] !== 1) {
 			q.push({x: current.x+1, y: current.y, dist: current.dist+1});
+			level[current.y][current.x+1] = 1;
 		}
 		if (isValid(level, {x: current.x-1, y: current.y}) && level[current.y][current.x-1] !== 1) {
 			q.push({x: current.x-1, y: current.y, dist: current.dist+1});
+			level[current.y][current.x-1] = 1;
 		}
 		if (isValid(level, {x: current.x, y: current.y-1}) && level[current.y-1][current.x] !== 1) {
 			q.push({x: current.x, y: current.y-1, dist: current.dist+1});
+			level[current.y-1][current.x] = 1;
 		}
 		if (isValid(level, {x: current.x, y: current.y+1}) && level[current.y+1][current.x] !== 1) {
 			q.push({x: current.x, y: current.y+1, dist: current.dist+1});
+			level[current.y+1][current.x] = 1;
 		}
 
 		level[current.y][current.x] = 1;
@@ -220,10 +227,35 @@ function ripple(level, point, branch) {
 	return branch;
 }
 
-function generateRoutes(size, start) {
-	let matrix = generateMatrix(size);
-	// ripple(matrix, start);
+function generateRoutes(style, start) {
+	let matrix = generateMatrix(MAP_SIZE);
 
+	switch (style) {
+	case mapStyles.ripple:
+		ripple(matrix, start);
+		return matrix;
+	case mapStyles.corridors:
+		return corridors(matrix, start);
+	case mapStyles.plain:
+		return plain(matrix, start);
+	}
+}
+
+function plain(matrix, start) {
+	for (let i=0; i<MAP_SIZE; i++) {
+		for (let j=0; j<MAP_SIZE; j++) {
+			if (random() < 5)
+				matrix[i][j] = 0;
+			else
+				matrix[i][j] = 100;
+		}
+	}
+	matrix[start.y][start.x] = 100;
+
+	return matrix;
+}
+
+function corridors(matrix, start) {
 	let length = random(MAP_SIZE * MAP_SIZE /2) + 4*MAP_SIZE;
 	let steps = 0, previousDirection = null, position = start;
 

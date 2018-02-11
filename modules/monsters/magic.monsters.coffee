@@ -1,4 +1,5 @@
-{ attackTypes, armourTypes, species, mapTypes } = require '../constants'
+{ attackTypes, armourTypes, species, mapTypes, actions } = require '../constants'
+{ err } = require '../general'
 
 skills = require '../skills/skills.coffee'
     .getNames()
@@ -18,7 +19,7 @@ monsters =
             max: 1.2
             min: 1
         spell: spells.soulArrow
-        mana: 6
+        maxMana: 6
         armour:
             type: armourTypes.light
             melee:
@@ -49,7 +50,7 @@ monsters =
             max: 3
             min: 2
         spell: spells.iceShards
-        mana: 10
+        maxMana: 10
         armour:
             type: armourTypes.light
             melee:
@@ -68,19 +69,57 @@ monsters =
         xp:
             min: 4
             max: 6
+    ghost:
+        name: 'ghost'
+        land: [mapTypes.tower, mapTypes.enchanted, mapTypes.magical, mapTypes.forest, mapTypes.crypt, mapTypes.dungeon]
+        species: [species.undead]
+        minLevel: 5
+        maxLevel: 50
+        movement: 12
+        attack:
+            attackType: attackTypes.magic
+            max: 1.4
+            min: 1.6
+        spell: spells.arcaneBolt
+        maxMana: 12
+        armour:
+            type: armourTypes.light
+            melee:
+                max: 50
+                min: 0
+            ranged:
+                max: 50
+                min: 0
+            magic:
+                max: 15
+                min: 0
+        maxhp: 3
+        gold:
+            min: 2
+            max: 5
+        xp:
+            min: 3
+            max: 6
+        getAction: (monster, hero) ->
+            distance = Math.abs monster.combatPos - hero.combatPos
+            if hero.weapon.attackType isnt attackTypes.magic and monster.combatPos < Math.min(40 + monster.movement, 50)
+                return actions.retreat
+            if monster.mana > monster.spell.mana
+                return actions.useSpell
+            return actions.approach
     imp:
         name: 'imp'
         land: [mapTypes.dungeon, mapTypes.inferno, mapTypes.magical, mapTypes.desert]
         species: [species.infernal, species.magical]
         minLevel: 0
-        maxLevel: 20
+        maxLevel: 30
         movement: 10
         attack:
             attackType: attackTypes.magic
             max: 0.5
             min: 0.4
-        spell: spells.iceArrow
-        mana: 8
+        spell: spells.arcaneTorrent
+        maxMana: 8
         armour:
             type: armourTypes.light
             melee:
@@ -98,7 +137,38 @@ monsters =
             max: 4
         xp:
             min: 2
-            max: 3
+            max: 4
+    lich:
+        name: 'lich'
+        land: [ mapTypes.crypt, mapTypes.inferno, mapTypes.magical, mapTypes.tower, mapTypes.arctic, mapTypes.dungeon  ]
+        species: [species.undead, species.magical]
+        minLevel: 20
+        maxLevel: 100
+        movement: 6
+        attack:
+            attackType: attackTypes.magic
+            max: 2.5
+            min: 4.0
+        spell: spells.lifeDrain
+        maxMana: 16
+        armour:
+            type: armourTypes.light
+            melee:
+                max: 25
+                min: 10
+            ranged:
+                max: 20
+                min: 10
+            magic:
+                max: 45
+                min: 20
+        maxhp: 6
+        gold:
+            min: 6
+            max: 10
+        xp:
+            min: 8
+            max: 10
     skeletonMagi:
         name: 'skeleton magi'
         land: [mapTypes.magical, mapTypes.tower]
@@ -111,7 +181,7 @@ monsters =
             max: 1.4
             min: 1
         spell: spells.fireArrow
-        mana: 8
+        maxMana: 8
         armour:
             type: armourTypes.light
             melee:
@@ -142,7 +212,7 @@ monsters =
             max: 3
             min: 2
         spell: spells.fireBall
-        mana: 20
+        maxMana: 20
         armour:
             type: armourTypes.medium
             melee:
@@ -163,17 +233,17 @@ monsters =
             max: 6
     wisp:
         name: 'wisp'
-        land: [mapTypes.tower, mapTypes.enchanted, mapTypes.magical]
+        land: [mapTypes.tower, mapTypes.enchanted, mapTypes.magical, mapTypes.forest, mapTypes.desert]
         species: [species.magical]
         minLevel: 0
         maxLevel: 20
         movement: 12
         attack:
             attackType: attackTypes.magic
-            max: 1
-            min: 0.4
+            max: 0.6
+            min: 0.5
         spell: spells.soulArrow
-        mana: 8
+        maxMana: 8
         armour:
             type: armourTypes.light
             melee:
@@ -188,9 +258,54 @@ monsters =
         maxhp: 1.6
         gold:
             min: 1
-            max: 2
+            max: 3
         xp:
             min: 2
-            max: 3
+            max: 4
+        getAction: (monster, hero) ->
+            distance = Math.abs monster.combatPos - hero.combatPos
+            if hero.weapon.attackType isnt attackTypes.magic and monster.combatPos < Math.min(40 + monster.movement, 50)
+                return actions.retreat
+            if monster.mana > monster.spell.mana
+                return actions.useSpell
+            return actions.approach
+    wraith:
+        name: 'wraith'
+        land: [mapTypes.tower, mapTypes.enchanted, mapTypes.magical, mapTypes.forest, mapTypes.crypt, mapTypes.dungeon]
+        species: [species.undead]
+        minLevel: 5
+        maxLevel: 50
+        movement: 6
+        attack:
+            attackType: attackTypes.magic
+            max: 1.6
+            min: 2.2
+        spell: spells.arcaneTorrent
+        maxMana: 12
+        armour:
+            type: armourTypes.light
+            melee:
+                max: 50
+                min: 0
+            ranged:
+                max: 50
+                min: 0
+            magic:
+                max: 15
+                min: 0
+        maxhp: 4
+        gold:
+            min: 3
+            max: 6
+        xp:
+            min: 4
+            max: 7
+        getAction: (monster, hero) ->
+            distance = Math.abs monster.combatPos - hero.combatPos
+            if hero.weapon.attackType isnt attackTypes.magic and monster.combatPos < Math.min(40 + monster.movement, 50)
+                return actions.retreat
+            if monster.mana > monster.spell.mana
+                return actions.useSpell
+            return actions.approach
 
 module.exports = (monster for own key, monster of monsters)

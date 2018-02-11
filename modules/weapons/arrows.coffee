@@ -1,30 +1,93 @@
-{ log, err } = require '../constants'
+{ log, err, getPercent } = require '../general'
+{ XP_GAIN_FACTOR } = require '../constants'
+chalk = require 'chalk'
 
+# maybe level scaling might be a good idea
 arrows =
     normal:
         name: 'standard arrow'
         range: 1
         damage: 1
-        description: 'Standard arrows.'
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return if @level is 2 then [arrows.light, arrows.heavy] else []
+    light:
+        name: 'light arrow'
+        range: 1.1
+        damage: 0.9
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return if @level is 2 then [arrows.elven] else []
+    heavy:
+        name: 'heavy arrow'
+        range: 0.9
+        damage: 1.1
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return if @level is 2 then [arrows.orcish] else []
     elven:
         name: 'elven arrow'
-        range: 1.25
-        damage: 0.8
-        description: '-20% damage, +25% range'
+        range: 1.2
+        damage: 0.95
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return if @level is 2 then [arrows.sniper] else []
     orcish:
         name: 'orcish arrow'
-        range: 0.8
-        damage: 1.25
-        decription: '+25% damage, -20% range'
+        range: 0.9
+        damage: 1.2
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return if @level is 2 then [arrows.iron] else []
     sniper:
         name: 'sniper arrow'
-        range: 2
-        damage: 0.5
-        description: '-50% damage, +100% range'
-    steel:
-        name: 'steel arrow'
-        range: 0.5
-        damage: 2
-        description: 'Heavy arrows with decreased range but greatly improved damage.'
+        range: 1.5
+        damage: 0.8
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return []
+    iron:
+        name: 'iron arrow'
+        range: 0.8
+        damage: 1.5
+        description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
+        unlocks: () -> return []
 
-module.exports = arrows
+create = (item) ->
+    arrow =
+        damage: item.damage
+        description: item.description
+        key: item.key
+        level: item.level || 0
+        levelUp: item.levelUp
+        name: item.name
+        nextLevel: item.nextLevel || 25
+        range: item.range
+        unlocks: item.unlocks
+        xp: item.xp || 0
+
+    return Object.freeze arrow
+
+getAll = () ->
+    return arrows
+
+gainXP = (quiver, index, xp) ->
+    arrow = Object.assign {}, quiver[index], { xp: quiver[index].xp + xp }
+    while arrow.xp >= arrow.nextLevel
+        arrow = Object.assign {}, arrow.levelUp(), { level: arrow.level+1, xp: arrow.xp - arrow.nextLevel }
+
+    unlocks = arrow.unlocks()
+    unlocks = unlocks.filter (x) ->
+        return quiver.filter((y) -> return x.key is y.key).length is 0
+    if unlocks.length > 0
+        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join ', '
+        unlocks = unlocks.map (x) -> return create x
+        return [ quiver[0...index]..., create(arrow), quiver[index+1...]..., unlocks... ]
+
+    return [ quiver[0...index]..., create(arrow), quiver[index+1...]... ]
+
+init = () ->
+    for key, arrow of arrows
+        arrow.key = key
+        arrow.levelUp = () -> return Object.assign {}, this, { range: @range + 0.01, damage: @damage + 0.01 }
+
+init()
+
+module.exports =
+    create: create
+    gainXP: gainXP
+    getAll: getAll

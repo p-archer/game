@@ -2,6 +2,7 @@
 { states } = require '../constants'
 
 outputter = (state, hero, map) ->
+    log()
     log '* press any key to continue *'
     return
 

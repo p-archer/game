@@ -10,7 +10,6 @@ getDamage = (weapon) ->
         damage = (weapon.min + (random() * (weapon.max - weapon.min) / 100))
         if distance > 1
             cth = 1 - Math.max 0, (distance/weapon.range - 1)
-            if cth < 1 then log chalk.yellow ' -- enemy outside optimal range (chance to hit: ' + chalk.redBright((cth*100).toFixed(0) + '%') + ')'
             if random() < cth * 100 then return damage else return 0
         else
             return damage
@@ -37,7 +36,7 @@ spears =
         attackType: attackTypes.ranged
         requirements:
             level: 5
-            ranged: 5
+            mastery: 5
             skills: [{name: skills.ranged, level: 3}]
         cost: 150
         quality: 1
@@ -52,7 +51,7 @@ spears =
         attackType: attackTypes.ranged
         requirements:
             level: 5
-            ranged: 5
+            mastery: 5
             skills: [{name: skills.ranged, level: 2}]
         cost: 100
         quality: 1
@@ -67,7 +66,7 @@ spears =
         attackType: attackTypes.ranged
         requirements:
             level: 10
-            ranged: 10
+            mastery: 10
             skills: [{name: skills.improvedRanged, level: 1}]
         cost: 500
         quality: 2
@@ -82,7 +81,7 @@ spears =
         attackType: attackTypes.ranged
         requirements:
             level: 10
-            ranged: 10
+            mastery: 10
             skills: [{name: skills.improvedRanged, level: 2}]
         cost: 700
         quality: 2
@@ -97,7 +96,7 @@ spears =
         attackType: attackTypes.ranged
         requirements:
             level: 20
-            ranged: 20
+            mastery: 20
             skills: [{name: skills.advancedRanged, level: 1}]
         cost: 2000
         quality: 3
@@ -108,7 +107,7 @@ for key, spear of spears
     spear.init = (spear) ->
         chance = random(5) + 1
         description = spear.description + ' (chance to maim ' + chance + '%)'
-        modifier = () -> if random() < chance then return [ weaponStates.maiming ] else return []
+        modifier = () -> if random() < chance then return [ { effect: weaponStates.maiming, ticks: 1} ] else return []
         return Object.assign {}, spear, { description: description, modifier: modifier }
 
 module.exports = spears
