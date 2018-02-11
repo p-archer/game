@@ -1,5 +1,6 @@
 { log, err } = require '../general'
 { states, shops } = require '../constants'
+chalk = require 'chalk'
 
 Shop = require '../shop.coffee'
 Hero = require '../hero.coffee'
@@ -10,6 +11,10 @@ outputter = (state, hero, map) ->
     shop = map.current.shops[0]
     Shop.showInventory shop
 
+    log()
+    log ' - hero level: '.toFixed(24) + chalk.green hero.level
+    log ' - mastery level: '.toFixed(24) + chalk.green hero.mastery.level
+    log ' - gold:'.toFixed(24) + chalk.yellow hero.gold.toFixed(2)
     log()
     log 'f\t\tfull heal'
     log 'r\t\trestore mana'
