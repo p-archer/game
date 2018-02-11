@@ -46,7 +46,7 @@ tomes =
         spellAmplification: 4 # 2-2.4
         getDamage: (x...) -> getDamage(this)(x...)
         description: 'Ancient tome containing spells and curses.'
-        spells: [abilities.fireBall, abilities.fireArrow, abilities.iceArrow, abilities.iceShards, abilities.soulArrow, abilities.soulBolt]
+        spells: [abilities.fireBall, abilities.iceShards, abilities.soulBolt]
 
     grimoire:
         name: 'grimoire'
@@ -62,7 +62,7 @@ tomes =
         spellAmplification: 6 # 3-3.6
         getDamage: (x...) -> getDamage(this)(x...)
         description: 'A book written by a mad summoner.'
-        spells: [abilities.fireBall, abilities.fireArrow, abilities.iceArrow, abilities.iceShards, abilities.soulArrow, abilities.soulBolt]
+        spells: [abilities.fireBall, abilities.iceShards, abilities.soulBolt, abilities.lifeDrain, abilities.manaDrain]
 
 for key, tome of tomes
     tome.init = (tome) ->
