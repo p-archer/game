@@ -71,6 +71,20 @@ wands =
         spells: [abilities.soulArrow, abilities.iceArrow, abilities.iceShards]
         getDamage: (x...) -> getDamage(this)(x...)
         description: 'Magic wand resembling a frozen arm.'
+    grayWand:
+        name: 'gray wand'
+        min: 2.4
+        max: 2.6
+        attackType: attackTypes.magic
+        requirements:
+            level: 13
+            mastery: 13
+            skills: [{skill: skills.improvedMagic, level: 4}]
+        cost: 1900
+        quality: 2
+        spells: [abilities.lifeDrain, abilities.manaDrain, abilities.soulBolt]
+        getDamage: (x...) -> getDamage(this)(x...)
+        description: ''
     yewWand:
         name: 'yew wand'
         min: 2.2
@@ -82,9 +96,23 @@ wands =
             skills: [{skill: skills.improvedMagic, level: 3}]
         cost: 1500
         quality: 2
-        spells: [abilities.fireBall, abilities.fireArrow, abilities.iceArrow, abilities.iceShards, abilities.soulArrow, abilities.soulBolt]
+        spells: [abilities.fireBall, abilities.iceShards, abilities.soulBolt]
         getDamage: (x...) -> getDamage(this)(x...)
         description: 'Wand made from yew.'
+    darkWand:
+        name: 'dark wand'
+        min: 3.0
+        max: 3.4
+        attackType: attackTypes.magic
+        requirements:
+            level: 25
+            mastery: 25
+            skills: [{skill: skills.advancedMagic, level: 3}]
+        cost: 3000
+        quality: 3
+        spells: [abilities.iceShards, abilities.soulBolt, abilities.fireBall, abilities.lifeDrain, abilities.manaDrain]
+        getDamage: (x...) -> getDamage(this)(x...)
+        description: ''
     blackWand:
         name: 'black wand'
         min: 2.6
@@ -96,7 +124,7 @@ wands =
             skills: [{skill: skills.advancedMagic, level: 1}]
         cost: 2500
         quality: 3
-        spells: [abilities.soulArrow, abilities.soulBolt]
+        spells: [abilities.fireBall, abilities.iceShards, abilities.soulBolt]
         getDamage: (x...) -> getDamage(this)(x...)
         description: 'Wand made from unknown materials.'
 
