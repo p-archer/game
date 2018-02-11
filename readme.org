@@ -1,0 +1,49 @@
+* Le game
+  A console/terminal based game which you can play as long as you are alive (but since monsters scale well, that won't be too long).
+
+* Installing
+  You will need *NodeJS* installed with *npm* to run the game.
+  You can get /node/ with /npm/ from here: [[https://nodejs.org/en/download][NodeJS official site]]
+
+  Once install is finished, verify that _npm_ is working, and install the game's dependencies:
+  #+BEGIN_SRC bash
+  npm -v # this should give you the version number of npm
+
+  cd /whatever/folder/you/downloaded/the/game/to
+  npm install # this will install all dependencies
+
+  npm start # to start the game
+  #+END_SRC
+* Playing
+  The game is an early pre-alpha phase, so expect lots of errors and missing content. For the latest release I removed all the bits and pieces that weren't ready for testing yet (hopefully all of them).
+
+** Attacks
+   There are 3 types of attack:
+  - melee (*swords*, axes, hammers) - these only work in melee range, duh
+  - ranged (*bows*, spears, crossbows) - they have an optimal range, in which they have a 100% chance to hit, outside of that this chance linearly decreases to 0 when the distance is twice the optimal range
+  - magic (*wands*, *tomes*, staffs) - melee weapons, but have spells assigned to them, which can be used with mana
+
+** Armour
+   TBD, currently all they do is soak up some damage. Future improvements planned: upgrades, buying new armour, experience, special stats/abilities.
+
+** Skills
+   There are only a few skills at the moment. You start with you classes core skills, and can buy new skills at skills shops. Some skills unlock new abilities.
+   TBD: needs a lot more content.
+
+** Abilities
+   These are special feats you can use during combat. They require a certain amount of mana.
+   TBD: will add curses, blessings, new spells, generally more content.
+
+** Progress
+   You gain mastery points by using your spells and weapons - mastery points increase your overall damage.
+   You gain xp and gold by killing enemies - xp leads to new levels. Levels unlock new skills and weapons, plus they also give you skillpoints, which you can use to make your hero stronger.
+   
+   Currently there are two special equipment pieces which also gain xp by usage. These are the /arrows/ and /broadheads/ if you play an archer with bows. You can switch these during combat (not on the character sheet yet). Using these items during combat gives you more experience with them, and after a few levels they unlock more specialised advanced version of the same item.
+
+* Important notes
+  - don't even bother with the warrior, I haven't had time to do anything with it yet
+  - in the latest release the game is halfway through a rewrite from js to coffeescript, and from OO design to what I believe is functional programming (the one principle I know is not to mutate things)
+  - since I was the only one who tested it, there might be a few error or help messages missing, if you constantly get an 'unknown input' error, try going back by pressing *q*
+
+* Addendum
+  Feel free to change/add/remove monsters, since I have no time to balance them yet. Same goes for skills and abilities (although they obviously need some code too, but ideas are welcome). If you make any changes, and they are actually fun, please create pull request for them, if I like it, I'll merge it into the game.
