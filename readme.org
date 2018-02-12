@@ -19,12 +19,27 @@
 
 * Playing
   The game is an early pre-alpha phase, so expect lots of errors and missing content. For the latest release I removed all the bits and pieces that weren't ready for testing yet (hopefully all of them).
+  
+** Map
+   There are 9 map types, but when you start the game you have access only to the easiest ones.
+   Different map types have different layouts (there are 3 distinct algorithms) and different enemies (there is overlap ofc).
 
+*** Legend
+	|---+------+-------------------------|
+	|   | sign | meaning                 |
+	|---+------+-------------------------|
+	| # | a    | entry to previous level |
+	| # | b    | entry to next level     |
+	| # | o    | enemies                 |
+	| # | s    | shop                    |
+	| # | x    | your hero               |
+	| # | $    | treasure                |
+	|---+------+-------------------------|
 ** Attacks
    There are 3 types of attack:
-  - melee (*swords*, axes, hammers) - these only work in melee range, duh
-  - ranged (*bows*, spears, crossbows) - they have an optimal range, in which they have a 100% chance to hit, outside of that this chance linearly decreases to 0 when the distance is twice the optimal range
-  - magic (*wands*, *tomes*, staffs) - melee weapons, but have spells assigned to them, which can be used with mana
+   - melee (*swords*, axes, hammers) - these only work in melee range, duh
+   - ranged (*bows*, spears, crossbows) - they have an optimal range, in which they have a 100% chance to hit, outside of that this chance linearly decreases to 0 when the distance is twice the optimal range
+   - magic (*wands*, *tomes*, staffs) - melee weapons, but have spells assigned to them, which can be used with mana
 
 ** Armour
    TBD, currently all they do is soak up some damage. Future improvements planned: upgrades, buying new armour, experience, special stats/abilities.
