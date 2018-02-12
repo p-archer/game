@@ -36,11 +36,12 @@
 	| $    | treasure                |
 	|------+-------------------------|
 ** Attacks
-   There are 3 types of attacks[fn:1]:
+   There are 3 types of attacks:
    - melee (*swords*, axes, hammers) - these only work in melee range, duh
    - ranged (*bows*, spears, crossbows) - they have an optimal range, in which they have a 100% chance to hit, outside of that this chance linearly decreases to 0 when the distance is twice the optimal range
    - magic (*wands*, *tomes*, staffs) - melee weapons, but have spells assigned to them, which can be used with mana
 
+   (weapon types in bold are implemented (to some extent))
 ** Armour
    TBD, currently all they do is soak up some damage. Future improvements planned: upgrades, buying new armour, experience, special stats/abilities.
 
@@ -66,6 +67,3 @@
 
 * Addendum
   Feel free to change/add/remove monsters, since I have no time to balance them yet. Same goes for skills and abilities (although they obviously need some code too, but ideas are welcome). If you make any changes, and they are actually fun, please create pull request for them, if I like it, I'll merge it into the game.
-
-* Footnotes
-[fn:1] weapon types in bold are implemented (to some extent)
