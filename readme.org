@@ -25,18 +25,18 @@
    Different map types have different layouts (there are 3 distinct algorithms) and different enemies (there is overlap ofc).
 
 *** Legend
-	|---+------+-------------------------|
-	|   | sign | meaning                 |
-	|---+------+-------------------------|
-	| # | a    | entry to previous level |
-	| # | b    | entry to next level     |
-	| # | o    | enemies                 |
-	| # | s    | shop                    |
-	| # | x    | your hero               |
-	| # | $    | treasure                |
-	|---+------+-------------------------|
+	|------+-------------------------|
+	| sign | meaning                 |
+	|------+-------------------------|
+	| a    | entry to previous level |
+	| b    | entry to next level     |
+	| o    | enemies                 |
+	| s    | shop                    |
+	| x    | your hero               |
+	| $    | treasure                |
+	|------+-------------------------|
 ** Attacks
-   There are 3 types of attack:
+   There are 3 types of attacks[fn:1]:
    - melee (*swords*, axes, hammers) - these only work in melee range, duh
    - ranged (*bows*, spears, crossbows) - they have an optimal range, in which they have a 100% chance to hit, outside of that this chance linearly decreases to 0 when the distance is twice the optimal range
    - magic (*wands*, *tomes*, staffs) - melee weapons, but have spells assigned to them, which can be used with mana
@@ -62,6 +62,10 @@
   - don't even bother with the warrior, I haven't had time to do anything with it yet
   - in the latest release the game is halfway through a rewrite from js to coffeescript, and from OO design to what I believe is functional programming (the one principle I know is not to mutate things)
   - since I was the only one who tested it, there might be a few error or help messages missing, if you constantly get an 'unknown input' error, try going back by pressing *q*
+  - there is a /workmode/ setting at the start of /app.js/, if you turn it on the game will look more like console output from an application - no colours, and lots of random generated strings to hide the fact that work is not really challenging or entertaining
 
 * Addendum
   Feel free to change/add/remove monsters, since I have no time to balance them yet. Same goes for skills and abilities (although they obviously need some code too, but ideas are welcome). If you make any changes, and they are actually fun, please create pull request for them, if I like it, I'll merge it into the game.
+
+* Footnotes
+[fn:1] weapon types in bold are implemented (to some extent)
