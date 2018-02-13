@@ -19,38 +19,32 @@ create = (shop, hero) ->
     return Object.freeze newShop
 createInventory = (shop, hero) ->
     switch shop.type
-        when shops.skills then inventory = getSkills()
+        when shops.skills then inventory = getSkills hero
         when shops.weapons then inventory = generateWeapons hero
     return Object.assign {}, shop, { inventory: inventory }
-showInventory = (shop, hero) ->
+showInventory = (shop) ->
     switch shop.type
-        when shops.skills then showSkills shop.inventory, hero
-        when shops.weapons then showWeapons shop.inventory, hero
+        when shops.skills then showSkills shop.inventory
+        when shops.weapons then showWeapons shop.inventory
 remove = (shop, key) ->
-    # TODO shop inventory needs refactoring
-    if shop.type is shops.skills
-        return
-
-    item = shop.inventory()[key]
-    newInventory = shop.inventory().filter((x) -> x isnt item)
-    shop = create Object.assign {}, shop, { inventory: () -> return newInventory }
+    item = shop.inventory[key]
+    newInventory = shop.inventory.filter((x) -> x isnt item)
+    shop = create Object.assign {}, shop, { inventory: newInventory }
     return [ shop, item ]
 
-getSkills = () ->
-    return (hero) ->
-        list = Skills.getAvailable hero
-        results = []
-        for own key, skill of list
-            results.push skill
-            results[results.length-1].key = key
-        return results
+getSkills = (hero) ->
+    list = Skills.getAvailable hero
+    results = []
+    for own key, skill of list
+        results.push skill
+        results[results.length-1].key = key
+    return results
 
-showSkills = (inventory, hero) ->
+showSkills = (inventory) ->
     index = 0
-    shopSkills = inventory(hero)
-    for skill in shopSkills
+    for skill in inventory
         log ''+index++ + '\t' + skill.name.toFixed(32) + '\tcost: ' + chalk.yellow skill.cost + ' gold'
-    if shopSkills.length is 0
+    if inventory.length is 0
         warn 'no skills to sell yet, perhaps you need a few more levels'
 
 getWeapons = (hero) ->
@@ -62,7 +56,7 @@ getWeapons = (hero) ->
 
 showWeapons = (inventory) ->
     index = 0
-    for weapon in inventory()
+    for weapon in inventory
         name = weapon.name
         if weapon.prefix? then name = weapon.prefix.name + ' ' + weapon.name
         if weapon.suffix? then name = name + ' of ' + weapon.suffix.name
@@ -94,8 +88,7 @@ generateWeapons = (hero) ->
         weapon = Weapons.create(getRandomSuffix(getRandomPrefix(weaponBase, hero), hero))
         inventory.push weapon
 
-    return () ->
-        return inventory
+    return inventory
 
 module.exports =
     create: create
