@@ -14,7 +14,7 @@ initGame = (hc) ->
         heroClass: hc
         level: 1
         # skillPoints: 10
-        # gold: 1000
+        # gold: 100000
         # abilities: [ Abilities.getAll()[abilities.manaDrain.key] ]
     }
     # hero = Hero.buySkill hero, Object.assign {}, Skills.getAll().tactics, { key: 'tactics' }

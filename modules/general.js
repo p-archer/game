@@ -9,7 +9,51 @@ init();
 
 let wall = '\u25a7';
 let free = '\u25e6';
+let delay = 0;
 let useLog = normalLog;
+
+let outputter = {
+	queue: [],
+	running: false,
+	init: async function() {
+		while (true) {
+			if (delay !== 0) {
+				if (this.queue.length > 0) {
+					[ fn, text ] = this.queue.shift();
+					if (text)
+						fn(text);
+					else
+						fn();
+				}
+			} else {
+				while (this.queue.length > 0) {
+					[ fn, text ] = this.queue.shift();
+					fn(text);
+				}
+			}
+
+			if (delay !== 0)
+				await sleep(delay);
+			else
+				await sleep(20);
+		}
+	}
+};
+outputter.init();
+
+function output(str, fn) {
+	if (!fn)
+		outputter.queue.push([console.log, str]);
+	else
+		outputter.queue.push([fn, str]);
+}
+
+function inline(str) {
+	let fn = (str) => {
+		return process.stdout.write(str, 'utf-8');
+	};
+	output(str, fn);
+}
 
 function random(num) {
 	if (num == null) {
@@ -21,6 +65,10 @@ function random(num) {
 
 function log() {
 	useLog(...arguments);
+}
+
+async function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function trashLog() {
@@ -37,9 +85,9 @@ function trashLog() {
 	let trash = generateTrash(90 - str.length);
 
 	if (args.length > 0)
-		console.log(str, trash);
+		output(str + ' | ' + trash);
 	else
-		console.log();
+		output();
 }
 
 function normalLog() {
@@ -52,7 +100,7 @@ function normalLog() {
 			args.push(arguments[i]);
 	}
 
-	console.log(args.join(' '));
+	output(args.join(' '));
 }
 
 function warn() {
@@ -65,7 +113,7 @@ function warn() {
 			args.push(arguments[i]);
 	}
 
-	console.log(chalk.yellow(args.join(' ')));
+	output(chalk.yellow(args.join(' ')));
 }
 
 function err() {
@@ -78,7 +126,7 @@ function err() {
 			args.push(arguments[i]);
 	}
 
-	console.log(chalk.redBright(args.join(' ')));
+	output(chalk.redBright(args.join(' ')));
 }
 
 function debug() {
@@ -190,6 +238,7 @@ function setWorkMode() {
 	chalk.level = 0;
 	wall = '0';
 	free = '.';
+	delay = 10;
 
 	useLog = trashLog;
 }
@@ -218,14 +267,15 @@ function getPercent(value, inverted) {
 }
 
 module.exports = {
-	getWallChar: getWallChar,
-	getFreeChar: getFreeChar,
 	debug: debug,
 	err: err,
+	generateTrash: generateTrash,
+	getFreeChar: getFreeChar,
 	getPercent: getPercent,
-	warn: warn,
+	getWallChar: getWallChar,
+	inline: inline,
 	log: log,
 	random: random,
-	generateTrash: generateTrash,
 	setWorkMode: setWorkMode,
+	warn: warn,
 };

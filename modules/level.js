@@ -18,7 +18,6 @@ class Level {
 
 		this.start = hero.position;
 		this.data = generateRoutes(type.style, this.start);
-		err(type.name, type.style);
 		this.end = [{position: findFurthest(this.data, this.start)}];
 		// this.treasures = generateTreasures(this, hero.level);
 		this.treasures = [];

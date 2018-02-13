@@ -2,7 +2,7 @@
 
 require('coffee-script/register');
 
-const { log, err, warn, setWorkMode } = require('./modules/general');
+const { log, err, warn, setWorkMode, inline } = require('./modules/general');
 const { states } = require('./modules/constants');
 const { state } = require('./modules/state');
 const ui = require('./modules/ui/ui.coffee');
@@ -10,13 +10,13 @@ const ui = require('./modules/ui/ui.coffee');
 const stdin = process.openStdin();
 
 console.clear = () => {
-	process.stdout.write('\x1Bc');
+	inline('\x1Bc');
 };
 
 init();
 
 function init() {
-	// setWorkMode();
+	setWorkMode();
 
 	stdin.setRawMode(true);
 	stdin.resume();
@@ -61,5 +61,5 @@ function setupPrompt() {
 function showPrompt() {
 	log();
 	if (!state.is(states.wait))
-		process.stdout.write(state.get().state + ' > ');
+		inline(state.get().state + ' > ');
 }

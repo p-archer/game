@@ -154,7 +154,7 @@ getAction = (source, target) ->
                 else
                     return actions.useSpell
             when attackTypes.melee
-                if source.state.has heroStates.maimed
+                if source.state.has { effect: heroStates.maimed }
                     log '> ' + source.name + ' can not move'
                 else
                     return actions.approach

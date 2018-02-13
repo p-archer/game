@@ -74,7 +74,8 @@
 *** DONE burning hero logs enemy's burning
 	CLOSED: [2018-02-05 Mon 11:39]
 ** game mechanics
-*** arrows and broadheads
+*** DONE arrows and broadheads
+	CLOSED: [2018-02-12 Mon 11:36]
 **** DONE gain xp based on usage
 	 CLOSED: [2018-02-09 Fri 23:48]
 **** DONE gain levels
@@ -84,5 +85,7 @@
 **** DONE can go with branches or levels
 	 CLOSED: [2018-02-09 Fri 23:48]
 	 Branches create specialisation options, levels is just a general solution
-*** monster weapons and armour
+*** TODO monster weapons and armour
 	i.e. a robe on a wolf doesn't quite feel right
+*** TODO weapon prices should be adjusted by their attributes
+	Like critical or spell amp.

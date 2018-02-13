@@ -126,7 +126,7 @@ create = (hero) ->
     newHero.mastery =
         level: if hero.mastery? then hero.mastery.level else 1
         xp: if hero.mastery? then hero.mastery.xp else 0
-        nextLevel: if hero.mastery? then hero.mastery.nextLevel else 10
+        nextLevel: if hero.mastery? then hero.mastery.nextLevel else 20
 
     # copy weapon
     if hero.weapon?
@@ -134,7 +134,7 @@ create = (hero) ->
     else
         switch hero.heroClass
             when heroClass.warrior then newHero.weapon = Weapon.create Weapon.getAll().shortSword
-            when heroClass.archer then newHero.weapon = Weapon.create Weapon.getAll().shortBow
+            when heroClass.archer then newHero.weapon = Weapon.create Weapon.getAll().shortSpear
             when heroClass.mage then newHero.weapon = Weapon.create Weapon.getAll().shortWand
 
     # copy armour
@@ -180,10 +180,11 @@ learn = (actor, damage) ->
 
     hero = Object.assign {}, actor
     mastery = Object.assign {}, actor.mastery
-    mastery.xp += 1
+    mastery.xp += damage
     while mastery.xp > mastery.nextLevel
         mastery.level++
         mastery.xp -= mastery.nextLevel
+        mastery.nextLevel *= WEAPON_GAIN_FACTOR
         log chalk.green '# ' + actor.weapon.attackType + ' mastery has levelled up'
 
     if actor.quiver?

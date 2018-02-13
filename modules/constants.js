@@ -12,7 +12,7 @@ const MAP_SIZE = 12;
 const MAX_SKILL_LEVEL = 5;
 const QUALITY_RANGE = [0, 15, 25, 40, 80, 160];
 const WEAPON_GAIN_FACTOR = 1.025;
-const XP_GAIN_FACTOR = 1.20;
+const XP_GAIN_FACTOR = 1.10;
 
 const directions = {
 	north: 'north',
@@ -134,6 +134,18 @@ const weaponStates = {
 	freezing: 'weapon-state-freezing',
 };
 
+const weaponTypes = {
+	axe: 'axe',
+	bow: 'bow',
+	crossbow: 'crossbow',
+	hammer: 'hammer',
+	spear: 'spear',
+	staff: 'staff',
+	sword: 'sword',
+	wand: 'wand',
+	tome: 'tome'
+};
+
 const armourTypes = {
 	light: 'armour-light',
 	medium: 'armour-medium',
@@ -166,5 +178,6 @@ module.exports = {
 	shops: shops,
 	species: species,
 	states: states,
+	weaponTypes: weaponTypes,
 	weaponStates: weaponStates,
 };

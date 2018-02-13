@@ -1,6 +1,6 @@
 chalk = require 'chalk'
-{ attackTypes, weaponStates, heroStates } = require '../constants'
-{ random, log } = require '../general'
+{ attackTypes, weaponTypes, weaponStates } = require '../constants'
+{ random, log, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
     .getNames()
@@ -8,6 +8,14 @@ skills = require '../skills/skills.coffee'
 getDamage = (weapon) ->
     return () ->
         damage = (weapon.min + (random() * (weapon.max - weapon.min) / 100))
+
+showCombat = (source, getDamageStr) ->
+    name = source.weapon.name
+    if source.weapon.prefix? then name = source.weapon.prefix.name + ' ' + name
+    if source.weapon.suffix? then name = name + ' of ' + source.weapon.suffix.name
+    log 'e\tattack with ' + chalk.blueBright(name) + ' (' + getDamageStr(hero) + ')'
+    log()
+    return
 
 swords =
     shortSword:
@@ -103,6 +111,6 @@ for key, sword of swords
         chance = random(5) + 1
         description = sword.description + ' (critical chance ' + chance + '%)'
         modifier = () -> if random() < chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
-        return Object.assign {}, sword, { description: description, modifier: modifier }
+        return Object.assign {}, sword, { description: description, modifier: modifier, showCombat: showCombat, type: weaponTypes.sword }
 
 module.exports = swords

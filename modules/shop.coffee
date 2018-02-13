@@ -19,21 +19,21 @@ create = (shop, hero) ->
     return Object.freeze newShop
 createInventory = (shop, hero) ->
     switch shop.type
-        when shops.skills then inventory = getSkills hero
+        when shops.skills then inventory = getSkills()
         when shops.weapons then inventory = generateWeapons hero
     return Object.assign {}, shop, { inventory: inventory }
-showInventory = (shop) ->
+showInventory = (shop, hero) ->
     switch shop.type
-        when shops.skills then showSkills shop.inventory
-        when shops.weapons then showWeapons shop.inventory
+        when shops.skills then showSkills shop.inventory, hero
+        when shops.weapons then showWeapons shop.inventory, hero
 remove = (shop, key) ->
     item = shop.inventory()[key]
     newInventory = shop.inventory().filter((x) -> x isnt item)
     shop = create Object.assign {}, shop, { inventory: () -> return newInventory }
     return [ shop, item ]
 
-getSkills = (hero) ->
-    return () ->
+getSkills = () ->
+    return (hero) ->
         list = Skills.getAvailable hero
         results = []
         for own key, skill of list
@@ -41,11 +41,12 @@ getSkills = (hero) ->
             results[results.length-1].key = key
         return results
 
-showSkills = (inventory) ->
+showSkills = (inventory, hero) ->
     index = 0
-    for skill in inventory()
+    shopSkills = inventory(hero)
+    for skill in shopSkills
         log ''+index++ + '\t' + skill.name.toFixed(32) + '\tcost: ' + chalk.yellow skill.cost + ' gold'
-    if inventory().length is 0
+    if shopSkills.length is 0
         warn 'no skills to sell yet, perhaps you need a few more levels'
 
 getWeapons = (hero) ->

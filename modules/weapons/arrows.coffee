@@ -5,43 +5,43 @@ chalk = require 'chalk'
 # maybe level scaling might be a good idea
 arrows =
     normal:
-        name: 'standard arrow'
+        name: 'standard'
         range: 1
         damage: 1
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
         unlocks: () -> return if @level is 2 then [arrows.light, arrows.heavy] else []
     light:
-        name: 'light arrow'
+        name: 'light'
         range: 1.1
         damage: 0.9
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
         unlocks: () -> return if @level is 2 then [arrows.elven] else []
     heavy:
-        name: 'heavy arrow'
+        name: 'heavy'
         range: 0.9
         damage: 1.1
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
         unlocks: () -> return if @level is 2 then [arrows.orcish] else []
     elven:
-        name: 'elven arrow'
+        name: 'elven'
         range: 1.2
         damage: 0.95
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
         unlocks: () -> return if @level is 2 then [arrows.sniper] else []
     orcish:
-        name: 'orcish arrow'
+        name: 'orcish'
         range: 0.9
         damage: 1.2
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
         unlocks: () -> return if @level is 2 then [arrows.iron] else []
     sniper:
-        name: 'sniper arrow'
+        name: 'sniper'
         range: 1.5
         damage: 0.8
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
         unlocks: () -> return []
     iron:
-        name: 'iron arrow'
+        name: 'iron'
         range: 0.8
         damage: 1.5
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range'
@@ -74,7 +74,7 @@ gainXP = (quiver, index, xp) ->
     unlocks = unlocks.filter (x) ->
         return quiver.filter((y) -> return x.key is y.key).length is 0
     if unlocks.length > 0
-        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join ', '
+        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join ' arrows/shafts, '
         unlocks = unlocks.map (x) -> return create x
         return [ quiver[0...index]..., create(arrow), quiver[index+1...]..., unlocks... ]
 

@@ -58,6 +58,9 @@ applyStatuses = (actor, create, takeDamage) ->
             when heroStates.burning
                 log chalk.blueBright '> ' + actor.name + ' is burning'
                 damage = actor.maxhp * 0.1
+            when heroStates.maimed
+                log chalk.blueBright '> ' + actor.name + ' is maimed'
+                damage = 0
             when heroStates.poisoned
                 log chalk.blueBright '> ' + actor.name + ' is poisoned'
                 damage = actor.hp * 0.1
@@ -169,47 +172,9 @@ outputter = (state, hero, map, exitState) ->
     log str
     log()
     log 'a/d\tfall back/approach'
-    switch hero.weapon.attackType
-        when attackTypes.melee
-            name = hero.weapon.name
-            if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + name
-            if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
-            log 'e\tattack with ' + chalk.blueBright(name) + ' (' + Hero.getDamageStr(hero) + ')'
-            log()
-        when attackTypes.ranged
-            arrow = hero.quiver[hero.arrow]
-            broadhead = hero.broadheads[hero.broadhead]
-            range = hero.weapon.range * arrow.range * broadhead.range
-
-            cth = 1 - Math.max 0, (distance/range - 1)
-            cthStr = ''
-            if cth is 1 then cthStr = chalk.green '100%'
-            if cth < 1 and cth >= 0.8 then cthStr = chalk.yellow (cth*100).toFixed(0) + '%'
-            if cth < 0.8 then cthStr = chalk.redBright (cth*100).toFixed(0) + '%'
-
-            name = hero.weapon.name
-            if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + name
-            if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
-            log 'e\tattack with ' + chalk.blueBright(name) + ' chance to hit: ' + cthStr
-            log '\tusing ' + chalk.yellow(arrow.name) + ' with ' + chalk.yellow(broadhead.name)
-            log '\trange: ' +  getPercent(arrow.range * broadhead.range) + ' (' + chalk.green(range.toFixed(0)) + ') damage: ' + getPercent(arrow.damage * broadhead.damage) + ' (' + chalk.green(Hero.getDamageStr(hero)) + ')'
-            log '\tarrow: ' + arrow.description()
-            log '\tbroadhead: ' + broadhead.description()
-            log()
-            if hero.quiver.length > 1
-                log '1\tswitch arrow type'
-            if hero.broadheads.length > 1
-                log '2\tswitch broadheads'
-        when attackTypes.magic
-            name = hero.weapon.name
-            if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + name
-            if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
-            log 'e\tattack with ' + chalk.blueBright(name) + ' (' + chalk.green(Hero.getDamageStr(hero)) + ')'
-            log '\tspell amplification: ' + getPercent(hero.weapon.spellAmplification) + ' mana consumption: ' + getPercent(hero.weapon.manaAdjustment, true)
-            log()
+    hero.weapon.showCombat hero, Hero.getDamageStr, distance
     if (hero.abilities? and hero.abilities.length > 0) or hero.weapon.spell?
         log 'f\tuse ability'
-
     return
 
 mutator = (state, input, hero, map) ->

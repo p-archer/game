@@ -9,7 +9,7 @@ Weapons = require '../weapons/weapons.coffee'
 
 outputter = (state, hero, map) ->
     shop = map.current.shops[0]
-    Shop.showInventory shop
+    Shop.showInventory shop, hero
 
     log()
     log ' - hero level: '.toFixed(24) + chalk.green hero.level
@@ -29,14 +29,14 @@ mutator = (state, input, hero, map) ->
 
     num = parseInt input
     shop = map.current.shops[0]
-    if not isNaN(num) and num < shop.inventory().length
+    if not isNaN(num) and num < shop.inventory(hero).length
         switch shop.type
             when shops.skills
-                if Skills.isAvailable hero, shop.inventory()[num]
+                if Skills.isAvailable hero, shop.inventory(hero)[num]
                     [ shop, skill ] = Shop.remove shop, num
                     hero = Hero.buySkill hero, skill
             when shops.weapons
-                if Weapons.isAvailable hero, shop.inventory()[num]
+                if Weapons.isAvailable hero, shop.inventory(hero)[num]
                     [ shop, weapon ] = Shop.remove shop, num
                     hero = Hero.buyWeapon hero, weapon
         map.current.shops = [ shop ]

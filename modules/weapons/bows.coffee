@@ -1,6 +1,6 @@
 chalk = require 'chalk'
-{ attackTypes, weaponStates } = require '../constants'
-{ random, log, err } = require '../general'
+{ attackTypes, weaponTypes, weaponStates } = require '../constants'
+{ random, log, err, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
     .getNames()
@@ -20,6 +20,32 @@ getDamage = (weapon) ->
             meleePenality = if pointBlankShot? then 0.5 - (pointBlankShot.level * pointBlankShot.bonus) else 0.5
             log chalk.yellow '> ranged attack at point-blank range (damage reduction: ' + chalk.redBright((meleePenality * 100).toFixed(2) + '%') + ')'
             return (1 - meleePenality) * damage
+
+showCombat = (source, getDamageStr, distance) ->
+    arrow = source.quiver[source.arrow]
+    broadhead = source.broadheads[source.broadhead]
+    range = source.weapon.range * arrow.range * broadhead.range
+
+    cth = 1 - Math.max 0, (distance/range - 1)
+    cthStr = ''
+    if cth is 1 then cthStr = chalk.green '100%'
+    if cth < 1 and cth >= 0.8 then cthStr = chalk.yellow (cth*100).toFixed(0) + '%'
+    if cth < 0.8 then cthStr = chalk.redBright (cth*100).toFixed(0) + '%'
+
+    name = source.weapon.name
+    if source.weapon.prefix? then name = source.weapon.prefix.name + ' ' + name
+    if source.weapon.suffix? then name = name + ' of ' + source.weapon.suffix.name
+    log 'e\tattack with ' + chalk.blueBright(name) + ' chance to hit: ' + cthStr
+    log '\tusing ' + chalk.yellow(arrow.name + ' arrow') + ' with ' + chalk.yellow(broadhead.name + ' broadhead')
+    log '\trange: ' +  getPercent(arrow.range * broadhead.range) + ' (' + chalk.green(range.toFixed(0)) + ') damage: ' + getPercent(arrow.damage * broadhead.damage) + ' (' + chalk.green(getDamageStr(source)) + ')'
+    log '\tarrow: ' + arrow.description()
+    log '\tbroadhead: ' + broadhead.description()
+    log()
+    if source.quiver.length > 1
+        log '1\tswitch arrow type'
+    if source.broadheads.length > 1
+        log '2\tswitch broadheads'
+    return
 
 bows =
     shortBow:
@@ -177,6 +203,6 @@ for key, bow of bows
         description = weapon.description + ' (critical chance ' + chance + '%)'
         modifier = () -> if random() < chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
 
-        return Object.assign {}, weapon, { description: description, modifier: modifier }
+        return Object.assign {}, weapon, { description: description, modifier: modifier, showCombat: showCombat, type: weaponTypes.bow }
 
 module.exports = bows

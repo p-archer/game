@@ -16,7 +16,7 @@ swords = require './swords.coffee'
 tomes = require './tomes.coffee'
 wands = require './wands.coffee'
 
-weaponList = Object.assign {}, swords, bows, wands, tomes
+weaponList = Object.assign {}, swords, bows, spears, wands, tomes
 
 getAll = () ->
     return weaponList
@@ -59,19 +59,21 @@ create = (weapon) ->
         attackType: weapon.attackType
         cost: weapon.cost
         description: weapon.description
+        manaAdjustment: weapon.manaAdjustment
         max: weapon.max
         min: weapon.min
-        prefix: weapon.prefix
-        suffix: weapon.suffix
         modifier: weapon.modifier
         name: weapon.name
+        prefix: weapon.prefix
         quality: weapon.quality
         range: weapon.range
         requirements: Object.assign {}, weapon.requirements
+        showCombat: weapon.showCombat
         spell: weapon.spell
-        spells: weapon.spells
-        manaAdjustment: weapon.manaAdjustment
         spellAmplification: weapon.spellAmplification
+        spells: weapon.spells
+        suffix: weapon.suffix
+        type: weapon.type
 
         getDamage: weapon.getDamage
 

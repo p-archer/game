@@ -1,5 +1,5 @@
 chalk = require 'chalk'
-{ attackTypes, weaponStates } = require '../constants'
+{ attackTypes, weaponTypes, weaponStates } = require '../constants'
 { random, log, err, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
@@ -14,6 +14,15 @@ getDamage = (weapon) ->
             return damage
         else
             return 0
+
+showCombat = (source, getDamageStr) ->
+    name = source.weapon.name
+    if source.weapon.prefix? then name = source.weapon.prefix.name + ' ' + name
+    if source.weapon.suffix? then name = name + ' of ' + source.weapon.suffix.name
+    log 'e\tattack with ' + chalk.blueBright(name) + ' (' + chalk.green(getDamageStr(source)) + ')'
+    log '\tspell amplification: ' + getPercent(source.weapon.spellAmplification) + ' mana consumption: ' + getPercent(source.weapon.manaAdjustment, true)
+    log()
+    return
 
 wands =
     shortWand:
@@ -135,6 +144,6 @@ for key, wand of wands
         spellAmplification = 1 + (random(5) / 100)
         manaAdjustment = 1
         description = wand.description + ' (spell amp: ' + getPercent(spellAmplification) + ' mana cost: ' + getPercent(manaAdjustment, true) + ')'
-        return Object.assign {}, wand, { spell: spell, spellAmplification: spellAmplification, manaAdjustment: manaAdjustment,  description: description, range: 1 }
+        return Object.assign {}, wand, { spell: spell, spellAmplification: spellAmplification, manaAdjustment: manaAdjustment,  description: description, range: 1, showCombat: showCombat, type: weaponTypes.wand }
 
 module.exports = wands

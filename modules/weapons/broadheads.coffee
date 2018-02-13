@@ -4,31 +4,31 @@ chalk = require 'chalk'
 
 broadheads =
     bleeding:
-        name: 'lacerating broadhead'
+        name: 'lacerating'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for bleeding'
         range: 1.1
         damage: 0.85
-        chance: 10
+        chance: 20
         use: () -> if random() < @chance then return [ { effect: heroStates.bleeding, ticks: 3 } ] else return []
         unlocks: () -> if @level is 4 then return [ broadheads.vampiric ] else return []
     burning:
-        name: 'flaming broadhead'
+        name: 'flaming'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for burning'
         range: 0.65
         damage: 1
-        chance: 10
+        chance: 20
         use: () -> if random() < @chance then return [ { effect: heroStates.burning, ticks: 3 } ] else return []
         unlocks: () -> if @level is 4 then return [ broadheads.freezing ] else return []
     freezing:
-        name: 'freezing broadhead'
+        name: 'freezing'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for freezing'
         range: 1
         damage: 0.5
-        chance: 10
+        chance: 20
         use: () -> if random() < @chance then return [ { effect: heroStates.frozen, ticks: 1 } ] else return []
         unlocks: () -> []
     heavy:
-        name: 'heavy broadhead'
+        name: 'heavy'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for critical'
         range: 0.7
         damage: 1.2
@@ -36,7 +36,7 @@ broadheads =
         use: () -> if random() < @chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
         unlocks: () -> if @level is 2 then return [ broadheads.piercing ] else return []
     light:
-        name: 'light broadhead'
+        name: 'light'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for critical'
         range: 1.1
         damage: 0.85
@@ -44,33 +44,34 @@ broadheads =
         use: () -> if random() < @chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
         unlocks: () -> if @level is 2 then return [ broadheads.poisoning ] else return []
     normal:
-        name: 'normal broadhead'
+        name: 'normal'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for critical'
         range: 1
         damage: 1
         chance: 0
         use: () -> if random() < @chance then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
         unlocks: () ->
-            if @level is 2 then return [ broadheads.light, broadheads.heavy ] else return []
-            if @level is 4 then return [ broadheads.burning ] else return []
+            if @level is 2 then return [ broadheads.light, broadheads.heavy ]
+            if @level is 4 then return [ broadheads.burning ]
+            return []
     piercing:
-        name: 'piercing broadhead'
+        name: 'piercing'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for piercing'
         range: 0.85
         damage: 1
-        chance: 20
+        chance: 25
         use: () -> if random() < @chance then return [ { effect: weaponStates.piercing, ticks: 1} ] else return []
-        unlocks: () -> []
+        unlocks: () -> if @lvel is 2 then return [ broadheads.vampiric ] else return []
     poisoning:
-        name: 'poisoned broadhead'
+        name: 'poisoned'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +' + @chance + '% chance for poisoning'
         range: 1.2
         damage: 0.75
-        chance: 10
+        chance: 20
         use: () -> if random() < @chance then return [ { effect: heroStates.poisoned, ticks: 3 } ] else return []
         unlocks: () -> if @level is 2 then return [ broadheads.bleeding ] else return []
     vampiric:
-        name: 'vampiric broadhead'
+        name: 'vampiric'
         description: () -> getPercent(@damage) + ' damage, ' + getPercent(@range) + ' range, +10% life steal'
         range: 0.9
         damage: 0.9
@@ -107,7 +108,7 @@ gainXP = (list, index, xp) ->
     unlocks = unlocks.filter (x) ->
         return list.filter((y) -> return x.key is y.key).length is 0
     if unlocks.length > 0
-        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join ', '
+        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join ' broadheads/spearheads, '
         unlocks = unlocks.map (x) -> return create x
         return [ list[0...index]..., create(broadhead), list[index+1...]..., unlocks... ]
 

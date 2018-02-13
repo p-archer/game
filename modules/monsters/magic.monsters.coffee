@@ -273,8 +273,8 @@ monsters =
         name: 'wraith'
         land: [mapTypes.tower, mapTypes.enchanted, mapTypes.magical, mapTypes.forest, mapTypes.crypt, mapTypes.dungeon]
         species: [species.undead]
-        minLevel: 5
-        maxLevel: 50
+        minLevel: 10
+        maxLevel: 100
         movement: 6
         attack:
             attackType: attackTypes.magic
