@@ -27,6 +27,10 @@ showInventory = (shop, hero) ->
         when shops.skills then showSkills shop.inventory, hero
         when shops.weapons then showWeapons shop.inventory, hero
 remove = (shop, key) ->
+    # TODO shop inventory needs refactoring
+    if shop.type is shops.skills
+        return
+
     item = shop.inventory()[key]
     newInventory = shop.inventory().filter((x) -> x isnt item)
     shop = create Object.assign {}, shop, { inventory: () -> return newInventory }
