@@ -16,7 +16,7 @@ console.clear = () => {
 init();
 
 function init() {
-	setWorkMode();
+	// setWorkMode();
 
 	stdin.setRawMode(true);
 	stdin.resume();

@@ -134,7 +134,7 @@ create = (hero) ->
     else
         switch hero.heroClass
             when heroClass.warrior then newHero.weapon = Weapon.create Weapon.getAll().shortSword
-            when heroClass.archer then newHero.weapon = Weapon.create Weapon.getAll().shortSpear
+            when heroClass.archer then newHero.weapon = Weapon.create Weapon.getAll().shortBow
             when heroClass.mage then newHero.weapon = Weapon.create Weapon.getAll().shortWand
 
     # copy armour
