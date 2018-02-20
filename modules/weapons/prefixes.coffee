@@ -1,4 +1,4 @@
-{ attackTypes } = require '../constants'
+{ attackTypes, weaponTypes } = require '../constants'
 { random, err, warn } = require '../general'
 
 prefixes =
@@ -37,7 +37,7 @@ prefixes =
         description: '+2 increased range'
         minLevel: 0
         probability: 8
-        exclusive: attackTypes.ranged
+        exclusive: [ weaponTypes.bow, weaponTypes.spear, weaponTypes.crossbow ]
         costMultiplier: 1.5
         apply: (weapon) ->
             weapon.range += 2
@@ -47,7 +47,7 @@ prefixes =
         description: '+5 increased range'
         minLevel: 10
         probability: 4
-        exclusive: attackTypes.ranged
+        exclusive: [ weaponTypes.bow, weaponTypes.spear, weaponTypes.crossbow ]
         costMultiplier: 2
         apply: (weapon) ->
             weapon.range += 5
@@ -57,7 +57,7 @@ prefixes =
         description: '-10% mana cost for spells'
         minLevel: 10
         probability: 8
-        exclusive: attackTypes.magic
+        exclusive: [ weaponTypes.wand, weaponTypes.tome, weaponTypes.staff ]
         costMultiplier: 2
         apply: (weapon) ->
             weapon.manaAdjustment *= 0.9
@@ -67,7 +67,7 @@ prefixes =
         description: '-25% mana cost for spells'
         minLevel: 20
         probability: 4
-        exclusive: attackTypes.magic
+        exclusive: [ weaponTypes.wand, weaponTypes.tome, weaponTypes.staff ]
         costMultiplier: 3
         apply: (weapon) ->
             weapon.manaAdjustment *= 0.75
@@ -75,7 +75,7 @@ prefixes =
 
 getRandomPrefix = (weapon, hero) ->
     result = null
-    available = (prefix for key, prefix of prefixes when prefix.minLevel <= hero.level and (not prefix.exclusive or prefix.exclusive is hero.weapon.attackType))
+    available = (prefix for own key, prefix of prefixes when prefix.minLevel <= hero.level and (not prefix.exclusive or prefix.exclusive is hero.weapon.type))
     num = random()
     for prefix in available
         if num < prefix.probability

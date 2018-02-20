@@ -10,130 +10,163 @@ getNames = () ->
 abilities =
     powerShot:
         name: 'power shot'
-        attackType: attackTypes.ranged
         mana: 2
         description: '+100% damage to a normal attack. (No retaliation)'
+        damage: 2
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            return takeDamage damage * 2, effects
+            [ damages, effects ] = getDamage()
+            damage.amount * @damage for damage in damages
+
+            return takeDamage damages, effects
     rapidFire:
         name: 'rapid fire',
-        attackType: attackTypes.ranged
         mana: 3
         description: 'Shoot 6 arrows in rapid succession with lowered damage (50% damage).'
+        damage: 0.5
         use: (getDamage, takeDamage) ->
-            target = null
-            isAlive = null
+            sumDmg = []
+            sumEffects = []
             for i in [1..6]
-                [ damage, effects ] = getDamage()
-                [ target, isAlive ] = takeDamage damage * 0.5, effects, target
-            return [ target, isAlive ]
+                [ damages, effects ] = getDamage()
+                damage.amount * @damage for damage in damages
+                sumDmg = [ sumDmg..., damages... ]
+                sumEffects = [ sumEffects..., effects... ]
+            return takeDamage sumDmg, effects
 
     arcaneBolt:
         name: 'arcane bolt'
-        attackType: attackTypes.magic
+        spell: true
         mana: 0.5
-        description: '100% weapon damage'
+        description: '80% weapon damage'
+        damage: 0.8
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            return takeDamage damage, effects
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.arcane
+            return takeDamage damages, effects
     arcaneTorrent:
         name: 'arcane torrent'
-        attackType: attackTypes.magic
+        spell: true
         mana: 1.2
-        description: '20% weapon damage, 5-10 projectiles'
+        description: '20% weapon damage, 4-8 projectiles'
+        damage: 0.2
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            target = null
-            isAlive = null
-            sumhp = 0
-            summana = 0
-            attacks = 5 + random(5)
-            for i in [0...attacks]
-                [ damage, effects ] = getDamage()
-                [ target, isAlive, hp, mana ] = takeDamage 0.2 * damage, effects, target
-                sumhp += hp
-                summana += mana
-            return [ target, isAlive, sumhp, summana ]
+            sumDmg = []
+            sumEffects = []
+            attacks = 4 + random(4)
+            for i in [0..attacks]
+                [ damages, effects ] = getDamage()
+                damages[0].amount *= @damage
+                damages[0].type = attackTypes.arcane
+                sumDmg = [ sumDmg..., damages... ]
+                sumEffects = [ sumEffects..., effects... ]
+            return takeDamage sumDmg, sumEffects
     fireArrow:
         name: 'fire arrow'
-        attackType: attackTypes.magic
+        spell: true
         mana: 2
         description: '200% weapon damage, 10% chance to ignite enemy'
+        chance: 10
+        damage: 2
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            if random() < 10 then effects = [ effects..., { effect: heroStates.burning, ticks: 3 } ]
-            return takeDamage 2 * damage, effects
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.fire
+            effects = [ effects..., { effect: heroStates.burning, ticks: 3} ] if random(10000) < @chance * 100
+            return takeDamage damages, effects
     iceArrow:
         name: 'ice arrow'
-        attackType: attackTypes.magic
+        spell: true
         mana: 2
         description: '200% weapon damage, 10% chance to freeze enemy'
+        chance: 10
+        damage: 2
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            if random() < 10 then effects = [ effects..., { effect: heroStates.frozen, ticks: 1 } ]
-            return takeDamage 2 * damage, effects
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.ice
+            effects = [ effects..., { effect: heroStates.frozen, ticks: 1} ] if random(10000) < @chance * 100
+            return takeDamage damages, effects
     soulArrow:
         name: 'soul arrow'
-        attackType: attackTypes.magic
+        spell: true
         mana: 2
         description: '240% weapon damage'
+        damage: 2.4
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            return takeDamage 2.4 * damage, effects
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.dark
+            return takeDamage damages, effects
     iceShards:
         name: 'ice shards'
-        attackType: attackTypes.magic
+        spell: true
         mana: 6
         description: '50% weapon damage, 6 shards, 10% chance to cause bleeding'
+        damage: 0.5
+        chance: 10
         use: (getDamage, takeDamage) ->
-            target = null
-            isAlive = null
-            sumhp = 0
-            summana = 0
-            for i in [1..6]
-                [ damage, effects ] = getDamage()
-                if random() < 10 then effects = [ effects..., { effect: heroStates.bleeding, ticks: 3 } ]
-                [ target, isAlive, hp, mana ] = takeDamage 0.5 * damage, effects, target
-                sumhp += hp
-                summana += mana
-            return [ target, isAlive, sumhp, summana ]
+            sumDmg = []
+            sumEffects = []
+            for i in [1...6]
+                [ damages, effects ] = getDamage()
+                effects = [ effects..., { effect: heroStates.bleeding, ticks: 3 } ] if random(10000) < @chance * 100
+                damage.amount *= @damage for damage in damages
+                damage.type = attackTypes.ice for damage in damages
+                sumDmg = [ sumDmg..., damages... ]
+                sumEffects = [ sumEffects..., effects... ]
+            return takeDamage sumDmg, sumEffects
     fireBall:
         name: 'fire ball'
-        attackType: attackTypes.magic
+        spell: true
         mana: 5
         description: '300% weapon damage, 25% chance to ignite enemy'
+        damage: 3
+        chance: 25
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            if random() < 25 then effects = [ effects..., { effect: heroStates.burning, ticks: 3 } ]
-            return takeDamage 3 * damage, effects
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.fire
+            effects = [ effects..., { effect: heroStates.burning, ticks: 1} ] if random(10000) < @chance * 100
+            return takeDamage damages, effects
     soulBolt:
         name: 'soul bolt'
-        attackType: attackTypes.magic
+        spell: true
         mana: 4
         description: '300% weapon damage'
+        damage: 3
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            return takeDamage 3 * damage, []
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.dark
+            return takeDamage damages, effects
     lifeDrain:
         name: 'life drain'
-        attackType: attackTypes.magic
+        spell: true
         mana: 5
         description: 'drain hp from enemy (100% weapon damage)'
+        damage: 1
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            return takeDamage damage, [ effects..., { effect: weaponStates.lifeDrain, ticks: 1 } ]
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.dark
+            effects = [ effects..., { effect: weaponStates.lifeDrain, ticks: 1} ]
+            return takeDamage damages, effects
     manaDrain:
         name: 'mana drain'
-        attackType: attackTypes.magic
+        spell: true
         mana: 5
         description: 'drain hp from enemy (100% weapon damage)'
+        damage: 1
         use: (getDamage, takeDamage) ->
-            [ damage, effects ] = getDamage()
-            return takeDamage damage, [ effects..., { effect: weaponStates.manaDrain, ticks: 1 } ]
+            [ damages, effects ] = getDamage()
+            damages[0].amount *= @damage
+            damages[0].type = attackTypes.dark
+            effects = [ effects..., { effect: weaponStates.manaDrain, ticks: 1} ]
+            return takeDamage damages, effects
 
 # statuses: immolate, bleed
-# damage: stone fist, locust swarm (can poison)
+# damage: stone fist, locust swarm (can poison), lightning spells /arrow, bolt/, locust swarm
 # curses: slow, weaken, shatter armour
 
 getAll = () ->
@@ -142,7 +175,7 @@ getAll = () ->
 getSpells = () ->
     spells = {}
     for key, value of abilities
-        if value.attackType is attackTypes.magic then spells[key] = value
+        if value.spell then spells[key] = value
     return spells
 
 module.exports =

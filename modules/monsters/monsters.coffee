@@ -5,6 +5,7 @@ chalk = require 'chalk'
 Weapon = require '../weapons/weapons.coffee'
 Armour = require '../armours/armours.coffee'
 inspector = require '../inspector.coffee'
+Hero = require '../hero.coffee'
 
 meleeMonsters = require './melee.monsters.coffee'
 rangedMonsters = require './ranged.monsters.coffee'
@@ -35,8 +36,8 @@ create = (monster) ->
     if not monster.hp then newMonster.hp = monster.maxhp else newMonster.hp = monster.hp
     if not monster.mana then newMonster.mana = monster.maxMana else newMonster.mana = monster.mana
 
-    # mastery
-    newMonster.mastery = Object.assign {}, monster.mastery
+    # masteries
+    newMonster.masteries = Object.assign {}, monster.masteries
 
     # create weapon
     newMonster.weapon = Object.assign {}, monster.weapon
@@ -55,17 +56,17 @@ create = (monster) ->
     return Object.freeze newMonster
 createFromTemplate = (monster, level) ->
     newMonster =
-        arrow: monster.arrow
-        broadhead: monster.broadhead
+        arrow: 0
+        broadhead: 0
         broadheads: monster.broadheads
         combatPos: null
-        gold: (monster.gold.min + random((monster.gold.max - monster.gold.min)*100)/100) * level
-        hp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level)
+        gold: ((monster.gold * 0.75) + random(monster.gold * 25)/100) * Math.pow XP_GAIN_FACTOR, level-1
+        hp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level-1)
         land: monster.land
         level: level
-        mana: (monster.maxMana || 1) * Math.pow(MANA_GAIN_FACTOR, level)
-        maxMana: (monster.maxMana || 1) * Math.pow(MANA_GAIN_FACTOR, level)
-        maxhp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level)
+        mana: (monster.maxMana || 1) * Math.pow(MANA_GAIN_FACTOR, level-1)
+        maxMana: (monster.maxMana || 1) * Math.pow(MANA_GAIN_FACTOR, level-1)
+        maxhp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level-1)
         movement: monster.movement
         name: monster.name
         position: monster.position
@@ -73,40 +74,30 @@ createFromTemplate = (monster, level) ->
         species: monster.species
         spell: monster.spell
         state: []
-        xp: (monster.xp.min + random((monster.xp.max - monster.xp.min)*100)/100) * Math.pow(XP_GAIN_FACTOR, level)
-
-    # mastery
-    masteryLevel = level/2 + random level/2
-    newMonster.mastery = {}
-    newMonster.mastery =
-        level: masteryLevel
+        xp: monster.xp * Math.pow(XP_GAIN_FACTOR, level-1)
 
     # TODO skills and skills bonus damage
-    newMonster.skills = {}
+    newMonster.skills = Object.assign {}, monster.skills
 
     # create weapon
-    weapons = Weapon.getAll()
-    armours = Armour.getAll()
     options =
-        min: monster.attack.min * Math.pow WEAPON_GAIN_FACTOR, masteryLevel
-        max: monster.attack.max * Math.pow WEAPON_GAIN_FACTOR, masteryLevel
+        min: monster.attack.min * Math.pow WEAPON_GAIN_FACTOR, level-1
+        max: monster.attack.max * Math.pow WEAPON_GAIN_FACTOR, level-1
         range: monster.attack.range || 1
+        speed: monster.attack.speed
         spell: monster.spell
-    switch monster.attack.attackType
-        when attackTypes.melee then newMonster.weapon = Weapon.create Object.assign {}, weapons.shortSword, options
-        when attackTypes.ranged then newMonster.weapon = Weapon.create Object.assign {}, weapons.shortBow, options
-        when attackTypes.magic then newMonster.weapon = Weapon.create Object.assign {}, weapons.shortWand, options
+    newMonster.weapon = Weapon.create Object.assign {}, monster.weapon, options
 
     # create armour
-    armourOptions =
-        resistance:
-            melee: monster.armour.melee.min + random(monster.armour.melee.max - monster.armour.melee.min)
-            ranged: monster.armour.ranged.min + random(monster.armour.ranged.max - monster.armour.ranged.min)
-            magic: monster.armour.magic.min + random(monster.armour.magic.max - monster.armour.magic.min)
+    armours = Armour.getAll()
     switch monster.armour.type
-        when armourTypes.light then newMonster.armour = Armour.create Object.assign {}, armours.robe, armourOptions
-        when armourTypes.medium then newMonster.armour = Armour.create Object.assign {}, armours.leather, armourOptions
-        when armourTypes.heavy then newMonster.armour = Armour.create Object.assign {}, armours.breastPlate, armourOptions
+        when armourTypes.light then newMonster.armour = Armour.create Object.assign {}, armours.robe, { resistance: { physical: monster.armour.amount } }
+        when armourTypes.medium then newMonster.armour = Armour.create Object.assign {}, armours.leather, { resistance: { physical: monster.armour.amount } }
+        when armourTypes.heavy then newMonster.armour = Armour.create Object.assign {}, armours.breastPlate, { resistance: { physical: monster.armour.amount } }
+
+    # masteries
+    newMonster.masteries = {}
+    newMonster.masteries[newMonster.weapon.type] = { level: level }
 
     if monster.getAction?
         newMonster.getAction = monster.getAction
@@ -128,16 +119,15 @@ getBonusGold = (monster, hero) ->
         return monster.gold * hero.skills.skinning.level * hero.skills.skinning.bonus
     return 0
 getRandomType = (level, mapType) ->
+    return monsters[5]
+
     available = monsters.filter (x) ->
         return x.land.has(mapType) and x.minLevel <= level and x.maxLevel >= level
     return available[random available.length]
 attack = (monster, hero) ->
-    damage = Weapon.getDamage monster, hero
-    effects = Weapon.getEffects monster
-    # TODO deal with leeching
     # TODO deal with reflect
-
-    return [ monster, damage, effects ]
+    [ damages, effects ] = Weapon.getDamage(monster, hero)
+    return [ monster, damages, effects ]
 getAction = (source, target) ->
     if source.state.filter((x) -> x.effect is heroStates.frozen).length > 0
         log chalk.blueBright '> ' + source.name + ' is frozen'
@@ -147,24 +137,23 @@ getAction = (source, target) ->
     if distance is 1
         return actions.attack
     else
-        switch source.weapon.attackType
-            when attackTypes.magic
-                if source.mana < source.weapon.spell.mana * source.weapon.manaAdjustment
-                    return actions.approach
-                else
-                    return actions.useSpell
-            when attackTypes.melee
-                if source.state.has { effect: heroStates.maimed }
-                    log '> ' + source.name + ' can not move'
-                else
-                    return actions.approach
-            when attackTypes.ranged
-                arrow = source.quiver[source.arrow]
-                broadhead = source.broadheads[source.broadhead]
-                if source.weapon.range * arrow.range * broadhead.range * 1.2 >= distance
-                    return actions.attack
-                else
-                    return actions.approach
+        if source.weapon.spell?
+            if source.mana < source.weapon.spell.mana * source.weapon.manaAdjustment
+                return actions.approach
+            else
+                return actions.useSpell
+        if source.weapon.range is 1
+            if source.state.has { effect: heroStates.maimed }
+                log '> ' + source.name + ' can not move'
+            else
+                return actions.approach
+        if source.weapon.range > 1
+            arrow = source.quiver[source.arrow]
+            broadhead = source.broadheads[source.broadhead]
+            if source.weapon.range * arrow.range * broadhead.range * 1.2 >= distance
+                return actions.attack
+            else
+                return actions.approach
     return null
 takeAction = (source, target, action) ->
     switch action
@@ -173,43 +162,39 @@ takeAction = (source, target, action) ->
             monster = create Object.assign {}, source, { combatPos: combatPos }
 
             log '> ' + source.name + ' approaching ' + target.name
-            return [ monster, 0, [] ]
+            return [ monster, [], [] ]
         when actions.retreat
             combatPos = Math.min(source.combatPos + source.movement, 50)
             monster = create Object.assign {}, source, { combatPos: combatPos }
 
             log '> ' + source.name + ' retreating ' + target.name
-            return [ monster, 0, [] ]
+            return [ monster, [], [] ]
         when actions.attack
             return attack source, target
         when actions.useSpell
             spell = source.weapon.spell
-            spellAmp = if source.weapon.attackType is attackTypes.magic and source.weapon.spellAmplification? then source.weapon.spellAmplification else 1
-            getDamage = () -> [ Weapon.getDamage(source, target) * spellAmp, Weapon.getEffects(source) ]
+            spellAmp = if source.weapon.spellAmplification? then source.weapon.spellAmplification else 1
+            getDamage = () ->
+                return Weapon.getDamage(source, target)
 
-            takeDamage = () ->
-                all = []
-                sum = 0
-                return (damage, effects) ->
-                    sum += damage
-                    all = [ all..., effects... ]
-                    return [ sum, all ]
-
-            [ damage, effects ] = spell.use getDamage, takeDamage()
+            takeDamage = (damages, effects) ->
+                damage.amount * spellAmp for damage in damages
+                return [ damages, effects ]
+            [ damages, effects ] = spell.use getDamage, takeDamage
             monster = create Object.assign {}, source, { mana: source.mana - source.weapon.spell.mana * source.weapon.manaAdjustment }
 
             log '> ' + monster.name + ' used ' + chalk.yellow(spell.name)
-            return [ monster, damage, effects ]
+            return [ monster, damages, effects ]
         else
             log '> ' + source.name + ' passes turn'
-            return [ source, 0, [] ]
+            return [ source, [], [] ]
 getAll = () -> return monsters
 getDamageStr = (source) ->
     skillsBonus = Weapon.getSkillBonus source.skills, source.weapon.attackType
-    masteryBonus = Weapon.getMasteryBonus source.mastery
+    masteryBonus = Weapon.getMasteryBonus source.masteries, source.weapon.type
     return '' + (source.weapon.min * masteryBonus * skillsBonus).toFixed(2) + ' - ' + (source.weapon.max * masteryBonus * skillsBonus).toFixed(2)
 getArmourStr = (source) ->
-    return source.armour.name + '\tresistances: ' + source.armour.resistance.melee + '/' + source.armour.resistance.ranged + '/' + source.armour.resistance.magic
+    return source.armour.name + '\tamount: ' + source.armour.resistance # TODO fix this
 showStats = (monster, inspectionLevel) ->
     log '> enemy type: ' + chalk.redBright monster.name
     switch inspectionLevel
@@ -231,7 +216,7 @@ showStats = (monster, inspectionLevel) ->
             log '> movement: ' + monster.movement
             log '> weapon: ' + monster.weapon.attackType + ' range: ' + monster.weapon.range
             log '> damage: ' + chalk.redBright getDamageStr monster
-            log '> armour: ' + chalk.yellow getArmourStr monster
+            log '> armour: ' + getArmourStr monster
             if monster.skills.size > 0
                 log '> skills: '
                 for own key, skill of monster.skills
@@ -249,18 +234,21 @@ adjust = (map, pos, changes...) ->
 
     return monster
 
-takeDamage = (monster, attackType, damage, effects) ->
+takeDamage = (monster, damages, effects) ->
+    damage = damages.reduce (a, x) ->
+        return a + x.amount
+    , 0
     if damage <= 0
         return [ monster, true, 0, 0 ]
 
     if effects.has { effect: weaponStates.critical }
         log chalk.blueBright '> critical hit'
-        damage *= 2
-    if effects.has { effect: weaponStates.piercing }
-        log chalk.blueBright '> piercing hit'
-        attackType = attackTypes.pure
+        damage.amount *= 2 for damage in damages
 
-    adjustedDamage = Armour.soakDamage monster.armour, damage, attackType
+    # err 'taking damage:', damage.amount, 'of type', '[' + damage.type + ']' for damage in damages
+
+    adjustedDamage = Armour.soakDamage monster.armour, damages
+    # err 'real damage', adjustedDamage
     newMonster = Object.assign {}, monster, { hp: monster.hp - adjustedDamage, state: [ monster.state..., effects... ] }
 
     hp = 0

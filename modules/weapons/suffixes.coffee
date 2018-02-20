@@ -1,4 +1,4 @@
-{ attackTypes, heroStates, weaponStates } = require '../constants'
+{ attackTypes, heroStates, weaponStates, weaponTypes } = require '../constants'
 { random, err } = require '../general'
 
 suffixes =
@@ -8,7 +8,7 @@ suffixes =
         minLevel: 0
         probability: 8
         costMultiplier: 1.5
-        exclusive: [attackTypes.melee, attackTypes.ranged]
+        exclusive: [ weaponTypes.sword, weaponTypes.axe, weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
         apply: () ->
             if random() < 10 then return [ { effect: heroStates.bleeding, ticks: 3} ] else return []
     wounding:
@@ -17,7 +17,7 @@ suffixes =
         minLevel: 10
         probability: 4
         costMultiplier: 2
-        exclusive: [attackTypes.melee, attackTypes.ranged]
+        exclusive: [ weaponTypes.sword, weaponTypes.axe, weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
         apply: () ->
             if random() < 20 then return [ { effect: heroStates.bleeding, ticks: 1} ] else return []
     blood:
@@ -26,7 +26,7 @@ suffixes =
         minLevel: 25
         probability: 2
         costMultiplier: 3
-        exclusive: [attackTypes.melee, attackTypes.ranged]
+        exclusive: [ weaponTypes.sword, weaponTypes.axe, weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
         apply: () ->
             if random() < 20 then return [ { effect: weaponStates.bleeding, ticks: 3} ] else return []
     piercing:
@@ -35,7 +35,7 @@ suffixes =
         minLevel: 0
         probability: 8
         costMultiplier: 1.5
-        exclusive: [attackTypes.ranged]
+        exclusive: [ weaponTypes.sword, weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
         apply: () ->
             if random() < 10 then return [ { effect: weaponStates.piercing, ticks: 1} ] else return []
     armourPiercing:
@@ -44,7 +44,7 @@ suffixes =
         minLevel: 10
         probability: 4
         costMultiplier: 2
-        exclusive: [attackTypes.ranged]
+        exclusive: [ weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
         apply: () ->
             if random() < 20 then return [ { effect: weaponStates.piercing, ticks: 1} ] else return []
     armourPenetration:
@@ -53,7 +53,7 @@ suffixes =
         minLevel: 25
         probability: 2
         costMultiplier: 3
-        exclusive: [attackTypes.ranged]
+        exclusive: [ weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
         apply: () ->
             if random() < 40 then return [ { effect: weaponStates.piercing, ticks: 1} ] else return []
     poison:
@@ -86,7 +86,7 @@ suffixes =
         minLevel: 0
         probability: 4
         costMultiplier: 2
-        exclusive: [attackTypes.ranged]
+        exclusive: [ weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear ]
         apply: () ->
             if random() < 5 then return [ { effect: heroStates.maimed, ticks: 1} ] else return []
     mayhem:
@@ -95,7 +95,7 @@ suffixes =
         minLevel: 15
         probability: 2
         costMultiplier: 3
-        exclusive: [attackTypes.ranged]
+        exclusive: [ weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear ]
         apply: () ->
             if random() < 10 then return [ { effect: heroStates.maimed, ticks: 1} ] else return []
     leech:
@@ -104,7 +104,7 @@ suffixes =
         minLevel: 10
         probability: 4
         costMultiplier: 2
-        exclusive: [attackTypes.melee, attackTypes.ranged]
+        exclusive: [ weaponTypes.sword, weaponTypes.axe, weaponTypes.hammer, weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear ]
         apply: () ->
             return [ { effect: weaponStates.leeching, ticks: 1} ]
     vampire:
@@ -113,7 +113,7 @@ suffixes =
         minLevel: 25
         probability: 2
         costMultiplier: 3
-        exclusive: [attackTypes.melee, attackTypes.ranged]
+        exclusive: [ weaponTypes.sword, weaponTypes.axe, weaponTypes.hammer, weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear ]
         apply: () ->
             return [ { effect: weaponStates.leeching, ticks: 1}, { effect: weaponStates.leeching, ticks: 1} ]
     burning:
@@ -131,7 +131,7 @@ suffixes =
         probability: 4
         costMultiplier: 2
         apply: () ->
-            if random() < 20 then return [ { effect: heroStates.burning, ticks: 2} ] else return []
+            if random() < 20 then return [ { effect: heroStates.burning, ticks: 1} ] else return []
     scorching:
         name: 'scorching'
         description: '20% chance to immolate enemy (burns for 3 rounds)'
@@ -139,14 +139,14 @@ suffixes =
         probability: 2
         costMultiplier: 3
         apply: () ->
-            if random() < 20 then return [ { effect: heroStates.burning, ticks: 1} ] else return []
+            if random() < 20 then return [ { effect: heroStates.burning, ticks: 3} ] else return []
     imp:
         name: 'the imp'
         description: '10% mana steal'
         minLevel: 5
         probability: 8
         costMultiplier: 2
-        exclusive: [attackTypes.magic]
+        exclusive: [ weaponTypes.wand, weaponTypes.tome, weaponTypes.staff ]
         apply: () ->
             return [ { effect: weaponStates.manaLeeching, ticks: 1} ]
     efrit:
@@ -155,7 +155,7 @@ suffixes =
         minLevel: 20
         probability: 4
         costMultiplier: 3.0
-        exclusive: [attackTypes.magic]
+        exclusive: [ weaponTypes.wand, weaponTypes.tome, weaponTypes.staff ]
         apply: () ->
             return [ { effect: weaponStates.manaLeeching, ticks: 1}, { effect: weaponStates.manaLeeching, ticks: 1} ]
 

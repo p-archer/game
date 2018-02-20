@@ -13,7 +13,7 @@ outputter = (state, hero, map) ->
 
     log()
     log ' - hero level: '.toFixed(24) + chalk.green hero.level
-    log ' - mastery level: '.toFixed(24) + chalk.green hero.mastery.level
+    log ' - mastery level: '.toFixed(24) + chalk.green hero.masteries[hero.weapon.type].level
     log ' - gold:'.toFixed(24) + chalk.yellow hero.gold.toFixed(2)
     log()
     log 'f\t\tfull heal'

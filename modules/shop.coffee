@@ -42,6 +42,7 @@ getSkills = (hero) ->
 
 showSkills = (inventory) ->
     index = 0
+    log()
     for skill in inventory
         log ''+index++ + '\t' + skill.name.toFixed(32) + '\tcost: ' + chalk.yellow skill.cost + ' gold'
     if inventory.length is 0
@@ -50,12 +51,13 @@ showSkills = (inventory) ->
 getWeapons = (hero) ->
     quality = getQualityRange hero.level
     weapons = {}
-    for key, weapon of Weapons.getByQuality quality when weapon.attackType is hero.weapon.attackType
+    for own key, weapon of Weapons.getByQuality quality
         weapons[key] = weapon
     return weapons
 
 showWeapons = (inventory) ->
     index = 0
+    log()
     for weapon in inventory
         name = weapon.name
         if weapon.prefix? then name = weapon.prefix.name + ' ' + weapon.name

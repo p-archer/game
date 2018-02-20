@@ -74,7 +74,7 @@ gainXP = (quiver, index, xp) ->
     unlocks = unlocks.filter (x) ->
         return quiver.filter((y) -> return x.key is y.key).length is 0
     if unlocks.length > 0
-        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join ' arrows/shafts, '
+        log chalk.green '# you have unlocked: ' + (unlocks.map((x) -> x.name)).join(', ') + ' arrows/shafts'
         unlocks = unlocks.map (x) -> return create x
         return [ quiver[0...index]..., create(arrow), quiver[index+1...]..., unlocks... ]
 

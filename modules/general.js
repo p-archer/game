@@ -42,10 +42,17 @@ let outputter = {
 outputter.init();
 
 function output(str, fn) {
-	if (!fn)
-		outputter.queue.push([console.log, str]);
-	else
-		outputter.queue.push([fn, str]);
+	if (useLog === trashLog) {
+		if (!fn)
+			outputter.queue.push([console.log, str]);
+		else
+			outputter.queue.push([fn, str]);
+	} else {
+		if (!fn)
+			console.log(str);
+		else
+			fn(str);
+	}
 }
 
 function inline(str) {
@@ -76,7 +83,7 @@ function trashLog() {
 
 	for (let i=0; i<arguments.length; i++) {
 		if (arguments[i] === Object(arguments[i]))
-			args.push(JSON.stringify(arguments[i]));
+			args.push(JSON.stringify(arguments[i], null, 2));
 		else
 			args.push(arguments[i]);
 	}
@@ -95,7 +102,7 @@ function normalLog() {
 
 	for (let i=0; i<arguments.length; i++) {
 		if (arguments[i] === Object(arguments[i]))
-			args.push(JSON.stringify(arguments[i]));
+			args.push(JSON.stringify(arguments[i], null, 2));
 		else
 			args.push(arguments[i]);
 	}
@@ -108,7 +115,7 @@ function warn() {
 
 	for (let i=0; i<arguments.length; i++) {
 		if (arguments[i] === Object(arguments[i]))
-			args.push(JSON.stringify(arguments[i]));
+			args.push(JSON.stringify(arguments[i], null, 2));
 		else
 			args.push(arguments[i]);
 	}
@@ -121,7 +128,7 @@ function err() {
 
 	for (let i=0; i<arguments.length; i++) {
 		if (arguments[i] === Object(arguments[i]))
-			args.push(JSON.stringify(arguments[i]));
+			args.push(JSON.stringify(arguments[i], null, 2));
 		else
 			args.push(arguments[i]);
 	}
@@ -205,14 +212,14 @@ function init() {
 
 	Object.defineProperty(Object.prototype, 'size', {
 		get: function() {
-			return Object.keys(this).length;
+			return Object.getOwnPropertyNames(this).length;
 		},
 		writeable: false
 	});
 
 	Object.defineProperty(Object.prototype, 'keys', {
 		get: function() {
-			return Object.keys(this);
+			return Object.getOwnPropertyNames(this);
 		},
 		writeable: false
 	});

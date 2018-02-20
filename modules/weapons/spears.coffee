@@ -7,18 +7,29 @@ skills = require '../skills/skills.coffee'
 
 getDamage = (weapon) ->
     return (actor, distance) ->
-        damage = (weapon.min + (random() * (weapon.max - weapon.min) / 100))
+        arrow = actor.quiver[actor.arrow]
+        broadhead = actor.broadheads[actor.broadhead]
+        damage = (weapon.min + (random() * (weapon.max - weapon.min) / 100)) * arrow.damage
+        attack = broadhead.use damage
+        range = weapon.range * arrow.range * broadhead.range
+
         if distance > 1
             cth = 1 - Math.max 0, (distance/weapon.range - 1)
-            if random() < cth * 100 then return damage else err '> ranged attack missed'
-            return 0
-        else
-            return damage
+            if random() < cth * 100
+                return attack
+
+            err '> ranged attack missed'
+            return [ [ amount: 0, type: attackTypes.pure ], [] ]
+
+        return attack
 
 showCombat = (source, getDamageStr, distance) ->
     arrow = source.quiver[source.arrow]
     broadhead = source.broadheads[source.broadhead]
     range = source.weapon.range * arrow.range * broadhead.range
+    damage = arrow.damage * broadhead.damage.reduce (a, x) ->
+        return a + x.ratio
+    , 0
 
     cth = 1 - Math.max 0, (distance/range - 1)
     cthStr = ''
@@ -31,7 +42,7 @@ showCombat = (source, getDamageStr, distance) ->
     if source.weapon.suffix? then name = name + ' of ' + source.weapon.suffix.name
     log 'e\tattack with ' + chalk.blueBright(name) + ' chance to hit: ' + cthStr
     log '\tusing ' + chalk.yellow(arrow.name + ' shaft') + ' with ' + chalk.yellow(broadhead.name + ' spearhead')
-    log '\trange: ' +  getPercent(arrow.range * broadhead.range) + ' (' + chalk.green(range.toFixed(0)) + ') damage: ' + getPercent(arrow.damage * broadhead.damage) + ' (' + chalk.green(getDamageStr(source)) + ')'
+    log '\trange: ' +  getPercent(arrow.range * broadhead.range) + ' (' + chalk.green(range.toFixed(0)) + ') damage: ' + getPercent(damage) + ' (' + chalk.green(getDamageStr(source)) + ')'
     log '\tshaft: ' + arrow.description()
     log '\tspearhead: ' + broadhead.description()
     log()
@@ -47,12 +58,10 @@ spears =
         min: 2
         max: 3
         range: 10
-        attackType: attackTypes.ranged
         requirements:
             level: 0
         cost: 100
         quality: 1
-        getDamage: (x...) -> getDamage(this)(x...)
         description: 'Short spear used for throwing.'
 
     pilum:
@@ -60,14 +69,11 @@ spears =
         min: 2
         max: 3
         range: 16
-        attackType: attackTypes.ranged
         requirements:
             level: 5
-            mastery: 5
             skills: [{skill: skills.ranged, level: 3}]
         cost: 150
         quality: 1
-        getDamage: (x...) -> getDamage(this)(x...)
         description: 'Roman pilum used in ranged combat.'
 
     javelin:
@@ -75,14 +81,11 @@ spears =
         min: 2.5
         max: 3
         range: 14
-        attackType: attackTypes.ranged
         requirements:
             level: 5
-            mastery: 5
             skills: [{skill: skills.ranged, level: 2}]
         cost: 100
         quality: 1
-        getDamage: (x...) -> getDamage(this)(x...)
         description: 'Standard javelin.'
 
     spear:
@@ -90,14 +93,11 @@ spears =
         min: 3.5
         max: 5
         range: 12
-        attackType: attackTypes.ranged
         requirements:
             level: 10
-            mastery: 10
             skills: [{skill: skills.improvedRanged, level: 1}]
         cost: 500
         quality: 2
-        getDamage: (x...) -> getDamage(this)(x...)
         description: 'Spear used for throwing.'
 
     boneSpear:
@@ -105,14 +105,11 @@ spears =
         min: 3
         max: 5
         range: 16
-        attackType: attackTypes.ranged
         requirements:
             level: 10
-            mastery: 10
             skills: [{skill: skills.improvedRanged, level: 2}]
         cost: 700
         quality: 2
-        getDamage: (x...) -> getDamage(this)(x...)
         description: 'A spear made out of bones. Increased range at the cost of damage.'
 
     longSpear:
@@ -120,14 +117,11 @@ spears =
         min: 4.5
         max: 6.0
         range: 10
-        attackType: attackTypes.ranged
         requirements:
             level: 20
-            mastery: 20
             skills: [{skill: skills.advancedRanged, level: 1}]
         cost: 2000
         quality: 3
-        getDamage: (x...) -> getDamage(this)(x...)
         description: 'Longer version of the spear, shorter range, but increased damage.'
 
 for key, spear of spears
@@ -135,6 +129,6 @@ for key, spear of spears
         chance = (random(1000) + 1) / 100
         description = spear.description + ' (chance to maim ' + chance.toFixed(2) + '%)'
         modifier = () -> if random(10000) < chance * 100 then return [ { effect: heroStates.maimed, ticks: 1} ] else return []
-        return Object.assign {}, spear, { description: description, modifier: modifier, showCombat: showCombat, type: weaponTypes.spear }
+        return Object.assign {}, spear, { description: description, modifier: modifier, showCombat: showCombat, type: weaponTypes.spear, getDamage: getDamage(spear) }
 
 module.exports = spears

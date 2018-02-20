@@ -1,5 +1,7 @@
 { attackTypes, armourTypes, species, mapTypes } = require '../constants'
 
+Weapons = require '../weapons/weapons.coffee'
+    .getAll()
 skills = require '../skills/skills.coffee'
     .getNames()
 Arrows = require '../weapons/arrows.coffee'
@@ -13,69 +15,41 @@ monsters =
         land: [mapTypes.forest, mapTypes.enchanted, mapTypes.swamp]
         species: [species.mythological]
         minLevel: 20
-        maxLevel: 50
+        maxLevel: 100
         movement: 20
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.heavy ]
         broadheads: [ Broadheads.create broadheads.heavy ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 5
             min: 3
             range: 20
         armour:
             type: armourTypes.medium
-            melee:
-                max: 30
-                min: 10
-            ranged:
-                max: 25
-                min: 5
-            magic:
-                max: 0
-                min: 0
+            amount: 50
         maxhp: 5
-        gold:
-            min: 3
-            max: 7
-        xp:
-            min: 5
-            max: 8
+        gold: 8
+        xp: 8
     drowElf:
         name: 'drow elf'
         land: [mapTypes.forest, mapTypes.dungeon, mapTypes.swamp]
         species: [species.humanoid]
         minLevel: 25
-        maxLevel: 55
+        maxLevel: 100
         movement: 10
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.poisoning ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 6
             min: 3
             range: 35
         armour:
             type: armourTypes.medium
-            melee:
-                max: 45
-                min: 20
-            ranged:
-                max: 40
-                min: 10
-            magic:
-                max: 30
-                min: 10
+            amount: 50
         maxhp: 6
-        gold:
-            min: 6
-            max: 7
-        xp:
-            min: 7
-            max: 10
+        gold: 8
+        xp: 10
         skills: [{
             skill: skills.tactics
             level: 5
@@ -85,69 +59,41 @@ monsters =
         land: [mapTypes.forest, mapTypes.enchanted]
         species: [species.magical, species.fairy]
         minLevel: 10
-        maxLevel: 40
+        maxLevel: 80
         movement: 15
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.burning ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 4
             min: 2
             range: 28
         armour:
             type: armourTypes.light
-            melee:
-                max: 10
-                min: 0
-            ranged:
-                max: 20
-                min: 0
-            magic:
-                max: 20
-                min: 5
+            amount: 20
         maxhp: 5
-        gold:
-            min: 3
-            max: 6
-        xp:
-            min: 4
-            max: 6
+        gold: 6
+        xp: 6
     elf:
         name: 'elf'
         land: [mapTypes.forest, mapTypes.enchanted]
         species: [species.humanoid]
         minLevel: 15
-        maxLevel: 50
+        maxLevel: 80
         movement: 10
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.piercing ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 4
             min: 3
             range: 32
         armour:
             type: armourTypes.medium
-            melee:
-                max: 35
-                min: 20
-            ranged:
-                max: 20
-                min: 10
-            magic:
-                max: 20
-                min: 10
+            amount: 40
         maxhp: 4
-        gold:
-            min: 2
-            max: 5
-        xp:
-            min: 4
-            max: 7
+        gold: 5
+        xp: 7
         skills: [{
             skill: skills.tactics
             level: 2
@@ -159,33 +105,19 @@ monsters =
         minLevel: 10
         maxLevel: 100
         movement: 8
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.orcish ]
-        broadheads: [ Broadheads.create broadheads.freezing ]
-        arrow: 0
-        broadhead: 0
+        broadheads: [ Broadheads.create broadheads.ice ]
         attack:
-            attackType: attackTypes.ranged
             max: 6
             min: 3
             range: 28
         armour:
             type: armourTypes.light
-            melee:
-                max: 35
-                min: 20
-            ranged:
-                max: 35
-                min: 20
-            magic:
-                max: 50
-                min: 20
+            amount: 25
         maxhp: 4
-        gold:
-            min: 4
-            max: 6
-        xp:
-            min: 6
-            max: 8
+        gold: 6
+        xp: 8
     kobold:
         name: 'kobold'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.inferno, mapTypes.desert]
@@ -193,33 +125,19 @@ monsters =
         minLevel: 0
         maxLevel: 30
         movement: 8
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.orcish ]
         broadheads: [ Broadheads.create broadheads.burning ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 2
             min: 1
             range: 30
         armour:
             type: armourTypes.light
-            melee:
-                max: 15
-                min: 0
-            ranged:
-                max: 15
-                min: 0
-            magic:
-                max: 15
-                min: 0
+            amount: 10
         maxhp: 3
-        gold:
-            min: 1
-            max: 3
-        xp:
-            min: 1
-            max: 3
+        gold: 3
+        xp: 3
     medusa:
         name: 'medusa'
         land: [mapTypes.dungeon, mapTypes.swamp]
@@ -227,33 +145,19 @@ monsters =
         minLevel: 10
         maxLevel: 50
         movement: 10
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.elven ]
         broadheads: [ Broadheads.create broadheads.poisoning ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 6
             min: 3
             range: 20
         armour:
             type: armourTypes.medium
-            melee:
-                max: 25
-                min: 10
-            ranged:
-                max: 30
-                min: 10
-            magic:
-                max: 20
-                min: 10
+            amount: 35
         maxhp: 4
-        gold:
-            min: 3
-            max: 6
-        xp:
-            min: 4
-            max: 8
+        gold: 6
+        xp: 6
     salamander:
         name: 'salamander'
         land: [mapTypes.dungeon, mapTypes.swamp]
@@ -261,33 +165,19 @@ monsters =
         minLevel: 5
         maxLevel: 30
         movement: 10
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.burning ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 4
             min: 2
             range: 28
         armour:
             type: armourTypes.medium
-            melee:
-                max: 20
-                min: 10
-            ranged:
-                max: 20
-                min: 10
-            magic:
-                max: 20
-                min: 10
+            amount: 40
         maxhp: 5
-        gold:
-            min: 3
-            max: 5
-        xp:
-            min: 2
-            max: 5
+        gold: 5
+        xp: 5
     pixie:
         name: 'pixie'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.forest, mapTypes.desert, mapTypes.enchanted]
@@ -295,33 +185,19 @@ monsters =
         minLevel: 0
         maxLevel: 30
         movement: 12
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.light ]
         broadheads: [ Broadheads.create broadheads.bleeding ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 0.8
             min: 0.6
             range: 20
         armour:
             type: armourTypes.light
-            melee:
-                max: 15
-                min: 0
-            ranged:
-                max: 15
-                min: 0
-            magic:
-                max: 15
-                min: 0
+            amount: 10
         maxhp: 3
-        gold:
-            min: 2
-            max: 4
-        xp:
-            min: 2
-            max: 4
+        gold: 4
+        xp: 4
     siren:
         name: 'siren'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.desert, mapTypes.forest]
@@ -329,66 +205,38 @@ monsters =
         minLevel: 20
         maxLevel: 100
         movement: 10
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.elven ]
         broadheads: [ Broadheads.create broadheads.vampiric ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 6
             min: 4
             range: 28
         armour:
             type: armourTypes.medium
-            melee:
-                max: 40
-                min: 10
-            ranged:
-                max: 30
-                min: 10
-            magic:
-                max: 30
-                min: 10
+            amount: 60
         maxhp: 5
-        gold:
-            min: 6
-            max: 10
-        xp:
-            min: 7
-            max: 10
+        gold: 10
+        xp: 10
     skeletonArcher:
         name: 'skeleton archer'
         land: [mapTypes.dungeon, mapTypes.crypt, mapTypes.swamp]
         species: [species.undead]
         minLevel: 5
-        maxLevel: 50
+        maxLevel: 100
         movement: 6
+        weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.piercing ]
-        arrow: 0
-        broadhead: 0
         attack:
-            attackType: attackTypes.ranged
             max: 2
             min: 1
             range: 20
         armour:
             type: armourTypes.medium
-            melee:
-                max: 20
-                min: 0
-            ranged:
-                max: 60
-                min: 50
-            magic:
-                max: 10
-                min: 0
+            amount: 30
         maxhp: 4
-        gold:
-            min: 2
-            max: 5
-        xp:
-            min: 3
-            max: 5
+        gold: 5
+        xp: 5
 
 module.exports = (monster for own key, monster of monsters)

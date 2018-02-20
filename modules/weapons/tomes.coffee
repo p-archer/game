@@ -30,7 +30,6 @@ tomes =
         name: 'tome fragment'
         min: 0.4
         max: 0.5
-        attackType: attackTypes.magic
         requirements:
             level: 0
             skills: []
@@ -45,10 +44,8 @@ tomes =
         name: 'tome'
         min: 0.4
         max: 0.5
-        attackType: attackTypes.magic
         requirements:
             level: 10
-            mastery: 10
             skills: [{skill: skills.improvedMagic, level: 1}]
         cost: 600
         quality: 2
@@ -61,10 +58,8 @@ tomes =
         name: 'grimoire'
         min: 0.4
         max: 0.5
-        attackType: attackTypes.magic
         requirements:
             level: 20
-            mastery: 20
             skills: [{skill: skills.advancedMagic, level: 1}]
         cost: 2000
         quality: 3

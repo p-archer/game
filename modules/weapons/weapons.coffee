@@ -1,5 +1,5 @@
 { err, log, random } = require '../general'
-{ heroStates, WEAPON_GAIN_FACTOR, attackTypes } = require '../constants'
+{ heroStates, WEAPON_GAIN_FACTOR, attackTypes, speed } = require '../constants'
 
 # melee: swords (med damage, 1 range, fast), axes (high damage, 1 range, slow), spears (med damage, 2-3 range, med speed), great sword (high damage, 2 range, slow)
 # ranged: bows (med range, fast, med damage), crossbows (high range, slow, high damage), javelins (low range, med speed, med damage, no melee penalty)
@@ -37,9 +37,6 @@ isAvailable = (hero, weapon) ->
     if hero.level < weapon.requirements.level
         err ' > required level not reached (you have: ' + hero.level + ', required: ' + weapon.requirements.level + ')'
         return false
-    if weapon.requirements.mastery? and weapon.requirements.mastery > hero.mastery.level
-        err ' > mastery requirement not reached (you have: ' + hero.mastery.level + ', required: ' + weapon.requirements.mastery + ')'
-        return false
 
     if weapon.requirements.skills?
         for req in weapon.requirements.skills
@@ -69,6 +66,7 @@ create = (weapon) ->
         range: weapon.range
         requirements: Object.assign {}, weapon.requirements
         showCombat: weapon.showCombat
+        speed: weapon.speed || speed.normal
         spell: weapon.spell
         spellAmplification: weapon.spellAmplification
         spells: weapon.spells
@@ -77,41 +75,43 @@ create = (weapon) ->
 
         getDamage: weapon.getDamage
 
-    if weapon.init? and not weapon.spell?
+    # if weapon.init? and not weapon.spell # don't init weapon if spell is already selected
+    if weapon.init?
         newWeapon = weapon.init newWeapon
+        newWeapon.init = null
+        if weapon.spell then newWeapon.spell = weapon.spell
     return Object.freeze newWeapon
 
-getSkillBonus = (skills, attackType) ->
+getSkillBonus = (skills, weaponType) ->
     skillMultiplier = 1
     for own key, skill of skills
-        if skill? and skill.attackType is attackType and skill.damageBonus?
+        if skill.weaponType? and weaponType in skill.weaponType and skill.damageBonus?
             skillMultiplier += skill.damageBonus()
 
     return skillMultiplier
 
-getMasteryBonus = (mastery) ->
-    return Math.pow WEAPON_GAIN_FACTOR, mastery.level-1
+getMasteryBonus = (masteries, type) ->
+    if masteries[type]?
+        return Math.pow WEAPON_GAIN_FACTOR, masteries[type].level-1
+    else
+        return 1
 
 getDamage = (actor, enemy) ->
-    if enemy? and actor.quiver? and actor.broadheads?
-        damage = actor.weapon.getDamage actor, Math.abs actor.combatPos - enemy.combatPos
-    else
-        damage = actor.weapon.getDamage actor, 1
+    masteryBonus = getMasteryBonus actor.masteries, actor.weapon.type
+    skillBonus = getSkillBonus actor.skills, actor.weapon.type
 
-    masteryBonus = getMasteryBonus actor.mastery
-    skillBonus = getSkillBonus actor.skills, actor.weapon.attackType
+    [ damages, effects ] = actor.weapon.getDamage actor, Math.abs actor.combatPos - enemy.combatPos
 
-    return damage * masteryBonus * skillBonus
-getEffects = (source) ->
+    for entry in damages # not really smart
+        entry.amount *= masteryBonus * skillBonus
+
     effects = [
-        (if source.weapon.modifier? then source.weapon.modifier() else [])...
-        (if source.weapon.suffix? then source.weapon.suffix.apply() else [])...
+        effects...
+        (if actor.weapon.modifier? then actor.weapon.modifier() else [])...
+        (if actor.weapon.suffix? then actor.weapon.suffix.apply() else [])...
     ]
 
-    if source.broadheads?
-        broadhead = source.broadheads[source.broadhead]
-        effects = [ effects..., broadhead.use()... ]
-    return effects
+    return [ damages, effects ]
 
 module.exports =
     create: create
@@ -119,7 +119,6 @@ module.exports =
     getAvailable: getAvailable
     getByQuality: getByQuality
     getDamage: getDamage
-    getEffects: getEffects
     getMasteryBonus: getMasteryBonus
     getSkillBonus: getSkillBonus
     isAvailable: isAvailable

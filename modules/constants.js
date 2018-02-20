@@ -1,17 +1,18 @@
 /* global module */
 
 const ARMOUR_GAIN_FACTOR = 0.01;
-const CHANCE_FOR_ADDITIONAL_EXIT = 40;
+const CHANCE_FOR_ADDITIONAL_EXIT = 50;
 const CHANCE_FOR_MONSTER = 15;
-const CHANCE_FOR_SHOP = 95;
+const CHANCE_FOR_SHOP = 100;
 const CHANCE_FOR_TREASURE = 35;
 const GOLD_RANGE = [10, 50, 200, 500, 1000];
-const HP_GAIN_FACTOR = 1.05;
+const HP_GAIN_FACTOR = 1.125;
+const LEVEL_GAIN_FACTOR = 1.125;
 const MANA_GAIN_FACTOR = 1.025;
 const MAP_SIZE = 12;
 const MAX_SKILL_LEVEL = 5;
 const QUALITY_RANGE = [0, 15, 25, 40, 80, 160];
-const WEAPON_GAIN_FACTOR = 1.025;
+const WEAPON_GAIN_FACTOR = 1.033;
 const XP_GAIN_FACTOR = 1.10;
 
 const directions = {
@@ -34,6 +35,7 @@ const states = {
 		main: 'character sheet',
 		weapons: 'weapons',
 		armour: 'armour',
+		masteries: 'masteries',
 		skills: 'skills',
 		abilities: 'abilities'
 	},
@@ -63,10 +65,14 @@ const heroStates = {
 };
 
 const attackTypes = {
-	melee: 'melee',
-	ranged: 'ranged',
-	magic: 'magic',
-	pure: 'pure'
+	arcane: 'arcane',
+	dark: 'dark',
+	fire: 'fire',
+	ice: 'ice',
+	lightning: 'lightning',
+	physical: 'physical',
+	poison: 'poison',
+	pure: 'pure',
 };
 
 const shops = {
@@ -78,9 +84,9 @@ const shops = {
 };
 
 const mapStyles = {
+	corridors: 'corridors',
 	plain: 'plain',
 	ripple: 'ripple',
-	corridors: 'corridors',
 };
 
 const mapTypes = {
@@ -110,28 +116,30 @@ const species = {
 };
 
 const heroClass = {
-	swordsman: 'swordsman',
-	warrior: 'warrior',
-	paladin: 'paladin',
+	arbalist: 'arbalist',
 	archer: 'archer',
 	bandit: 'bandit',
-	arbalist: 'arbalist',
+	crusader: 'crusader',
+	knight: 'knight',
 	mage: 'mage',
+	sorcerer: 'sorcerer',
+	warrior: 'warrior',
+	wizard: 'wizard',
 };
 
 const weaponStates = {
-	critical: 'weapon-state-critical',
-	piercing: 'weapon-state-pierce',
 	bleeding: 'weapon-state-bleed',
-	stunnning: 'weapon-state-stun',
-	maiming: 'weapons-state-maim',
-	poisoning: 'weapon-state-poison',
-	leeching: 'weapon-state-leech',
-	manaLeeching: 'weapon-state-manaleech',
-	lifeDrain: 'weapon-state-lifedrain',
-	manaDrain: 'weapon-state-manadrain',
 	burning: 'weapon-state-burning',
+	critical: 'weapon-state-critical',
 	freezing: 'weapon-state-freezing',
+	leeching: 'weapon-state-leech',
+	lifeDrain: 'weapon-state-lifedrain',
+	maiming: 'weapons-state-maim',
+	manaDrain: 'weapon-state-manadrain',
+	manaLeeching: 'weapon-state-manaleech',
+	piercing: 'weapon-state-pierce',
+	poisoning: 'weapon-state-poison',
+	stunnning: 'weapon-state-stun',
 };
 
 const weaponTypes = {
@@ -152,6 +160,14 @@ const armourTypes = {
 	heavy: 'armour-heavy',
 };
 
+const speed = {
+	normal: 30,
+	slow: 20,
+	fast: 40,
+	vslow: 10,
+	vfast: 50,
+};
+
 module.exports = {
 	ARMOUR_GAIN_FACTOR: ARMOUR_GAIN_FACTOR,
 	CHANCE_FOR_ADDITIONAL_EXIT: CHANCE_FOR_ADDITIONAL_EXIT,
@@ -160,6 +176,7 @@ module.exports = {
 	CHANCE_FOR_TREASURE: CHANCE_FOR_TREASURE,
 	GOLD_RANGE: GOLD_RANGE,
 	HP_GAIN_FACTOR: HP_GAIN_FACTOR,
+	LEVEL_GAIN_FACTOR: LEVEL_GAIN_FACTOR,
 	MANA_GAIN_FACTOR: MANA_GAIN_FACTOR,
 	MAP_SIZE: MAP_SIZE,
 	MAX_SKILL_LEVEL: MAX_SKILL_LEVEL,
@@ -177,6 +194,7 @@ module.exports = {
 	mapTypes: mapTypes,
 	shops: shops,
 	species: species,
+	speed: speed,
 	states: states,
 	weaponTypes: weaponTypes,
 	weaponStates: weaponStates,

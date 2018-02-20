@@ -1,6 +1,6 @@
 chalk = require 'chalk'
 
-{ attackTypes, species, mapTypes, MAP_SIZE, heroClass, states, MAX_SKILL_LEVEL, HP_GAIN_FACTOR, MANA_GAIN_FACTOR, XP_GAIN_FACTOR, WEAPON_GAIN_FACTOR, weaponStates } = require './constants'
+{ attackTypes, species, mapTypes, MAP_SIZE, heroClass, states, LEVEL_GAIN_FACTOR, MAX_SKILL_LEVEL, HP_GAIN_FACTOR, MANA_GAIN_FACTOR, XP_GAIN_FACTOR, WEAPON_GAIN_FACTOR, weaponStates, weaponTypes } = require './constants'
 { log, err, warn, random, getPercent } = require './general'
 { directions } = require './constants'
 
@@ -14,19 +14,23 @@ Arrows = require './weapons/arrows.coffee'
 Abilities = require './abilities/abilities.coffee'
 
 getDamageStr = (hero) ->
-    masteryBonus = Weapon.getMasteryBonus hero.mastery
-    skillBonus = Weapon.getSkillBonus hero.skills, hero.weapon.attackType
+    masteryBonus = Weapon.getMasteryBonus hero.masteries, hero.weapon.type
+    skillBonus = Weapon.getSkillBonus hero.skills, hero.weapon.type
+
     if hero.quiver? and hero.broadheads?
         arrow = hero.quiver[hero.arrow]
         broadhead = hero.broadheads[hero.broadhead]
-        return (hero.weapon.min * masteryBonus * skillBonus * arrow.damage * broadhead.damage).toFixed(2) + ' - ' + (hero.weapon.max * masteryBonus * skillBonus * arrow.damage * broadhead.damage).toFixed(2)
+        bonus = masteryBonus * skillBonus * arrow.damage * broadhead.damage.reduce (a, x) ->
+            return a + x.ratio
+        , 0
+        return (hero.weapon.min * bonus).toFixed(2) + ' - ' + (hero.weapon.max * bonus).toFixed(2)
     else
         return (hero.weapon.min * masteryBonus * skillBonus).toFixed(2) + ' - ' + (hero.weapon.max * masteryBonus * skillBonus).toFixed(2)
 levelUp = (target) ->
     log chalk.greenBright '# ' + target.name + ' has levelled up (unspent skillpoints: ' + (target.skillPoints+1) + ')'
     return create Object.assign {}, target, {
         xp: target.xp - target.nextLevel
-        nextLevel: target.nextLevel * XP_GAIN_FACTOR
+        nextLevel: target.nextLevel * LEVEL_GAIN_FACTOR
         level: target.level+1
         maxhp: target.maxhp * HP_GAIN_FACTOR
         maxMana: target.maxMana * MANA_GAIN_FACTOR
@@ -56,10 +60,7 @@ showGraph = (current, max, name, colorFn = chalk.white) ->
     return
 
 attack = (source, target) ->
-    weaponDamage = Weapon.getDamage source, target
-    effects = Weapon.getEffects source
-
-    return [ weaponDamage, effects ]
+    return Weapon.getDamage source, target
 buyArmour = (source, armour) ->
     return source
 buySkill = (source, skill) ->
@@ -101,50 +102,58 @@ create = (hero) ->
 
     if not hero.maxhp?
         switch hero.heroClass
-            when heroClass.warrior
+            when heroClass.warrior, heroClass.crusader, heroClass.knight
                 newHero.movement = 10
                 newHero.maxhp = 12
                 newHero.maxMana = 6
-            when heroClass.archer
+            when heroClass.archer, heroClass.arbalist, heroClass.bandit
                 arrows = Arrows.getAll()
                 broadheads = Broadheads.getAll()
                 newHero.movement = 8
                 newHero.maxhp = 8
                 newHero.maxMana = 6
-                newHero.broadheads = [ Broadheads.create broadheads.normal ]
+                newHero.broadheads = [ Broadheads.create(broadheads.normal) ]
                 newHero.quiver = [ Arrows.create arrows.normal ]
                 newHero.broadhead = 0
                 newHero.arrow = 0
-            when heroClass.mage
+            when heroClass.mage, heroClass.wizard, heroClass.sorcerer
                 newHero.movement = 6
                 newHero.maxhp = 6
                 newHero.maxMana = 12
         newHero.hp = newHero.maxhp
         newHero.mana = newHero.maxMana
 
-    # copy mastery
-    newHero.mastery =
-        level: if hero.mastery? then hero.mastery.level else 1
-        xp: if hero.mastery? then hero.mastery.xp else 0
-        nextLevel: if hero.mastery? then hero.mastery.nextLevel else 20
+    # copy masteries
+    if not hero.masteries?
+        newHero.masteries = {}
+        for own key, type of weaponTypes
+            newHero.masteries[type] = initMastery()
+    else
+        newHero.masteries = Object.assign {}, hero.masteries
 
     # copy weapon
     if hero.weapon?
         newHero.weapon = Weapon.create hero.weapon
     else
         switch hero.heroClass
-            when heroClass.warrior then newHero.weapon = Weapon.create Weapon.getAll().shortSword
+            when heroClass.warrior then newHero.weapon = Weapon.create Weapon.getAll().shortSword # update
+            when heroClass.crusader then newHero.weapon = Weapon.create Weapon.getAll().shortSword # update
+            when heroClass.knight then newHero.weapon = Weapon.create Weapon.getAll().shortSword
             when heroClass.archer then newHero.weapon = Weapon.create Weapon.getAll().shortBow
-            when heroClass.mage then newHero.weapon = Weapon.create Weapon.getAll().shortWand
+            when heroClass.arbalist then newHero.weapon = Weapon.create Weapon.getAll().shortBow # update
+            when heroClass.bandit then newHero.weapon = Weapon.create Weapon.getAll().shortSpear
+            when heroClass.mage then newHero.weapon = Weapon.create Weapon.getAll().shortWand # update
+            when heroClass.sorcerer then newHero.weapon = Weapon.create Weapon.getAll().tomeFragment
+            when heroClass.wizard then newHero.weapon = Weapon.create Weapon.getAll().shortWand
 
     # copy armour
     if hero.armour?
         newHero.armour = Armour.create hero.armour
     else
         switch hero.heroClass
-            when heroClass.warrior then newHero.armour = Armour.create Armour.getAll().breastPlate
-            when heroClass.archer then newHero.armour = Armour.create Armour.getAll().leather
-            when heroClass.mage then newHero.armour = Armour.create Armour.getAll().robe
+            when heroClass.warrior, heroClass.knight, heroClass.crusader then newHero.armour = Armour.create Armour.getAll().breastPlate
+            when heroClass.archer, heroClass.arbalist, heroClass.bandit then newHero.armour = Armour.create Armour.getAll().leather
+            when heroClass.mage, heroClass.sorcerer, heroClass.wizard then newHero.armour = Armour.create Armour.getAll().robe
 
     # copy abilities
     if hero.abilities?
@@ -174,18 +183,28 @@ gainXP = (target, gained) ->
     return create hero
 giveGold = (target, gold) ->
     return create Object.assign {}, target, { gold: target.gold + gold * 1 }
-learn = (actor, damage) ->
+initMastery = () ->
+    return {
+        level: 1
+        xp: 0
+        nextLevel: 25
+    }
+learn = (actor, damages) ->
+    damage = damages.reduce (a, x) ->
+        return a + x.amount
+    , 0
     if damage <= 0
         return actor
 
     hero = Object.assign {}, actor
-    mastery = Object.assign {}, actor.mastery
+    masteries = Object.assign {}, actor.masteries
+    mastery = masteries[actor.weapon.type]
     mastery.xp += damage
     while mastery.xp > mastery.nextLevel
         mastery.level++
         mastery.xp -= mastery.nextLevel
         mastery.nextLevel *= WEAPON_GAIN_FACTOR
-        log chalk.green '# ' + actor.weapon.attackType + ' mastery has levelled up'
+        log chalk.green '# ' + actor.weapon.type + ' mastery has levelled up'
 
     if actor.quiver?
         quiver = Arrows.gainXP hero.quiver, hero.arrow, 1
@@ -194,7 +213,7 @@ learn = (actor, damage) ->
         broadheads = Broadheads.gainXP hero.broadheads, hero.broadhead, 1
         hero = Object.assign {}, hero, { broadheads: [ broadheads... ] }
 
-    return create Object.assign {}, hero, { mastery: mastery }
+    return create Object.assign {}, hero, { masteries: masteries }
 move = (hero, level, direction) ->
     result = null
 
@@ -259,8 +278,8 @@ showStats = (hero, state) ->
             log()
             log 'unspent skillpoints\t' + hero.skillPoints
         when states.characterSheet.weapons
-            masteryBonus = Weapon.getMasteryBonus hero.mastery
-            skillBonus = Weapon.getSkillBonus hero.skills, hero.weapon.attackType
+            masteryBonus = Weapon.getMasteryBonus hero.masteries, hero.weapon.type
+            skillBonus = Weapon.getSkillBonus hero.skills, hero.weapon.type
             name = hero.weapon.name
             if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + hero.weapon.name
             if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
@@ -287,6 +306,10 @@ showStats = (hero, state) ->
         when states.characterSheet.armour
             log 'name:\t\t' + hero.armour.name
             log ' -- to be done --'
+        when states.characterSheet.masteries
+            for own key, mastery of hero.masteries
+                bonus = Math.pow WEAPON_GAIN_FACTOR, mastery.level-1
+                log chalk.yellow(key.toFixed(16)) + chalk.green(('level: ' + mastery.level).toFixed(12)) + ' ' + mastery.xp.toFixed(2) + '/' + mastery.nextLevel.toFixed(2) + '\t' + 'damage bonus: ' + ((bonus-1)*100).toFixed(2) + '%'
         when states.characterSheet.skills
             index = 0
             for own key, skill of hero.skills
@@ -306,18 +329,18 @@ showStats = (hero, state) ->
                 log chalk.yellow(hero.weapon.spell.name) + '\t' + chalk.blueBright(requiredMana.toFixed(2) + ' mana') + '\t' + hero.weapon.spell.description
         else showGraphs hero
     return
-takeDamage = (hero, attackType, damage, effects) ->
+takeDamage = (hero, damages, effects) ->
+    damage = damages.reduce (a, x) ->
+        return a + x.amount
+    , 0
     if damage <= 0
         return [ hero, true, 0, 0 ]
 
     if effects.has { effect: weaponStates.critical }
         log chalk.blueBright '> critical hit'
-        damage *= 2
-    if effects.has { effect: weaponStates.piercing }
-        log chalk.blueBright '> piercing hit'
-        attackType = attackTypes.pure
+        damage.amount *= 2 for damage in damages
 
-    adjustedDamage = Armour.soakDamage hero.armour, damage, attackType
+    adjustedDamage = Armour.soakDamage hero.armour, damages
     hero = Object.assign {}, hero, { hp: hero.hp - adjustedDamage, state: [ hero.state..., effects... ] }
 
     hp = 0
@@ -360,10 +383,9 @@ upgradeSkill = (hero, skillKey) ->
     adjusted.skillPoints--
     log chalk.green '> skill upgraded (you have ' + adjusted.skillPoints + ' skillpoints left)'
     return create adjusted
-useSpell = (spell, hero, monster, takeDamage) ->
-    spellAmp = if hero.weapon.attackType is attackTypes.magic and hero.weapon.spellAmplification? then hero.weapon.spellAmplification else 1
-    getDamage = () -> [ Weapon.getDamage(hero, monster) * spellAmp, Weapon.getEffects(hero) ]
-    return spell.use getDamage, takeDamage
+useSpell = (spell, hero, monster, takeDmg) ->
+    getDamage = () -> return Weapon.getDamage(hero, monster)
+    return spell.use getDamage, takeDmg
 
 module.exports =
     attack: attack

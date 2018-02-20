@@ -9,34 +9,40 @@ armours =
         type: armourTypes.light
         cost: 100
         resistance:
-            melee: 10
-            ranged: 10
-            magic: 50
+            physical: 20
     leather:
         name: 'leather armour'
         type: armourTypes.medium
         cost: 200
         resistance:
-            melee: 50
-            ranged: 30
-            magic: 10
+            physical: 50
     breastPlate:
         name: 'breast plate'
         type: armourTypes.heavy
         cost: 400
         resistance:
-            melee: 100
-            ranged: 75
-            magic: 20
+            physical: 100
 
-soakDamage = (armour, damage, attackType) ->
-    if attackType is attackTypes.pure
-        return damage
+soakDamage = (armour, damages) ->
+    sum = 0
+    for damage in damages
+        if damage.type is attackTypes.pure
+            sum += damage.amount
+            continue
 
-    amount = armour.resistance[attackType]
-    percentage = 1 / (1 + (amount / 100))
+        if not armour.resistance[damage.type]
+            sum += damage.amount
+            continue
 
-    return damage * percentage
+        if damage.type is attackTypes.physical
+            amount = armour.resistance.physical
+            percentage = 1/(1+(amount/100))
+            sum += percentage * damage.amount
+            continue
+
+        sum += damage.amount * armour.resistance[damage.type]
+
+    return sum
 
 getAll = () ->
     return armours
@@ -46,9 +52,13 @@ create = (armour) ->
         name: armour.name
         type: armour.type
         resistance:
-            melee: armour.resistance.melee
-            ranged: armour.resistance.ranged
-            magic: armour.resistance.magic
+            physical: armour.resistance.physical || 0
+            fire: armour.resistance.fire || 0
+            ice: armour.resistance.ice || 0
+            ligtning: armour.resistance.ligtning || 0
+            poison: armour.resistance.poison || 0
+            dark: armour.resistance.dark || 0
+            arcane: armour.resistance.arcane || 0
 
     return Object.freeze newArmour
 

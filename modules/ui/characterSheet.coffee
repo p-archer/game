@@ -8,8 +8,9 @@ outputter = (state, hero, map) ->
     log()
     log '1\t\tweapon'
     log '2\t\tarmour'
-    log '3\t\tskills'
-    log '4\t\tabilities'
+    log '3\t\tmasteries'
+    log '4\t\tskills'
+    log '5\t\tabilities'
     log()
     log 'q\t\tback'
     return
@@ -18,8 +19,9 @@ mutator = (state, input, hero, map) ->
     switch input
         when '1' then return [ true, { state: states.characterSheet.weapons }, hero, map ]
         when '2' then return [ true, { state: states.characterSheet.armour }, hero, map ]
-        when '3' then return [ true, { state: states.characterSheet.skills }, hero, map ]
-        when '4' then return [ true, { state: states.characterSheet.abilities }, hero, map ]
+        when '3' then return [ true, { state: states.characterSheet.masteries }, hero, map ]
+        when '4' then return [ true, { state: states.characterSheet.skills }, hero, map ]
+        when '5' then return [ true, { state: states.characterSheet.abilities }, hero, map ]
 
     return [ false, state, hero, map ]
 
@@ -65,6 +67,7 @@ register = (processors, outputProcessors) ->
             { state: states.characterSheet.main, fn: outputter}
             { state: states.characterSheet.weapons, fn: submenuOutputter}
             { state: states.characterSheet.armour, fn: submenuOutputter}
+            { state: states.characterSheet.masteries, fn: submenuOutputter}
             { state: states.characterSheet.skills, fn: skillsOutputter}
             { state: states.characterSheet.abilities, fn: submenuOutputter}
         ]
