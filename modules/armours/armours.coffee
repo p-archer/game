@@ -4,6 +4,24 @@ chalk = require 'chalk'
 { attackTypes, armourTypes, XP_GAIN_FACTOR } = require '../constants'
 
 armours =
+    fur:
+        name: 'fur'
+        monsterOnly: true
+        type: armourTypes.light
+        resistance:
+            physical: 20
+    hardenedSkin:
+        name: 'hardened skin'
+        monsterOnly: true
+        type: armourTypes.medium
+        resistance:
+            physical: 50
+    scales:
+        name: 'scales'
+        monsterOnly: true
+        type: armourTypes.heavy
+        resistance:
+            physical: 100
     robe:
         name: 'robe'
         type: armourTypes.light

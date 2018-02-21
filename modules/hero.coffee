@@ -85,6 +85,7 @@ create = (hero) ->
         broadheads: hero.broadheads
         combatPos: hero.combatPos
         gold: hero.gold || 0
+        free: hero.free || 0
         heroClass: hero.heroClass
         hp: hero.hp
         level: hero.level || 1
@@ -103,13 +104,13 @@ create = (hero) ->
     if not hero.maxhp?
         switch hero.heroClass
             when heroClass.warrior, heroClass.crusader, heroClass.knight
-                newHero.movement = 10
+                newHero.movement = 6
                 newHero.maxhp = 12
                 newHero.maxMana = 6
             when heroClass.archer, heroClass.arbalist, heroClass.bandit
                 arrows = Arrows.getAll()
                 broadheads = Broadheads.getAll()
-                newHero.movement = 8
+                newHero.movement = 5
                 newHero.maxhp = 8
                 newHero.maxMana = 6
                 newHero.broadheads = [ Broadheads.create(broadheads.normal) ]
@@ -117,7 +118,7 @@ create = (hero) ->
                 newHero.broadhead = 0
                 newHero.arrow = 0
             when heroClass.mage, heroClass.wizard, heroClass.sorcerer
-                newHero.movement = 6
+                newHero.movement = 4
                 newHero.maxhp = 6
                 newHero.maxMana = 12
         newHero.hp = newHero.maxhp
@@ -269,33 +270,35 @@ showSkill = (hero, skillKey) ->
 showStats = (hero, state) ->
     switch state
         when states.characterSheet.main
-            log 'hp:\t\t' + hero.hp.toFixed(2) + '/' + hero.maxhp.toFixed(2)
-            log 'mana:\t\t' + hero.mana.toFixed(2) + '/' + hero.maxMana.toFixed(2)
-            log 'movement:\t' + hero.movement
-            log 'level:\t\t' + hero.level
+            log 'hp:\t\t' + chalk.greenBright(hero.hp.toFixed(2) + '/' + hero.maxhp.toFixed(2))
+            log 'mana:\t\t' + chalk.blueBright(hero.mana.toFixed(2) + '/' + hero.maxMana.toFixed(2))
+            log 'movement:\t' + chalk.greenBright(hero.movement)
+            log 'level:\t\t' + chalk.whiteBright(hero.level)
             log 'xp:\t\t' + hero.xp.toFixed(2) + '/' + hero.nextLevel.toFixed(2)
-            log 'gold:\t\t' + hero.gold.toFixed(2)
+            log 'gold:\t\t' + chalk.yellow(hero.gold.toFixed(2))
             log()
-            log 'unspent skillpoints\t' + hero.skillPoints
+            log 'unspent skillpoints\t' + chalk.greenBright(hero.skillPoints)
         when states.characterSheet.weapons
             masteryBonus = Weapon.getMasteryBonus hero.masteries, hero.weapon.type
             skillBonus = Weapon.getSkillBonus hero.skills, hero.weapon.type
             name = hero.weapon.name
             if hero.weapon.prefix? then name = hero.weapon.prefix.name + ' ' + hero.weapon.name
             if hero.weapon.suffix? then name = name + ' of ' + hero.weapon.suffix.name
-            log 'name:\t\t' + name
-            log 'base damage:\t\t' + hero.weapon.min.toFixed(2) + ' - ' + hero.weapon.max.toFixed(2)
-            log 'actual damage:\t\t' + getDamageStr(hero)
+            log 'name:\t\t' + chalk.blueBright(name)
+            log 'description:\t\t' + hero.weapon.description
+            log 'base damage:\t\t' + chalk.greenBright(hero.weapon.min.toFixed(2) + ' - ' + hero.weapon.max.toFixed(2))
+            log 'actual damage:\t\t' + chalk.greenBright(getDamageStr(hero))
             log 'bonus damage from mastery:\t' + getPercent(masteryBonus)
             log 'bonus damage from skills:\t' + getPercent(skillBonus)
-            log 'range:\t\t' + hero.weapon.range
+            log 'range:\t\t' + chalk.yellow(hero.weapon.range)
+            log 'speed:\t\t' + chalk.yellow(hero.weapon.speed)
             if hero.quiver?
                 arrow = hero.quiver[hero.arrow]
-                log 'arrow:\t\t' + arrow.name + '\t' + arrow.description()
+                log 'arrow:\t\t' + chalk.blueBright(arrow.name) + ' ' + arrow.description()
                 log '\t\tlevel: ' + arrow.level + ' (' + arrow.xp.toFixed(0) + '/' + arrow.nextLevel.toFixed(0) + ')'
             if hero.broadheads?
                 broadhead = hero.broadheads[hero.broadhead]
-                log 'broadhead:\t' + broadhead.name + '\t' + broadhead.description()
+                log 'broadhead:\t' + chalk.blueBright(broadhead.name) + ' ' + broadhead.description()
                 log '\t\tlevel: ' + broadhead.level + ' (' + broadhead.xp.toFixed(0) + '/' + broadhead.nextLevel.toFixed(0) + ')'
             if hero.quiver?
                 log()
@@ -304,7 +307,7 @@ showStats = (hero, state) ->
                 log()
                 log 'available broadheads:\t' + hero.broadheads.map((x) -> return x.name + ' level: ' + x.level).join('\n\t\t\t')
         when states.characterSheet.armour
-            log 'name:\t\t' + hero.armour.name
+            log 'name:\t\t' + chalk.blueBright(hero.armour.name)
             log ' -- to be done --'
         when states.characterSheet.masteries
             for own key, mastery of hero.masteries

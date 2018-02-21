@@ -98,9 +98,12 @@
 *** TODO add various resistances to enemies
 *** DONE remove melee/ranged armour and turn them to physical
 	CLOSED: [2018-02-15 Thu 20:10]
-*** TODO turn damage into an array of objects
+*** DONE turn damage into an array of objects
+	CLOSED: [2018-02-21 Wed 08:56]
 	This way an attack can have multiple damage types like 50% physical and 50% fire plus the effects
 *** TODO add paging for shops
 *** TODO weapons shop should have 3 pages: melee, ranged and magic
 *** TODO mastery damage is way out of proportion
 *** TODO monster damage scales a lot faster than hp
+*** TODO some attacks should be channelled
+	Figure out a way to delay/time damage of slower attacks

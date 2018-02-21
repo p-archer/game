@@ -6,36 +6,17 @@ Hero = require '../../hero.coffee'
 Monster = require '../../monsters/monsters.coffee'
 inspector = require '../../inspector.coffee'
 
+time = null # combat loop timer
+
 handleMonstersTurn = (monster, hero, map, exitState) ->
     log()
     log chalk.magenta '-- ' + monster.name + '\'s turn --'
-    [ monster, isAlive ] = applyStatuses monster, Monster.create, Monster.takeDamage
-    if not isAlive
-        [ gold, xp ] = Monster.dead monster, hero
-        hero = Hero.giveGold hero, gold
-        hero = Hero.gainXP hero, xp
-        map = Monster.remove map, hero.position
-        return [ true, { state: states.wait, param: states.normal } , hero, map ]
 
     action = monster.getAction monster, hero
     [ monster, damages, effects ] = Monster.takeAction monster, hero, action
     [ hero, _, hp, mana ] = Hero.takeDamage hero, damages, effects
     monster = Monster.create Object.assign {}, monster, { hp: monster.hp + hp, mana: monster.mana + mana }
     Monster.adjust map, hero.position, monster
-
-    distance = Math.abs hero.combatPos - monster.combatPos
-    if action is actions.attack and distance is 1
-        # hero retaliate
-        [ damages, effects ] = Hero.attack hero, monster
-        hero = Hero.learn hero, damages
-        [ monster, isAlive, hp, mana ] = Monster.takeDamage monster, damages, effects
-        hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana }
-        if not isAlive
-            [ gold, xp ] = Monster.dead monster, hero
-            hero = Hero.giveGold hero, gold
-            hero = Hero.gainXP hero, xp
-            map = Monster.remove map, hero.position
-            return [ true, { state: states.wait, param: states.normal } , hero, map ]
 
     return [ true, exitState, hero, map ]
 applyStatuses = (actor, create, takeDamage) ->
@@ -68,22 +49,18 @@ applyStatuses = (actor, create, takeDamage) ->
 retreat = (state, map, hero, monster) ->
     if hero.combatPos is 1
         log '> can not retreat any further'
-        return [ true, state, hero, map ]
     else
         [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
-        hero = Hero.create Object.assign {}, hero, { combatPos: Math.max(1, hero.combatPos - hero.movement) }
-
-        return handleMonstersTurn monster, hero, map, { state: state.state }
+        hero = Hero.create Object.assign {}, hero, { combatPos: Math.max(1, hero.combatPos - hero.movement), free: hero.free + 10 }
+    return [ true, state, hero, map ]
 approach = (state, map, hero, monster) ->
     distance = monster.combatPos - hero.combatPos
     if distance is 1
         log '> already in melee range'
-        return [ true, state, hero, map ]
     else
         [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
-        hero = Hero.create Object.assign {}, hero, { combatPos: Math.min(monster.combatPos - 1, hero.combatPos + hero.movement) }
-
-        return handleMonstersTurn monster, hero, map, { state: state.state }
+        hero = Hero.create Object.assign {}, hero, { combatPos: Math.min(monster.combatPos - 1, hero.combatPos + hero.movement), free: hero.free + 10 }
+    return [ true, state, hero, map ]
 attack = (state, map, hero, monster) ->
     distance = monster.combatPos - hero.combatPos
     if distance > 1 and hero.weapon.range is 1
@@ -94,7 +71,8 @@ attack = (state, map, hero, monster) ->
         [ damages, effects ] = Hero.attack hero, monster
         hero = Hero.learn hero, damages
         [ monster, isAlive, hp, mana ] = Monster.takeDamage monster, damages, effects
-        hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana }
+        Monster.adjust map, hero.position, monster
+        hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana, free: hero.free + hero.weapon.speed }
         if not isAlive
             [ gold, xp ] = Monster.dead monster, hero
             hero = Hero.giveGold hero, gold
@@ -102,14 +80,7 @@ attack = (state, map, hero, monster) ->
             map = Monster.remove map, hero.position
             return [ true, { state: states.wait, param: states.normal } , hero, map ]
 
-        # retaliate
-        if distance is 1
-            log '> ' + monster.name + ' is retaliating'
-            [ monster, damages, effects ] = Monster.attack monster, hero
-            [ hero, _ ] = Hero.takeDamage hero, damages, effects
-
-        # monster's turn
-        return handleMonstersTurn monster, hero, map, { state: state.state }
+    return [ true, state, hero, map ]
 useSpell = (state, map, hero, spell) ->
     # TODO mana adjustment based on weapon and skills
     requiredMana = spell.mana
@@ -120,7 +91,7 @@ useSpell = (state, map, hero, spell) ->
         return [ true, state, hero, map ]
 
     [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
-    hero = Hero.create Object.assign {}, hero, { mana: hero.mana - requiredMana }
+    hero = Hero.create Object.assign {}, hero, { mana: hero.mana - requiredMana, free: hero.free + spell.speed }
     monster = map.current.isMonster hero.position
 
     spellAmp = if hero.weapon.spellAmplification? then hero.weapon.spellAmplification else 1
@@ -128,6 +99,7 @@ useSpell = (state, map, hero, spell) ->
         damage.amount * spellAmp for damage in damages
         return Monster.takeDamage monster, damages, effects
     [ monster, isAlive, hp, mana ] = Hero.useSpell spell, hero, monster, takeDamage
+    Monster.adjust map, hero.position, monster
     hero = Hero.create Object.assign {}, hero, { hp: hero.hp + hp, mana: hero.mana + mana }
     if not isAlive
         [ gold, xp ] = Monster.dead monster, hero
@@ -136,24 +108,51 @@ useSpell = (state, map, hero, spell) ->
         map = Monster.remove map, hero.position
         return [ true, { state: states.wait, param: states.normal }, hero, map ]
 
-    # monster's turn
-    return handleMonstersTurn monster, hero, map, null
+    if monster? and monster.hp > 0
+        [ _, hero, map ] = handleLoop state, hero, map
+
+    return [ true, { state: states.combat.main }, hero, map ]
 switchArrowType = (state, map, hero) ->
     index = hero.arrow
     if ++index >= hero.quiver.length then index = 0
-    hero = Hero.create Object.assign {}, hero, { arrow: index }
+    hero = Hero.create Object.assign {}, hero, { arrow: index, free: hero.free + 1 }
     return [ true, { state: state.state }, hero, map ]
 switchBroadhead = (state, map, hero) ->
     index = hero.broadhead
     if ++index >= hero.broadheads.length then index = 0
-    hero = Hero.create Object.assign {}, hero, { broadhead: index }
+    hero = Hero.create Object.assign {}, hero, { broadhead: index, free: hero.free + 1 }
     return [ true, { state: state.state }, hero, map ]
+
+initTimer = () ->
+    time = 0 # TODO this is not functional
+
+isReady = (actor, time) ->
+    return actor.free <= time
+
+handleLoop = (state, hero, map) ->
+    while not isReady hero, time
+        [ hero, _ ] = applyStatuses hero, Hero.create, Hero.takeDamage
+        monster = map.current.isMonster hero.position
+        if monster? and monster.hp > 0
+            [ monster, isAlive ] = applyStatuses monster, Monster.create, Monster.takeDamage
+            if not isAlive
+                [ gold, xp ] = Monster.dead monster, hero
+                hero = Hero.giveGold hero, gold
+                hero = Hero.gainXP hero, xp
+                map = Monster.remove map, hero.position
+                return [ { state: states.wait, param: states.normal } , hero, map ]
+
+            if isReady monster, time
+                [ _, state, hero, map ] = handleMonstersTurn monster, hero, map, { state: state.state }
+        time++
+        warn 'timeslot', time
+    return [ { state: state.state }, hero, map ]
 
 outputter = (state, hero, map, exitState) ->
     monster = map.current.isMonster hero.position
     str = ''
     heroPos = hero.combatPos || 10
-    monsterPos = monster.combatPos
+    monsterPos = monster.combatPos || 40
     inspector.init hero, monster
 
     for i in [0...52]
@@ -173,7 +172,7 @@ outputter = (state, hero, map, exitState) ->
     if (hero.abilities? and hero.abilities.length > 0) or hero.weapon.spell?
         log 'f\tuse ability'
 
-    if state.param is 'startx'
+    if state.param is 'start'
         initTimer()
     return
 
@@ -184,18 +183,21 @@ mutator = (state, input, hero, map) ->
 
     # TODO hero frozen or stunned
     switch input
-        when 'a' then return retreat state, map, hero, monster
-        when 'd' then return approach state, map, hero, monster
-        when 'e' then return attack state, map, hero, monster
+        when 'a' then [ handled, state, hero, map] = retreat state, map, hero, monster
+        when 'd' then [ handled, state, hero, map] = approach state, map, hero, monster
+        when 'e' then [ handled, state, hero, map] = attack state, map, hero, monster
         when 'f' then return [ true, { state: states.combat.abilities }, hero, map ]
-        when '1' then if hero.quiver? then return switchArrowType state, map, hero
-        when '2' then if hero.broadheads? then return switchBroadhead state, map, hero
+        when '1' then if hero.quiver? then [ handled, state, hero, map] = switchArrowType state, map, hero
+        when '2' then if hero.broadheads? then [ handled, state, hero, map] = switchBroadhead state, map, hero
 
-    return [ false, state, hero, map ]
+    monster = map.current.isMonster hero.position
+    if handled and monster? and monster.hp > 0
+        return [ true, handleLoop(state, hero, map)... ]
+
+    return [ handled, state, hero, map ]
 
 abilitiesOutputter = (state, hero, map) ->
     index = 0
-    # for own key, ability of hero.abilities
     for ability in hero.abilities
         requiredMana = ability.mana * (if hero.weapon.manaAdjustment? then hero.weapon.manaAdjustment else 1)
         log ''+index++ + '\t' + chalk.yellow(ability.name.toFixed(24)) + chalk.blueBright(requiredMana.toFixed(2) + ' mana') + '\t' + ability.description

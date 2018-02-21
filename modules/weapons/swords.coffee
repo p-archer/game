@@ -1,5 +1,5 @@
 chalk = require 'chalk'
-{ attackTypes, weaponTypes, weaponStates } = require '../constants'
+{ attackTypes, weaponTypes, weaponStates, speed } = require '../constants'
 { random, log, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
@@ -14,15 +14,29 @@ showCombat = (source, getDamageStr) ->
     name = source.weapon.name
     if source.weapon.prefix? then name = source.weapon.prefix.name + ' ' + name
     if source.weapon.suffix? then name = name + ' of ' + source.weapon.suffix.name
-    log 'e\tattack with ' + chalk.blueBright(name) + ' (' + getDamageStr(hero) + ')'
+    log 'e\tattack with ' + chalk.blueBright(name) + ' (' + getDamageStr(source) + ')'
     log()
     return
 
 swords =
+    claws:
+        name: 'claws'
+        monsterOnly: true
+        speed: speed.fast
+    fangs:
+        name: 'fangs'
+        monsterOnly: true
+        speed: speed.vfast
+    fists:
+        name: 'fists'
+        monsterOnly: true
+        speed: speed.fast
+
     shortSword:
         name: 'short sword'
-        min: 3
-        max: 4
+        min: 1
+        max: 2
+        speed: speed.vfast
         requirements:
             level: 0
             skills: []
@@ -32,8 +46,9 @@ swords =
 
     scimitar:
         name: 'scimitar'
-        min: 3
-        max: 4.5
+        min: 1
+        max: 2.5
+        speed: speed.vfast
         requirements:
             level: 0
             skills: []
@@ -43,8 +58,9 @@ swords =
 
     broadSword:
         name: 'broad sword'
-        min: 5.5
-        max: 6.5
+        min: 2.5
+        max: 3.5
+        speed: speed.fast
         requirements:
             level: 12
             skills: [{name: skills.improvedMelee, level: 3}]
@@ -54,8 +70,9 @@ swords =
 
     longSword:
         name: 'long sword'
-        min: 4.5
-        max: 6
+        min: 2.5
+        max: 4
+        speed: speed.fast
         requirements:
             level: 10
             skills: [{name: skills.improvedMelee, level: 1}]
@@ -65,8 +82,9 @@ swords =
 
     elvenSword:
         name: 'elven sword'
-        min: 5.5
-        max: 7.5
+        min: 2.5
+        max: 3.5
+        speed: speed.vfast
         requirements:
             level: 20
             skills: [{name: skills.advancedMelee, level: 1}]
@@ -76,8 +94,9 @@ swords =
 
     orcishSword:
         name: 'orcish sabre'
-        min: 6
-        max: 9
+        min: 4
+        max: 6
+        speed: speed.normal
         requirements:
             level: 20
             skills: [{name: skills.advancedMelee, level: 1}]

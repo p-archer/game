@@ -162,10 +162,10 @@ const armourTypes = {
 
 const speed = {
 	normal: 30,
-	slow: 20,
-	fast: 40,
-	vslow: 10,
-	vfast: 50,
+	slow: 40,
+	fast: 20,
+	vslow: 50,
+	vfast: 10,
 };
 
 module.exports = {

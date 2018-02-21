@@ -1,4 +1,4 @@
-{ attackTypes, armourTypes, species, mapTypes, actions } = require '../constants'
+{ attackTypes, armourTypes, species, mapTypes, actions, speed } = require '../constants'
 { err } = require '../general'
 
 Weapons = require '../weapons/weapons.coffee'
@@ -16,10 +16,11 @@ monsters =
         minLevel: 10
         maxLevel: 40
         movement: 12
-        weapon: Weapons.shortWand
+        weapon: Weapons.wand
         attack:
             max: 1.2
             min: 1
+            speed: speed.normal
         spell: spells.soulArrow
         maxMana: 6
         armour:
@@ -35,10 +36,11 @@ monsters =
         minLevel: 10
         maxLevel: 100
         movement: 15
-        weapon: Weapons.shortWand
+        weapon: Weapons.yewWand
         attack:
             max: 3
             min: 2
+            speed: speed.normal
         spell: spells.iceShards
         maxMana: 10
         armour:
@@ -54,10 +56,11 @@ monsters =
         minLevel: 5
         maxLevel: 50
         movement: 12
-        weapon: Weapons.shortWand
+        weapon: Weapons.tomeFragment
         attack:
             max: 1.6
             min: 1.4
+            speed: speed.normal
         spell: spells.arcaneBolt
         maxMana: 12
         armour:
@@ -84,6 +87,7 @@ monsters =
         attack:
             max: 0.5
             min: 0.4
+            speed: speed.normal
         spell: spells.arcaneTorrent
         maxMana: 8
         armour:
@@ -99,10 +103,11 @@ monsters =
         minLevel: 20
         maxLevel: 100
         movement: 6
-        weapon: Weapons.shortWand
+        weapon: Weapons.grimoire
         attack:
             max: 4.0
             min: 2.5
+            speed: speed.normal
         spell: spells.lifeDrain
         maxMana: 16
         armour:
@@ -118,10 +123,11 @@ monsters =
         minLevel: 5
         maxLevel: 50
         movement: 6
-        weapon: Weapons.shortWand
+        weapon: Weapons.tomeFragment
         attack:
             max: 1.4
             min: 1
+            speed: speed.normal
         spell: spells.fireArrow
         maxMana: 8
         armour:
@@ -137,10 +143,11 @@ monsters =
         minLevel: 20
         maxLevel: 1000
         movement: 15
-        weapon: Weapons.shortWand
+        weapon: Weapons.tome
         attack:
             max: 3
             min: 2
+            speed: speed.normal
         spell: spells.fireBall
         maxMana: 20
         armour:
@@ -156,10 +163,11 @@ monsters =
         minLevel: 0
         maxLevel: 20
         movement: 12
-        weapon: Weapons.shortWand
+        weapon: Weapons.iceWand
         attack:
             max: 0.6
             min: 0.5
+            speed: speed.normal
         spell: spells.soulArrow
         maxMana: 8
         armour:
@@ -182,10 +190,11 @@ monsters =
         minLevel: 10
         maxLevel: 1000
         movement: 6
-        weapon: Weapons.shortWand
+        weapon: Weapons.boneWand
         attack:
             max: 2.2
             min: 1.6
+            speed: speed.normal
         spell: spells.arcaneTorrent
         maxMana: 12
         armour:

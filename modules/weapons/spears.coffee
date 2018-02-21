@@ -1,5 +1,5 @@
 chalk = require 'chalk'
-{ attackTypes, heroStates, weaponTypes, weaponStates } = require '../constants'
+{ attackTypes, heroStates, weaponTypes, weaponStates, speed } = require '../constants'
 { random, log, getPercent, err } = require '../general'
 
 skills = require '../skills/skills.coffee'
@@ -58,6 +58,7 @@ spears =
         min: 2
         max: 3
         range: 10
+        speed: speed.fast
         requirements:
             level: 0
         cost: 100
@@ -69,6 +70,7 @@ spears =
         min: 2
         max: 3
         range: 16
+        speed: speed.fast
         requirements:
             level: 5
             skills: [{skill: skills.ranged, level: 3}]
@@ -81,6 +83,7 @@ spears =
         min: 2.5
         max: 3
         range: 14
+        speed: speed.fast
         requirements:
             level: 5
             skills: [{skill: skills.ranged, level: 2}]
@@ -93,6 +96,7 @@ spears =
         min: 3.5
         max: 5
         range: 12
+        speed: speed.fast
         requirements:
             level: 10
             skills: [{skill: skills.improvedRanged, level: 1}]
@@ -102,9 +106,10 @@ spears =
 
     boneSpear:
         name: 'bone spear'
-        min: 3
-        max: 5
+        min: 4
+        max: 6
         range: 16
+        speed: speed.normal
         requirements:
             level: 10
             skills: [{skill: skills.improvedRanged, level: 2}]
@@ -114,9 +119,10 @@ spears =
 
     longSpear:
         name: 'long spear'
-        min: 4.5
-        max: 6.0
+        min: 5.5
+        max: 7.0
         range: 10
+        speed: speed.normal
         requirements:
             level: 20
             skills: [{skill: skills.advancedRanged, level: 1}]
@@ -128,7 +134,7 @@ for key, spear of spears
     spear.init = (spear) ->
         chance = (random(1000) + 1) / 100
         description = spear.description + ' (chance to maim ' + chance.toFixed(2) + '%)'
-        modifier = () -> if random(10000) < chance * 100 then return [ { effect: heroStates.maimed, ticks: 1} ] else return []
+        modifier = () -> if random(10000) < chance * 100 then return [ { effect: heroStates.maimed, ticks: 10} ] else return []
         return Object.assign {}, spear, { description: description, modifier: modifier, showCombat: showCombat, type: weaponTypes.spear, getDamage: getDamage(spear) }
 
 module.exports = spears

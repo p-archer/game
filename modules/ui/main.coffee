@@ -25,7 +25,7 @@ interact = (state, hero, map) ->
         heroPos = 10
         if hero.skills.tactics?
             heroPos -= hero.skills.tactics.level
-        return [{ state: states.combat.main, param: 'start' }, Hero.create(Object.assign({}, hero, { combatPos: heroPos, state: [] })), map ]
+        return [{ state: states.combat.main, param: 'start' }, Hero.create(Object.assign({}, hero, { combatPos: heroPos, state: [], free: 0 })), map ]
 
     # chest
     if level.isTreasure hero.position then return [ state, openTreasure(hero, map)... ]

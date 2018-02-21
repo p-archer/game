@@ -32,6 +32,24 @@ prefixes =
             weapon.min *= 1.3
             weapon.max *= 1.3
             return weapon
+    quick:
+        name: 'quick'
+        description: '-5 attack speed'
+        minLevel: 5
+        probability: 4
+        costMultiplier: 1.5
+        apply: (weapon) ->
+            weapon.speed -= 5
+            return weapon
+    swift:
+        name: 'swift'
+        description: '-10 attack speed'
+        minLevel: 15
+        probability: 2
+        costMultiplier: 2.0
+        apply: (weapon) ->
+            weapon.speed -= 10
+            return weapon
     longRange:
         name: 'long range'
         description: '+2 increased range'

@@ -1,5 +1,5 @@
 chalk = require 'chalk'
-{ attackTypes, weaponTypes, weaponStates } = require '../constants'
+{ attackTypes, weaponTypes, weaponStates, speed } = require '../constants'
 { random, log, err, warn, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
@@ -26,6 +26,7 @@ wands =
         name: 'short wand'
         min: 1
         max: 1.4
+        speed: speed.normal
         requirements:
             level: 0
             skills: []
@@ -37,6 +38,7 @@ wands =
         name: 'bone wand'
         min: 1.2
         max: 1.6
+        speed: speed.normal
         requirements:
             level: 5
             skills: [{skill: skills.magic, level: 3}]
@@ -48,6 +50,7 @@ wands =
         name: 'wand'
         min: 1.6
         max: 2.0
+        speed: speed.normal
         requirements:
             level: 10
             skills: [{skill: skills.improvedMagic, level: 1}]
@@ -59,6 +62,7 @@ wands =
         name: 'ice wand'
         min: 1.8
         max: 2.2
+        speed: speed.normal
         requirements:
             level: 10
             skills: [{skill: skills.improvedMagic, level: 2}]
@@ -71,6 +75,7 @@ wands =
         name: 'gray wand'
         min: 2.4
         max: 2.6
+        speed: speed.normal
         requirements:
             level: 13
             skills: [{skill: skills.improvedMagic, level: 4}]
@@ -82,6 +87,7 @@ wands =
         name: 'yew wand'
         min: 2.2
         max: 2.4
+        speed: speed.normal
         requirements:
             level: 10
             skills: [{skill: skills.improvedMagic, level: 3}]
@@ -93,6 +99,7 @@ wands =
         name: 'dark wand'
         min: 3.0
         max: 3.4
+        speed: speed.normal
         requirements:
             level: 25
             skills: [{skill: skills.advancedMagic, level: 3}]
@@ -104,6 +111,7 @@ wands =
         name: 'black wand'
         min: 2.6
         max: 3.0
+        speed: speed.normal
         requirements:
             level: 25
             skills: [{skill: skills.advancedMagic, level: 1}]

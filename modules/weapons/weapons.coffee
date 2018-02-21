@@ -23,13 +23,13 @@ getAll = () ->
 
 getAvailable = (hero) ->
     weapons = {}
-    for key, weapon of weaponList when weapon.requirements? and weapon.requirements.level <= hero.level and weapon.name isnt hero.weapon.name and weapon.quality >= hero.weapon.quality
+    for own key, weapon of weaponList when not monsterOnly and weapon.requirements? and weapon.requirements.level <= hero.level and weapon.name isnt hero.weapon.name and weapon.quality >= hero.weapon.quality
         weapons[key] = weapon
     return weapons
 
 getByQuality = (quality) ->
     weapons = {}
-    for key, weapon of weaponList when weapon.quality is quality
+    for own key, weapon of weaponList when weapon.quality is quality
         weapons[key] = weapon
     return weapons
 

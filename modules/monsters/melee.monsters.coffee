@@ -12,8 +12,9 @@ monsters =
         species: [species.beast]
         minLevel: 10
         maxLevel: 80
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 8
+        weapon: Weapons.claws
+        speed: speed.slow
         attack:
             max: 5
             min: 2.5
@@ -29,8 +30,9 @@ monsters =
         species: [species.mythological]
         minLevel: 20
         maxLevel: 50
-        movement: 20
-        weapon: Weapons.shortSword
+        movement: 10
+        weapon: Weapons.boneSpear
+        speed: speed.normal
         attack:
             max: 4
             min: 2
@@ -46,8 +48,9 @@ monsters =
         species: [species.infernal]
         minLevel: 50
         maxLevel: 1000
-        movement: 25
-        weapon: Weapons.shortSword
+        movement: 8
+        weapon: Weapons.orcishSword
+        speed: speed.fast
         attack:
             max: 10
             min: 5
@@ -63,8 +66,9 @@ monsters =
         species: [species.beast]
         minLevel: 15
         maxLevel: 65
-        movement: 20
-        weapon: Weapons.shortSword
+        movement: 8
+        weapon: Weapons.fangs
+        speed: speed.fast
         attack:
             max: 4
             min: 3
@@ -80,8 +84,9 @@ monsters =
         species: [species.magical]
         minLevel: 10
         maxLevel: 100
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 5
+        weapon: Weapons.fists
+        speed: speed.normal
         attack:
             max: 5
             min: 3
@@ -97,12 +102,12 @@ monsters =
         species: [species.beast]
         minLevel: 0
         maxLevel: 40
-        movement: 14
-        weapon: Weapons.shortSword
+        movement: 8
+        weapon: Weapons.fangs
         attack:
-            max: 0.6
-            min: 1.0
-            speed: speed.fast
+            max: 1.0
+            min: 0.6
+            speed: speed.vfast
         armour:
             type: armourTypes.light
             amount: 5
@@ -115,14 +120,15 @@ monsters =
         species: [species.giant]
         minLevel: 20
         maxLevel: 100
-        movement: 6
-        weapon: Weapons.shortSword
+        movement: 4
+        weapon: Weapons.shortSword # TODO hammer
+        speed: speed.vslow
         attack:
-            max: 8
-            min: 5
+            max: 10
+            min: 8
         armour:
             type: armourTypes.medium
-            amount: 60
+            amount: 80
         maxhp: 13
         gold: 6
         xp: 8
@@ -132,8 +138,9 @@ monsters =
         species: [species.infernal]
         minLevel: 0
         maxLevel: 20
-        movement: 10
-        weapon: Weapons.shortSword
+        movement: 5
+        weapon: Weapons.scimitar
+        speed: speed.fast
         attack:
             max: 1
             min: 1
@@ -149,8 +156,9 @@ monsters =
         species: [species.humanoid]
         minLevel: 10
         maxLevel: 40
-        movement: 10
-        weapon: Weapons.shortSword
+        movement: 5
+        weapon: Weapons.scimitar
+        speed: speed.fast
         attack:
             max: 4
             min: 2
@@ -166,10 +174,11 @@ monsters =
         species: [species.mythological, species.beast]
         minLevel: 10
         maxLevel: 40
-        movement: 15
-        weapon: Weapons.shortSword
+        movement: 10
+        weapon: Weapons.fangs
+        speed: speed.vfast
         attack:
-            max: 4
+            max: 2
             min: 1
         armour:
             type: armourTypes.light
@@ -183,10 +192,11 @@ monsters =
         species: [species.greenskin]
         minLevel: 20
         maxLevel: 100
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 4
+        weapon: Weapons.orcishSword
+        speed: speed.slow
         attack:
-            max: 6
+            max: 8
             min: 4
         armour:
             type: armourTypes.heavy
@@ -200,8 +210,9 @@ monsters =
         species: [species.greenskin]
         minLevel: 30
         maxLevel: 100
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 3
+        weapon: Weapons.orcishSword
+        speed: speed.slow
         attack:
             max: 8
             min: 6
@@ -217,11 +228,12 @@ monsters =
         species: [species.greenskin]
         minLevel: 50
         maxLevel: 1000
-        movement: 10
-        weapon: Weapons.shortSword
+        movement: 3
+        weapon: Weapons.orcishSword
+        speed: speed.slow
         attack:
-            max: 10
-            min: 8
+            max: 14
+            min: 12
         armour:
             type: armourTypes.heavy
             amount: 250
@@ -234,10 +246,11 @@ monsters =
         species: [species.undead]
         minLevel: 10
         maxLevel: 50
-        movement: 10
-        weapon: Weapons.shortSword
+        movement: 4
+        weapon: Weapons.broadSword
+        speed: speed.normal
         attack:
-            max: 4
+            max: 5
             min: 2
         armour:
             type: armourTypes.heavy
@@ -251,8 +264,9 @@ monsters =
         species: [species.undead]
         minLevel: 0
         maxLevel: 100
-        movement: 10
-        weapon: Weapons.shortSword
+        movement: 5
+        weapon: Weapons.broadSword
+        speed: speed.normal
         attack:
             max: 1
             min: 1
@@ -268,8 +282,9 @@ monsters =
         species: [species.beast]
         minLevel: 0
         maxLevel: 20
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 6
+        weapon: Weapons.fangs
+        speed: speed.fast
         attack:
             max: 1
             min: 1
@@ -285,8 +300,9 @@ monsters =
         species: [species.greenskin]
         minLevel: 10
         maxLevel: 100
-        movement: 16
-        weapon: Weapons.shortSword
+        movement: 5
+        weapon: Weapons.fists
+        speed: speed.normal
         attack:
             max: 5
             min: 3
@@ -302,8 +318,9 @@ monsters =
         species: [species.greenskin]
         minLevel: 30
         maxLevel: 1000
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 4
+        weapon: Weapons.broadSword
+        speed: speed.slow
         attack:
             max: 10
             min: 6
@@ -319,11 +336,12 @@ monsters =
         species: [species.beast]
         minLevel: 0
         maxLevel: 50
-        movement: 18
-        weapon: Weapons.shortSword
+        movement: 8
+        weapon: Weapons.fangs
+        speed: speed.fast
         attack:
-            max: 0.8
-            min: 1.2
+            max: 1.2
+            min: 0.8
         armour:
             type: armourTypes.light
             amount: 10
@@ -336,8 +354,9 @@ monsters =
         species: [species.beast]
         minLevel: 0
         maxLevel: 30
-        movement: 12
-        weapon: Weapons.shortSword
+        movement: 8
+        weapon: Weapons.fangs
+        speed: speed.vfast
         attack:
             max: 1
             min: 1
@@ -353,8 +372,9 @@ monsters =
         species: [species.undead]
         minLevel: 5
         maxLevel: 30
-        movement: 6
-        weapon: Weapons.shortSword
+        movement: 2
+        weapon: Weapons.fists
+        speed: speed.vslow
         attack:
             max: 2
             min: 1

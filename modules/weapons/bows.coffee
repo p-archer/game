@@ -1,5 +1,5 @@
 chalk = require 'chalk'
-{ attackTypes, weaponTypes, weaponStates } = require '../constants'
+{ attackTypes, weaponTypes, weaponStates, speed } = require '../constants'
 { random, log, err, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
@@ -56,22 +56,29 @@ showCombat = (source, getDamageStr, distance) ->
     return
 
 bows =
+    fireSpit:
+        name: 'fire spit'
+        monsterOnly: true
+    dart:
+        name: 'dart'
+        monsterOnly: true
+
     shortBow:
         name: 'short bow'
         min: 1
         max: 4
-        speed: normal
+        speed: speed.fast
         range: 20
         requirements:
             level: 0
         cost: 100
         quality: 1
         description: 'Basic short bow.'
-
     boneBow:
         name: 'bone bow'
         min: 2
         max: 3.5
+        speed: speed.fast
         range: 24
         requirements:
             level: 5
@@ -79,11 +86,11 @@ bows =
         cost: 100
         quality: 1
         description: 'Bow made out of wood and bone.'
-
     huntingBow:
         name: 'hunting bow'
         min: 3
         max: 4
+        speed: speed.fast
         range: 18
         requirements:
             level: 5
@@ -91,11 +98,11 @@ bows =
         cost: 150
         quality: 1
         description: 'Bow used by hunters. Sacrifices range for damage.'
-
     longBow:
         name: 'long bow'
         min: 2
         max: 5
+        speed: speed.fast
         range: 25
         requirements:
             level: 10
@@ -103,11 +110,11 @@ bows =
         cost: 500
         quality: 2
         description: 'Standard long bow.'
-
     dwarvenBow:
         name: 'dwarven bow'
         min: 4.0
         max: 5.0
+        speed: speed.fast
         range: 22
         requirements:
             level: 13
@@ -115,11 +122,11 @@ bows =
         cost: 700
         quality: 2
         description: 'Bow made by dwarven weaponsmiths.'
-
     blackBow:
         name: 'black bow'
         min: 3.0
         max: 4.5
+        speed: speed.fast
         range: 28
         requirements:
             level: 12
@@ -127,11 +134,11 @@ bows =
         cost: 700
         quality: 2
         description: 'A nimble long bow used to hunt down prey from a distance.'
-
     recurveBow:
         name: 'recurve bow'
         min: 3
         max: 6
+        speed: speed.fast
         range: 28
         requirements:
             level: 25
@@ -139,11 +146,11 @@ bows =
         cost: 1500
         quality: 3
         description: 'Standard recurve bow.'
-
     elvenBow:
         name: 'elven bow'
         min: 4
         max: 5.5
+        speed: speed.fast
         range: 32
         requirements:
             level: 25
@@ -151,12 +158,11 @@ bows =
         cost: 2000
         quality: 3
         description: 'Recurve bow made by elven master smiths.'
-
-
     orcishBow:
         name: 'orcish bow'
         min: 4.5
         max: 6
+        speed: speed.fast
         range: 25
         requirements:
             level: 25
@@ -164,11 +170,11 @@ bows =
         cost: 2000
         quality: 3
         description: 'Recurve bow used by orcish chieftains.'
-
     reflexBow:
         name: 'reflex bow'
         min: 6.5
         max: 9
+        speed: speed.fast
         range: 30
         requirements:
             level: 40

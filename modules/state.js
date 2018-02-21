@@ -5,7 +5,7 @@ const { states } = require('./constants');
 let stack = [{state: states.characterSelection, param: null}];
 
 function newState(state, param) {
-	if (!is(state) || param) {
+	if (!is(state) || param !== get().param) {
 		stack.push({state: state, param: param});
 	}
 }

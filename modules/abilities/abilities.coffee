@@ -1,5 +1,5 @@
 { log, err, random } = require '../general'
-{ attackTypes, heroStates, weaponStates } = require '../constants'
+{ attackTypes, heroStates, weaponStates, speed } = require '../constants'
 
 getNames = () ->
     names = {}
@@ -13,6 +13,7 @@ abilities =
         mana: 2
         description: '+100% damage to a normal attack. (No retaliation)'
         damage: 2
+        speed: speed.slow
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damage.amount * @damage for damage in damages
@@ -23,6 +24,7 @@ abilities =
         mana: 3
         description: 'Shoot 6 arrows in rapid succession with lowered damage (50% damage).'
         damage: 0.5
+        speed: speed.slow
         use: (getDamage, takeDamage) ->
             sumDmg = []
             sumEffects = []
@@ -39,6 +41,7 @@ abilities =
         mana: 0.5
         description: '80% weapon damage'
         damage: 0.8
+        speed: speed.fast
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -50,6 +53,7 @@ abilities =
         mana: 1.2
         description: '20% weapon damage, 4-8 projectiles'
         damage: 0.2
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             sumDmg = []
             sumEffects = []
@@ -68,6 +72,7 @@ abilities =
         description: '200% weapon damage, 10% chance to ignite enemy'
         chance: 10
         damage: 2
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -81,6 +86,7 @@ abilities =
         description: '200% weapon damage, 10% chance to freeze enemy'
         chance: 10
         damage: 2
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -93,6 +99,7 @@ abilities =
         mana: 2
         description: '240% weapon damage'
         damage: 2.4
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -105,6 +112,7 @@ abilities =
         description: '50% weapon damage, 6 shards, 10% chance to cause bleeding'
         damage: 0.5
         chance: 10
+        speed: speed.slow
         use: (getDamage, takeDamage) ->
             sumDmg = []
             sumEffects = []
@@ -123,6 +131,7 @@ abilities =
         description: '300% weapon damage, 25% chance to ignite enemy'
         damage: 3
         chance: 25
+        speed: speed.slow
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -135,6 +144,7 @@ abilities =
         mana: 4
         description: '300% weapon damage'
         damage: 3
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -146,6 +156,7 @@ abilities =
         mana: 5
         description: 'drain hp from enemy (100% weapon damage)'
         damage: 1
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage
@@ -158,6 +169,7 @@ abilities =
         mana: 5
         description: 'drain hp from enemy (100% weapon damage)'
         damage: 1
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
             damages[0].amount *= @damage

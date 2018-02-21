@@ -1,4 +1,4 @@
-{ attackTypes, armourTypes, species, mapTypes } = require '../constants'
+{ attackTypes, armourTypes, species, mapTypes, speed } = require '../constants'
 
 Weapons = require '../weapons/weapons.coffee'
     .getAll()
@@ -16,11 +16,12 @@ monsters =
         species: [species.mythological]
         minLevel: 20
         maxLevel: 100
-        movement: 20
-        weapon: Weapons.shortBow
+        movement: 8
+        weapon: Weapons.huntingBow
         quiver: [ Arrows.create arrows.heavy ]
         broadheads: [ Broadheads.create broadheads.heavy ]
         attack:
+            speed: speed.normal
             max: 5
             min: 3
             range: 20
@@ -36,11 +37,12 @@ monsters =
         species: [species.humanoid]
         minLevel: 25
         maxLevel: 100
-        movement: 10
-        weapon: Weapons.shortBow
+        movement: 6
+        weapon: Weapons.blackBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.poisoning ]
         attack:
+            speed: speed.fast
             max: 6
             min: 3
             range: 35
@@ -60,11 +62,12 @@ monsters =
         species: [species.magical, species.fairy]
         minLevel: 10
         maxLevel: 80
-        movement: 15
-        weapon: Weapons.shortBow
+        movement: 7
+        weapon: Weapons.longBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.burning ]
         attack:
+            speed: speed.fast
             max: 4
             min: 2
             range: 28
@@ -80,11 +83,12 @@ monsters =
         species: [species.humanoid]
         minLevel: 15
         maxLevel: 80
-        movement: 10
-        weapon: Weapons.shortBow
+        movement: 5
+        weapon: Weapons.elvenBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.piercing ]
         attack:
+            speed: speed.fast
             max: 4
             min: 3
             range: 32
@@ -104,11 +108,12 @@ monsters =
         species: [species.magical]
         minLevel: 10
         maxLevel: 100
-        movement: 8
-        weapon: Weapons.shortBow
+        movement: 6
+        weapon: Weapons.dwarvenBow
         quiver: [ Arrows.create arrows.orcish ]
         broadheads: [ Broadheads.create broadheads.ice ]
         attack:
+            speed: speed.normal
             max: 6
             min: 3
             range: 28
@@ -124,11 +129,12 @@ monsters =
         species: [species.greenskin]
         minLevel: 0
         maxLevel: 30
-        movement: 8
+        movement: 5
         weapon: Weapons.shortBow
         quiver: [ Arrows.create arrows.orcish ]
         broadheads: [ Broadheads.create broadheads.burning ]
         attack:
+            speed: speed.vfast
             max: 2
             min: 1
             range: 30
@@ -144,11 +150,12 @@ monsters =
         species: [species.mythological]
         minLevel: 10
         maxLevel: 50
-        movement: 10
-        weapon: Weapons.shortBow
+        movement: 3
+        weapon: Weapons.boneBow
         quiver: [ Arrows.create arrows.elven ]
         broadheads: [ Broadheads.create broadheads.poisoning ]
         attack:
+            speed: speed.fast
             max: 6
             min: 3
             range: 20
@@ -164,13 +171,14 @@ monsters =
         species: [species.lizard]
         minLevel: 5
         maxLevel: 30
-        movement: 10
-        weapon: Weapons.shortBow
+        movement: 5
+        weapon: Weapons.fireSpit
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.burning ]
         attack:
-            max: 4
-            min: 2
+            speed: speed.slow
+            max: 5
+            min: 4
             range: 28
         armour:
             type: armourTypes.medium
@@ -184,14 +192,15 @@ monsters =
         species: [species.magical]
         minLevel: 0
         maxLevel: 30
-        movement: 12
-        weapon: Weapons.shortBow
+        movement: 8
+        weapon: Weapons.dart
         quiver: [ Arrows.create arrows.light ]
         broadheads: [ Broadheads.create broadheads.bleeding ]
         attack:
+            speed: speed.fast
             max: 0.8
             min: 0.6
-            range: 20
+            range: 16
         armour:
             type: armourTypes.light
             amount: 10
@@ -204,13 +213,14 @@ monsters =
         species: [species.magical]
         minLevel: 20
         maxLevel: 100
-        movement: 10
-        weapon: Weapons.shortBow
+        movement: 6
+        weapon: Weapons.elvenBow
         quiver: [ Arrows.create arrows.elven ]
         broadheads: [ Broadheads.create broadheads.vampiric ]
         attack:
-            max: 6
-            min: 4
+            speed: speed.normal
+            max: 7
+            min: 5
             range: 28
         armour:
             type: armourTypes.medium
@@ -224,11 +234,12 @@ monsters =
         species: [species.undead]
         minLevel: 5
         maxLevel: 100
-        movement: 6
-        weapon: Weapons.shortBow
+        movement: 4
+        weapon: Weapons.boneBow
         quiver: [ Arrows.create arrows.normal ]
         broadheads: [ Broadheads.create broadheads.piercing ]
         attack:
+            speed: speed.normal
             max: 2
             min: 1
             range: 20

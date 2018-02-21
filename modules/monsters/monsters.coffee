@@ -19,6 +19,7 @@ create = (monster) ->
         broadhead: monster.broadhead
         broadheads: monster.broadheads
         combatPos: monster.combatPos
+        free: monster.free || 0
         gold: monster.gold
         land: monster.land
         level: monster.level
@@ -60,6 +61,7 @@ createFromTemplate = (monster, level) ->
         broadhead: 0
         broadheads: monster.broadheads
         combatPos: null
+        free: 0
         gold: ((monster.gold * 0.75) + random(monster.gold * 25)/100) * Math.pow XP_GAIN_FACTOR, level-1
         hp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level-1)
         land: monster.land
@@ -119,14 +121,13 @@ getBonusGold = (monster, hero) ->
         return monster.gold * hero.skills.skinning.level * hero.skills.skinning.bonus
     return 0
 getRandomType = (level, mapType) ->
-    return monsters[5]
-
     available = monsters.filter (x) ->
         return x.land.has(mapType) and x.minLevel <= level and x.maxLevel >= level
     return available[random available.length]
 attack = (monster, hero) ->
     # TODO deal with reflect
     [ damages, effects ] = Weapon.getDamage(monster, hero)
+    monster = create Object.assign {}, monster, { free: monster.free + monster.weapon.speed }
     return [ monster, damages, effects ]
 getAction = (source, target) ->
     if source.state.filter((x) -> x.effect is heroStates.frozen).length > 0
@@ -159,15 +160,15 @@ takeAction = (source, target, action) ->
     switch action
         when actions.approach
             combatPos = Math.max(source.combatPos - source.movement, target.combatPos + 1)
-            monster = create Object.assign {}, source, { combatPos: combatPos }
+            monster = create Object.assign {}, source, { combatPos: combatPos, free: source.free + 10 }
 
             log '> ' + source.name + ' approaching ' + target.name
             return [ monster, [], [] ]
         when actions.retreat
             combatPos = Math.min(source.combatPos + source.movement, 50)
-            monster = create Object.assign {}, source, { combatPos: combatPos }
+            monster = create Object.assign {}, source, { combatPos: combatPos, free: source.free + 10 }
 
-            log '> ' + source.name + ' retreating ' + target.name
+            log '> ' + source.name + ' retreating from ' + target.name
             return [ monster, [], [] ]
         when actions.attack
             return attack source, target
@@ -178,10 +179,10 @@ takeAction = (source, target, action) ->
                 return Weapon.getDamage(source, target)
 
             takeDamage = (damages, effects) ->
-                damage.amount * spellAmp for damage in damages
+                damage.amount *= spellAmp for damage in damages
                 return [ damages, effects ]
             [ damages, effects ] = spell.use getDamage, takeDamage
-            monster = create Object.assign {}, source, { mana: source.mana - source.weapon.spell.mana * source.weapon.manaAdjustment }
+            monster = create Object.assign {}, source, { mana: source.mana - source.weapon.spell.mana * source.weapon.manaAdjustment, free: source.free + spell.speed }
 
             log '> ' + monster.name + ' used ' + chalk.yellow(spell.name)
             return [ monster, damages, effects ]
@@ -194,27 +195,27 @@ getDamageStr = (source) ->
     masteryBonus = Weapon.getMasteryBonus source.masteries, source.weapon.type
     return '' + (source.weapon.min * masteryBonus * skillsBonus).toFixed(2) + ' - ' + (source.weapon.max * masteryBonus * skillsBonus).toFixed(2)
 getArmourStr = (source) ->
-    return source.armour.name + '\tamount: ' + source.armour.resistance # TODO fix this
+    return chalk.blueBright(source.armour.name) + '\tamount: ' + chalk.redBright(source.armour.resistance.physical) # TODO fix this
 showStats = (monster, inspectionLevel) ->
     log '> enemy type: ' + chalk.redBright monster.name
     switch inspectionLevel
         when 1 then log '> level: ' + monster.level
         when 2
             log '> level: ' + monster.level
-            log '> hp: ' + ((monster.hp/monster.maxhp)*100).toFixed(2) + '%'
+            log '> hp: ' + chalk.redBright(((monster.hp/monster.maxhp)*100).toFixed(2) + '%')
         when 3
             log '> level: ' + monster.level
-            log '> hp: ' + monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2)
+            log '> hp: ' + chalk.redBright(monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2))
         when 4
             log '> level: ' + monster.level
-            log '> hp: ' + monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2)
-            log '> weapon: ' + monster.weapon.attackType
+            log '> hp: ' + chalk.redBright(monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2))
+            log '> weapon: ' + chalk.blueBright(monster.weapon.name) + ' speed: ' + chalk.yellow(monster.weapon.speed) + ' range: ' + chalk.yellow(monster.weapon.range)
             log '> damage: ' + chalk.redBright getDamageStr(monster)
         when 5
             log '> level: ' + monster.level
-            log '> hp: ' + monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2)
+            log '> hp: ' + chalk.redBright(monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2))
             log '> movement: ' + monster.movement
-            log '> weapon: ' + monster.weapon.attackType + ' range: ' + monster.weapon.range
+            log '> weapon: ' + chalk.blueBright(monster.weapon.name) + ' speed: ' + chalk.yellow(monster.weapon.speed) + ' range: ' + chalk.yellow(monster.weapon.range)
             log '> damage: ' + chalk.redBright getDamageStr monster
             log '> armour: ' + getArmourStr monster
             if monster.skills.size > 0
