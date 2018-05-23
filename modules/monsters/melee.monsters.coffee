@@ -1,8 +1,10 @@
-{ attackTypes, armourTypes, species, mapTypes, speed } = require '../constants'
+{ attackTypes, species, mapTypes, speed } = require '../constants'
 
 skills = require '../skills/skills.coffee'
     .getNames()
 Weapons = require '../weapons/weapons.coffee'
+    .getAll()
+Armours = require '../armours/armours.coffee'
     .getAll()
 
 monsters =
@@ -10,37 +12,43 @@ monsters =
         name: 'bear'
         land: [mapTypes.forest, mapTypes.arctic]
         species: [species.beast]
-        minLevel: 10
+        minLevel: 20
         maxLevel: 80
         movement: 8
         weapon: Weapons.claws
-        speed: speed.slow
         attack:
+            speed: speed.slow
             max: 5
             min: 2.5
         armour:
-            type: armourTypes.light
-            amount: 10
+            type: Armours.fur
+            resistance:
+                physical: 0
+                fire: -20
+                ice: 50
         maxhp: 10
-        gold: 6
-        xp: 6
+        gold: 2
+        xp: 8
     centaurLancer:
         name: 'centaur lancer'
         land: [mapTypes.forest, mapTypes.enchanted, mapTypes.swamp]
         species: [species.mythological]
-        minLevel: 20
+        minLevel: 10
         maxLevel: 50
         movement: 10
-        weapon: Weapons.boneSpear
-        speed: speed.normal
+        weapon: Weapons.shortSword
         attack:
+            speed: speed.normal
             max: 4
             min: 2
         armour:
-            type: armourTypes.medium
-            amount: 50
+            type: Armours.leather
+            resistance:
+                physical: 15
+                lightning: -20
+                poison: 15
         maxhp: 5
-        gold: 7
+        gold: 10
         xp: 7
     demon:
         name: 'demon'
@@ -50,13 +58,20 @@ monsters =
         maxLevel: 1000
         movement: 8
         weapon: Weapons.orcishSword
-        speed: speed.fast
         attack:
+            speed: speed.fast
             max: 10
             min: 5
         armour:
-            type: armourTypes.medium
-            amount: 75
+            type: Armours.leather
+            resistance:
+                physical: 50
+                lightning: -25
+                dark: 50
+                fire: 50
+                ice: 50
+                poison: 50
+                arcane: 75
         maxhp: 8
         gold: 12
         xp: 12
@@ -68,16 +83,19 @@ monsters =
         maxLevel: 65
         movement: 8
         weapon: Weapons.fangs
-        speed: speed.fast
         attack:
+            speed: speed.fast
             max: 4
             min: 3
         armour:
-            type: armourTypes.light
-            amount: 20
+            type: Armours.fur
+            resistance:
+                physical: 5
+                fire: -25
+                ice: 50
         maxhp: 6
-        gold: 6
-        xp: 6
+        gold: 2
+        xp: 8
     fireElemental:
         name: 'fire elemental'
         land: [mapTypes.inferno, mapTypes.tower, mapTypes.magical]
@@ -86,16 +104,19 @@ monsters =
         maxLevel: 100
         movement: 5
         weapon: Weapons.fists
-        speed: speed.normal
         attack:
+            speed: speed.normal
             max: 5
             min: 3
         armour:
-            type: armourTypes.light
-            amount: 25
+            type: Armours.scales
+            resistance:
+                physical: 10
+                ice: -50
+                fire: 100
         maxhp: 5
-        gold: 5
-        xp: 6
+        gold: 2
+        xp: 7
     fox:
         name: 'fox'
         land: [mapTypes.forest, mapTypes.swamp, mapTypes.enchanted]
@@ -109,11 +130,14 @@ monsters =
             min: 0.6
             speed: speed.vfast
         armour:
-            type: armourTypes.light
-            amount: 5
+            type: Armours.fur
+            resistance:
+                physical: 0
+                fire: -20
+                ice: 20
         maxhp: 3
-        gold: 3
-        xp: 2
+        gold: 1
+        xp: 3
     giant:
         name: 'giant'
         land: [mapTypes.arctic, mapTypes.enchanted, mapTypes.desert]
@@ -122,70 +146,87 @@ monsters =
         maxLevel: 100
         movement: 4
         weapon: Weapons.shortSword # TODO hammer
-        speed: speed.vslow
         attack:
+            speed: speed.vslow
             max: 10
             min: 8
         armour:
-            type: armourTypes.medium
-            amount: 80
+            type: Armours.leather
+            resistance:
+                physical: 20
+                poison: 20
+                arcane: 20
+                dark: 20
+                ice: 25
         maxhp: 13
-        gold: 6
-        xp: 8
+        gold: 10
+        xp: 10
     goblin:
         name: 'goblin'
         land: [mapTypes.dungeon, mapTypes.inferno]
         species: [species.infernal]
         minLevel: 0
-        maxLevel: 20
+        maxLevel: 40
         movement: 5
         weapon: Weapons.scimitar
-        speed: speed.fast
         attack:
+            speed: speed.fast
             max: 1
             min: 1
         armour:
-            type: armourTypes.medium
-            amount: 35
+            type: Armours.skin
+            resistance:
+                physical: 5
+                lightning: -25
+                ice: -20
+                fire: 20
+                poison: 25
         maxhp: 3
-        gold: 3
-        xp: 3
+        gold: 5
+        xp: 2
     highwayman:
         name: 'highwayman'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.forest]
         species: [species.humanoid]
         minLevel: 10
-        maxLevel: 40
+        maxLevel: 60
         movement: 5
         weapon: Weapons.scimitar
-        speed: speed.fast
         attack:
-            max: 4
-            min: 2
+            speed: speed.fast
+            max: 3
+            min: 1.5
         armour:
-            type: armourTypes.medium
-            amount: 50
-        maxhp: 6
-        gold: 6
-        xp: 5
+            type: Armours.leather
+            resistance:
+                physical: 20
+                fire: -15
+                poison: 15
+                lightning: -15
+        maxhp: 5
+        gold: 10
+        xp: 6
     jackal:
         name: 'jackal'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.desert]
         species: [species.mythological, species.beast]
-        minLevel: 10
-        maxLevel: 40
-        movement: 10
+        minLevel: 5
+        maxLevel: 80
+        movement: 8
         weapon: Weapons.fangs
-        speed: speed.vfast
         attack:
+            speed: speed.vfast
             max: 2
             min: 1
         armour:
-            type: armourTypes.light
-            amount: 20
+            type: Armours.fur
+            resistance:
+                physical: 0
+                fire: -25
+                poison: -10
         maxhp: 4
-        gold: 3
-        xp: 3
+        gold: 2
+        xp: 4
     orc:
         name: 'orc'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.arctic]
@@ -194,15 +235,22 @@ monsters =
         maxLevel: 100
         movement: 4
         weapon: Weapons.orcishSword
-        speed: speed.slow
         attack:
+            speed: speed.slow
             max: 8
             min: 4
         armour:
-            type: armourTypes.heavy
-            amount: 100
+            type: Armours.breastPlate
+            resistance:
+                physical: 40
+                lightning: -25
+                ice: 20
+                fire: 20
+                arcane: 50
+                poison: 30
+                dark: 25
         maxhp: 6
-        gold: 6
+        gold: 10
         xp: 8
     orcWarrior:
         name: 'orc warrior'
@@ -212,15 +260,22 @@ monsters =
         maxLevel: 100
         movement: 3
         weapon: Weapons.orcishSword
-        speed: speed.slow
         attack:
+            speed: speed.slow
             max: 8
             min: 6
         armour:
-            type: armourTypes.heavy
-            amount: 160
+            type: Armours.breastPlate
+            resistance:
+                physical: 45
+                lightning: -25
+                ice: 25
+                fire: 25
+                arcane: 70
+                poison: 25
+                dark: 35
         maxhp: 8
-        gold: 10
+        gold: 14
         xp: 10
     orcChieftain:
         name: 'orc chieftain'
@@ -230,34 +285,48 @@ monsters =
         maxLevel: 1000
         movement: 3
         weapon: Weapons.orcishSword
-        speed: speed.slow
         attack:
+            speed: speed.slow
             max: 14
             min: 12
         armour:
-            type: armourTypes.heavy
-            amount: 250
+            type: Armours.breastPlate
+            resistance:
+                physical: 50
+                ice: 50
+                fire: 50
+                dark: 75
+                arcane: 80
+                lightning: -10
+                poison: 70
         maxhp: 10
-        gold: 12
+        gold: 20
         xp: 14
     skeletonKnight:
         name: 'skeleton knight'
         land: [mapTypes.dungeon, mapTypes.crypt]
         species: [species.undead]
         minLevel: 10
-        maxLevel: 50
+        maxLevel: 100
         movement: 4
         weapon: Weapons.broadSword
-        speed: speed.normal
         attack:
+            speed: speed.normal
             max: 5
             min: 2
         armour:
-            type: armourTypes.heavy
-            amount: 90
+            type: Armours.breastPlate
+            resistance:
+                physical: 30
+                fire: 15
+                ice: 15
+                lightning: -20
+                dark: 25
+                arcane: 10
+                poison: 100
         maxhp: 7
-        gold: 7
-        xp: 7
+        gold: 10
+        xp: 6
     skeletonWarrior:
         name: 'skeleton warrior'
         land: [mapTypes.dungeon, mapTypes.crypt, mapTypes.tower]
@@ -266,34 +335,40 @@ monsters =
         maxLevel: 100
         movement: 5
         weapon: Weapons.broadSword
-        speed: speed.normal
         attack:
-            max: 1
-            min: 1
+            speed: speed.normal
+            max: 3
+            min: 1.4
         armour:
-            type: armourTypes.medium
-            amount: 50
+            type: Armours.leather
+            resistance:
+                physical: 10
+                poison: 80
+                lightning: -25
         maxhp: 5
-        gold: 3
-        xp: 4
+        gold: 6
+        xp: 3
     spider:
         name: 'spider'
         land: [mapTypes.forest, mapTypes.dungeon, mapTypes.crypt]
         species: [species.beast]
         minLevel: 0
-        maxLevel: 20
+        maxLevel: 40
         movement: 6
         weapon: Weapons.fangs
-        speed: speed.fast
         attack:
+            speed: speed.fast
             max: 1
             min: 1
         armour:
-            type: armourTypes.light
-            amount: 5
+            type: Armours.skin
+            resistance:
+                physical: 0
+                fire: -25
+                ice: 25
         maxhp: 3
-        gold: 2
-        xp: 2
+        gold: 0
+        xp: 1.6
     troll:
         name: 'troll'
         land: [mapTypes.forest, mapTypes.dungeon, mapTypes.swamp]
@@ -302,16 +377,20 @@ monsters =
         maxLevel: 100
         movement: 5
         weapon: Weapons.fists
-        speed: speed.normal
         attack:
+            speed: speed.normal
             max: 5
             min: 3
         armour:
-            type: armourTypes.medium
-            amount: 55
+            type: Armours.skin
+            resistance:
+                physical: 15
+                fire: -25
+                ice: 25
+                poison: 25
         maxhp: 8
-        gold: 5
-        xp: 10
+        gold: 10
+        xp: 8
     trollWarlord:
         name: 'troll warlord'
         land: [mapTypes.forest, mapTypes.dungeon, mapTypes.swamp]
@@ -320,16 +399,23 @@ monsters =
         maxLevel: 1000
         movement: 4
         weapon: Weapons.broadSword
-        speed: speed.slow
         attack:
+            speed: speed.slow
             max: 10
             min: 6
         armour:
-            type: armourTypes.medium
-            amount: 120
+            type: Armours.leather
+            resistance:
+                physical: 25
+                fire: -25
+                ice: 25
+                poison: 50
+                lightning: -10
+                dark: 20
+                arcane: 20
         maxhp: 8
-        gold: 12
-        xp: 14
+        gold: 15
+        xp: 12
     wolf:
         name: 'wolf'
         land: [mapTypes.forest, mapTypes.arctic]
@@ -338,16 +424,19 @@ monsters =
         maxLevel: 50
         movement: 8
         weapon: Weapons.fangs
-        speed: speed.fast
         attack:
-            max: 1.2
-            min: 0.8
+            speed: speed.fast
+            max: 2.2
+            min: 1.8
         armour:
-            type: armourTypes.light
-            amount: 10
+            type: Armours.fur
+            resistance:
+                physical: 5
+                fire: -25
+                ice: 25
         maxhp: 5
-        gold: 4
-        xp: 4
+        gold: 1
+        xp: 5
     wolverine:
         name: 'wolverine'
         land: [mapTypes.forest, mapTypes.arctic]
@@ -356,33 +445,40 @@ monsters =
         maxLevel: 30
         movement: 8
         weapon: Weapons.fangs
-        speed: speed.vfast
         attack:
+            speed: speed.vfast
             max: 1
             min: 1
         armour:
-            type: armourTypes.light
-            amount: 15
+            type: Armours.fur
+            resistance:
+                physical: 5
+                fire: -25
+                ice: 25
         maxhp: 3
-        gold: 2
-        xp: 2
+        gold: 0
+        xp: 3
     zombie:
         name: 'zombie'
         land: [mapTypes.dungeon, mapTypes.crypt]
         species: [species.undead]
         minLevel: 5
-        maxLevel: 30
+        maxLevel: 60
         movement: 2
         weapon: Weapons.fists
-        speed: speed.vslow
         attack:
+            speed: speed.vslow
             max: 2
             min: 1
         armour:
-            type: armourTypes.light
-            amount: 10
+            type: Armours.skin
+            resistance:
+                physical: 10
+                poison: 100
+                fire: -25
+                ice: 25
         maxhp: 10
-        gold: 5
-        xp: 6
+        gold: 2
+        xp: 7
 
 module.exports = (monster for own key, monster of monsters)

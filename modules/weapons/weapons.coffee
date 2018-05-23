@@ -92,7 +92,7 @@ getSkillBonus = (skills, weaponType) ->
 
 getMasteryBonus = (masteries, type) ->
     if masteries[type]?
-        return Math.pow WEAPON_GAIN_FACTOR, masteries[type].level-1
+        return 1 + (WEAPON_GAIN_FACTOR-1) * (masteries[type].level-1)
     else
         return 1
 

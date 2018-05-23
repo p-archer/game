@@ -9,9 +9,6 @@ inspector = require '../../inspector.coffee'
 time = null # combat loop timer
 
 handleMonstersTurn = (monster, hero, map, exitState) ->
-    log()
-    log chalk.magenta '-- ' + monster.name + '\'s turn --'
-
     action = monster.getAction monster, hero
     [ monster, damages, effects ] = Monster.takeAction monster, hero, action
     [ hero, _, hp, mana ] = Hero.takeDamage hero, damages, effects
@@ -115,12 +112,12 @@ useSpell = (state, map, hero, spell) ->
 switchArrowType = (state, map, hero) ->
     index = hero.arrow
     if ++index >= hero.quiver.length then index = 0
-    hero = Hero.create Object.assign {}, hero, { arrow: index, free: hero.free + 1 }
+    hero = Hero.create Object.assign {}, hero, { arrow: index }
     return [ true, { state: state.state }, hero, map ]
 switchBroadhead = (state, map, hero) ->
     index = hero.broadhead
     if ++index >= hero.broadheads.length then index = 0
-    hero = Hero.create Object.assign {}, hero, { broadhead: index, free: hero.free + 1 }
+    hero = Hero.create Object.assign {}, hero, { broadhead: index }
     return [ true, { state: state.state }, hero, map ]
 
 initTimer = () ->
@@ -145,7 +142,7 @@ handleLoop = (state, hero, map) ->
             if isReady monster, time
                 [ _, state, hero, map ] = handleMonstersTurn monster, hero, map, { state: state.state }
         time++
-        warn 'timeslot', time
+        # warn 'timeslot', time
     return [ { state: state.state }, hero, map ]
 
 outputter = (state, hero, map, exitState) ->
@@ -191,7 +188,7 @@ mutator = (state, input, hero, map) ->
         when '2' then if hero.broadheads? then [ handled, state, hero, map] = switchBroadhead state, map, hero
 
     monster = map.current.isMonster hero.position
-    if handled and monster? and monster.hp > 0
+    if handled and monster? and monster.hp > 0 and not isReady hero, time
         return [ true, handleLoop(state, hero, map)... ]
 
     return [ handled, state, hero, map ]

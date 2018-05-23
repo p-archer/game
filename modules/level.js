@@ -2,7 +2,7 @@
 require('coffee-script/register');
 
 const { random, log, debug, err } = require('./general');
-const { mapStyles, CHANCE_FOR_TREASURE, CHANCE_FOR_ADDITIONAL_EXIT, GOLD_RANGE, CHANCE_FOR_MONSTER, CHANCE_FOR_SHOP, shops, MAP_SIZE, directions } = require('./constants');
+const { mapStyles, CHANCE_FOR_ADDITIONAL_EXIT, GOLD_RANGE, shops, MAP_SIZE, directions } = require('./constants');
 const Point = require('./point');
 const Monster = require('./monsters/monsters.coffee');
 const Shop = require('./shop.coffee');
@@ -18,14 +18,10 @@ class Level {
 
 		this.start = hero.position;
 		this.data = generateRoutes(type.style, this.start);
-		this.end = [{position: findFurthest(this.data, this.start)}];
-		// this.treasures = generateTreasures(this, hero.level);
-		this.treasures = [];
+		this.end = [{position: findFurthest(this.data, this.start)}, ...generateExits(this)];
 		this.monsters = generateMonsters(this, hero.level);
 		this.shops = generateShops(this, hero);
-
-		if (random() < CHANCE_FOR_ADDITIONAL_EXIT)
-			this.end.push({position: findFreeSpot(this)});
+		this.treasures = generateTreasures(this, hero.level);
 	}
 
 	isTreasure(point) {
@@ -139,21 +135,26 @@ function generateMatrix(size) {
 	return data;
 }
 
-function generateTreasures(level, heroLevel) {
+function generateTreasures(level, heroLevel = 1) {
 	let treasures = [];
 
-	if (!heroLevel)
-		heroLevel = 1;
+	for (let i=0; i<MAP_SIZE; i++) {
+		for (let j=0; j<MAP_SIZE; j++) {
+			let point = new Point(j, i);
+			if (!level.isFree(point))
+				continue;
 
-	while (random() < CHANCE_FOR_TREASURE) {
-		let diff = Math.min(5, random(heroLevel/5)+1);
-		let max = GOLD_RANGE[diff-1];
-		let min = diff > 1 ? GOLD_RANGE[diff-2] : 1;
-		treasures.push({
-			position: findFreeSpot(level),
-			gold: min + random(max - min),
-			lock: diff,
-		});
+			if (level.data[i][j] === 1 && random() < level.type.treasureChance) {
+				let diff = Math.min(5, random(heroLevel/10)+1);
+				let max = GOLD_RANGE[diff-1];
+				let min = diff > 1 ? GOLD_RANGE[diff-2] : max / 2;
+				treasures.push({
+					position: findFreeSpot(level),
+					gold: min + random(max - min),
+					lock: diff,
+				});
+			}
+		}
 	}
 
 	return treasures;
@@ -336,7 +337,7 @@ function generateMonsters(level, heroLevel) {
 				continue;
 
 			let monsterLevel = minLevel < 1 ? random(heroLevel) + 1 : random(6) + minLevel;
-			if (level.data[i][j] === 1 && random() < CHANCE_FOR_MONSTER) {
+			if (level.data[i][j] === 1 && random() < level.type.monsterChance) {
 				let monster = Monster.getRandomType(monsterLevel, level.type);
 				monster.position = point;
 				monsters.push(Monster.createFromTemplate(monster, monsterLevel));
@@ -347,8 +348,23 @@ function generateMonsters(level, heroLevel) {
 	return monsters;
 }
 
+function generateExits(level) {
+	let exits = [];
+
+	for (let i=0; i<MAP_SIZE; i++) {
+		for (let j=0; j<MAP_SIZE; j++) {
+			let point = new Point(j, i);
+			if (level.data[i][j] === 1 && random() < CHANCE_FOR_ADDITIONAL_EXIT) {
+				exits.push({ position: point });
+			}
+		}
+	}
+
+	return exits;
+}
+
 function generateShops(level, hero) {
-	if (random() < CHANCE_FOR_SHOP) {
+	if (random() < level.type.shopChance) {
 		let spot = findFreeSpot(level);
 		if (spot) {
 			let shop = { type: getRandomShopType(), position: spot };

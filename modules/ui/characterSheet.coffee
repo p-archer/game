@@ -48,7 +48,7 @@ skillsOutputter = (state, hero, map) ->
 skillsMutator = (state, input, hero, map) ->
     if not state.param?
         skills = hero.skills.keys
-        num = parseInt input, 16
+        num = parseInt(input, 16)-1
         if not isNaN(num) and num < skills.length
             return [ true, { state: state.state, param: skills[num] }, hero, map ]
     else

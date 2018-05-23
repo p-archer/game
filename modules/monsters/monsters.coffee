@@ -62,13 +62,13 @@ createFromTemplate = (monster, level) ->
         broadheads: monster.broadheads
         combatPos: null
         free: 0
-        gold: ((monster.gold * 0.75) + random(monster.gold * 25)/100) * Math.pow XP_GAIN_FACTOR, level-1
-        hp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level-1)
+        gold: ((monster.gold * 0.75) + random(monster.gold * 25)/100) * level
+        hp: monster.maxhp * level
         land: monster.land
         level: level
         mana: (monster.maxMana || 1) * Math.pow(MANA_GAIN_FACTOR, level-1)
         maxMana: (monster.maxMana || 1) * Math.pow(MANA_GAIN_FACTOR, level-1)
-        maxhp: monster.maxhp * Math.pow(HP_GAIN_FACTOR, level-1)
+        maxhp: monster.maxhp * level
         movement: monster.movement
         name: monster.name
         position: monster.position
@@ -83,19 +83,15 @@ createFromTemplate = (monster, level) ->
 
     # create weapon
     options =
-        min: monster.attack.min * Math.pow WEAPON_GAIN_FACTOR, level-1
-        max: monster.attack.max * Math.pow WEAPON_GAIN_FACTOR, level-1
+        min: monster.attack.min * (1 + (WEAPON_GAIN_FACTOR-1) * (level-1))
+        max: monster.attack.max * (1 + (WEAPON_GAIN_FACTOR-1) * (level-1))
         range: monster.attack.range || 1
         speed: monster.attack.speed
         spell: monster.spell
     newMonster.weapon = Weapon.create Object.assign {}, monster.weapon, options
 
     # create armour
-    armours = Armour.getAll()
-    switch monster.armour.type
-        when armourTypes.light then newMonster.armour = Armour.create Object.assign {}, armours.robe, { resistance: { physical: monster.armour.amount } }
-        when armourTypes.medium then newMonster.armour = Armour.create Object.assign {}, armours.leather, { resistance: { physical: monster.armour.amount } }
-        when armourTypes.heavy then newMonster.armour = Armour.create Object.assign {}, armours.breastPlate, { resistance: { physical: monster.armour.amount } }
+    newMonster.armour = Armour.create Object.assign {}, monster.armour.type, { resistance: monster.armour.resistance }
 
     # masteries
     newMonster.masteries = {}
@@ -195,7 +191,22 @@ getDamageStr = (source) ->
     masteryBonus = Weapon.getMasteryBonus source.masteries, source.weapon.type
     return '' + (source.weapon.min * masteryBonus * skillsBonus).toFixed(2) + ' - ' + (source.weapon.max * masteryBonus * skillsBonus).toFixed(2)
 getArmourStr = (source) ->
-    return chalk.blueBright(source.armour.name) + '\tamount: ' + chalk.redBright(source.armour.resistance.physical) # TODO fix this
+    str = 'armour: ' + chalk.blueBright(source.armour.name) + '\t'
+    str += chalk.whiteBright('Ph:' + source.armour.resistance.physical + '%') + '/'
+    str += chalk.redBright('F:' + source.armour.resistance.fire + '%') + '/'
+    str += chalk.blueBright('I:' + source.armour.resistance.ice + '%') + '/'
+    str += chalk.yellow('L:' + source.armour.resistance.lightning + '%') + '/'
+    str += chalk.greenBright('P:' + source.armour.resistance.poison + '%') + '/'
+    str += chalk.magenta('D:' + source.armour.resistance.dark + '%') + '/'
+    str += chalk.cyan('A:' + source.armour.resistance.arcane + '%')
+    return str
+getSpeed = (speed) ->
+    return switch
+        when speed <= 10 then 'very fast'
+        when 10 < speed <= 20 then 'fast'
+        when 20 < speed <= 30 then 'normal'
+        when 30 < speed <= 40 then 'slow'
+        when speed > 40 then 'very slow'
 showStats = (monster, inspectionLevel) ->
     log '> enemy type: ' + chalk.redBright monster.name
     switch inspectionLevel
@@ -209,13 +220,13 @@ showStats = (monster, inspectionLevel) ->
         when 4
             log '> level: ' + monster.level
             log '> hp: ' + chalk.redBright(monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2))
-            log '> weapon: ' + chalk.blueBright(monster.weapon.name) + ' speed: ' + chalk.yellow(monster.weapon.speed) + ' range: ' + chalk.yellow(monster.weapon.range)
+            log '> weapon: ' + chalk.blueBright(monster.weapon.name) + ' speed: ' + chalk.yellow(getSpeed(monster.weapon.speed)) + ' range: ' + chalk.yellow(monster.weapon.range)
             log '> damage: ' + chalk.redBright getDamageStr(monster)
         when 5
             log '> level: ' + monster.level
             log '> hp: ' + chalk.redBright(monster.hp.toFixed(2) + '/' + monster.maxhp.toFixed(2))
             log '> movement: ' + monster.movement
-            log '> weapon: ' + chalk.blueBright(monster.weapon.name) + ' speed: ' + chalk.yellow(monster.weapon.speed) + ' range: ' + chalk.yellow(monster.weapon.range)
+            log '> weapon: ' + chalk.blueBright(monster.weapon.name) + ' speed: ' + chalk.yellow(getSpeed(monster.weapon.speed)) + ' range: ' + chalk.yellow(monster.weapon.range)
             log '> damage: ' + chalk.redBright getDamageStr monster
             log '> armour: ' + getArmourStr monster
             if monster.skills.size > 0
@@ -236,36 +247,31 @@ adjust = (map, pos, changes...) ->
     return monster
 
 takeDamage = (monster, damages, effects) ->
-    damage = damages.reduce (a, x) ->
-        return a + x.amount
-    , 0
-    if damage <= 0
-        return [ monster, true, 0, 0 ]
+    damage = damages.reduce ((a, x) -> return a + x.amount), 0
+    if damage <= 0 then return [ monster, true, 0, 0 ]
 
     if effects.has { effect: weaponStates.critical }
         log chalk.blueBright '> critical hit'
         damage.amount *= 2 for damage in damages
 
-    # err 'taking damage:', damage.amount, 'of type', '[' + damage.type + ']' for damage in damages
-
-    adjustedDamage = Armour.soakDamage monster.armour, damages
-    # err 'real damage', adjustedDamage
-    newMonster = Object.assign {}, monster, { hp: monster.hp - adjustedDamage, state: [ monster.state..., effects... ] }
+    adjustedDamages = Armour.soakDamage monster.armour, damages
+    sumDmg = adjustedDamages.reduce ((acc, x) -> return acc + x.amount), 0
+    newMonster = Object.assign {}, monster, { hp: monster.hp - sumDmg, state: [ monster.state..., effects... ] }
 
     hp = 0
     mana = 0
     for state in effects
         switch state.effect
             when weaponStates.leeching
-                hp += Math.min adjustedDamage * 0.1, monster.hp
+                hp += Math.min sumDmg * 0.1, monster.hp
             when weaponStates.manaLeeching
-                mana += Math.min adjustedDamage * 0.1, monster.mana
+                mana += Math.min sumDmg * 0.1, monster.mana
             when weaponStates.lifeDrain
-                hp += Math.min adjustedDamage, monster.hp
+                hp += Math.min sumDmg, monster.hp
             when weaponStates.manaDrain
-                mana += Math.min adjustedDamage, monster.mana
+                mana += Math.min sumDmg, monster.mana
 
-    inspector.display null, newMonster, adjustedDamage, hp, mana
+    inspector.display null, newMonster, adjustedDamages, hp, mana
 
     if newMonster.hp <= 0
         return [ create(newMonster), false, hp, mana ]

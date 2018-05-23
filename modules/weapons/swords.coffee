@@ -1,5 +1,5 @@
 chalk = require 'chalk'
-{ attackTypes, weaponTypes, weaponStates, speed } = require '../constants'
+{ attackTypes, weaponTypes, weaponStates, heroStates, speed } = require '../constants'
 { random, log, getPercent } = require '../general'
 
 skills = require '../skills/skills.coffee'
@@ -23,14 +23,20 @@ swords =
         name: 'claws'
         monsterOnly: true
         speed: speed.fast
+        chance: 10
+        modifier: () -> if random(10000) < @chance * 100 then return [ { effect: heroStates.bleeding, ticks: 3} ] else return []
     fangs:
         name: 'fangs'
         monsterOnly: true
         speed: speed.vfast
+        chance: 10
+        modifier: () -> if random(10000) < @chance * 100 then return [ { effect: heroStates.poisoned, ticks: 3} ] else return []
     fists:
         name: 'fists'
         monsterOnly: true
         speed: speed.fast
+        chance: 10
+        modifier: () -> if random(10000) < @chance * 100 then return [ { effect: weaponStates.critical, ticks: 1} ] else return []
 
     shortSword:
         name: 'short sword'

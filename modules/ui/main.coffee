@@ -1,6 +1,18 @@
 { log, err, warn } = require '../general'
 { directions, states } = require '../constants'
+chalk = require 'chalk'
 Hero = require '../hero.coffee'
+
+openTreasure = (hero, map) ->
+    treasure = map.current.isTreasure hero.position
+    if hero.skills.lockpick? and hero.skills.lockpick.level >= treasure.lock
+        hero = Hero.create Object.assign {}, hero, { gold: hero.gold + treasure.gold }
+        map.current.treasures = map.current.treasures.filter (x) ->
+            return not x.position.isSame hero.position
+        log '> opened chest, found ' + chalk.yellow(treasure.gold + ' gold')
+    else
+        err '> lock is too hard to pick'
+    return [ hero, map ]
 
 interact = (state, hero, map) ->
     level = map.current
@@ -16,7 +28,7 @@ interact = (state, hero, map) ->
     # next level
     if end = level.isEnd hero.position
         if not end.children?
-            end.children = map.generateNewLevel hero, (level.end[1] and level.end[1].position.isSame(end.position))
+            end.children = map.generateNewLevel hero, (level.end[0] and not level.end[0].position.isSame(end.position))
         map.current = end.children
         return [ { state: states.normal }, hero, map ]
 

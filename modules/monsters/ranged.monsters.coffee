@@ -1,6 +1,8 @@
-{ attackTypes, armourTypes, species, mapTypes, speed } = require '../constants'
+{ attackTypes, species, mapTypes, speed } = require '../constants'
 
 Weapons = require '../weapons/weapons.coffee'
+    .getAll()
+Armours = require '../armours/armours.coffee'
     .getAll()
 skills = require '../skills/skills.coffee'
     .getNames()
@@ -26,17 +28,19 @@ monsters =
             min: 3
             range: 20
         armour:
-            type: armourTypes.medium
-            amount: 50
+            type: Armours.leather
+            resistance:
+                physical: 20
+                poison: -25
         maxhp: 5
-        gold: 8
-        xp: 8
+        gold: 12
+        xp: 7
     drowElf:
         name: 'drow elf'
-        land: [mapTypes.forest, mapTypes.dungeon, mapTypes.swamp]
+        land: [mapTypes.forest, mapTypes.dungeon, mapTypes.swamp, mapTypes.inferno ]
         species: [species.humanoid]
-        minLevel: 25
-        maxLevel: 100
+        minLevel: 35
+        maxLevel: 300
         movement: 6
         weapon: Weapons.blackBow
         quiver: [ Arrows.create arrows.normal ]
@@ -47,10 +51,12 @@ monsters =
             min: 3
             range: 35
         armour:
-            type: armourTypes.medium
-            amount: 50
+            type: Armours.leather
+            resistance:
+                physical: 20
+                poison: 50
         maxhp: 6
-        gold: 8
+        gold: 16
         xp: 10
         skills: [{
             skill: skills.tactics
@@ -68,14 +74,17 @@ monsters =
         broadheads: [ Broadheads.create broadheads.burning ]
         attack:
             speed: speed.fast
-            max: 4
+            max: 3.5
             min: 2
-            range: 28
+            range: 24
         armour:
-            type: armourTypes.light
-            amount: 20
+            type: Armours.leather
+            resistance:
+                physical: 10
+                fire: 25
+                ice: -25
         maxhp: 5
-        gold: 6
+        gold: 8
         xp: 6
     elf:
         name: 'elf'
@@ -93,11 +102,13 @@ monsters =
             min: 3
             range: 32
         armour:
-            type: armourTypes.medium
-            amount: 40
+            type: Armours.leather
+            resistance:
+                physical: 20
+                poison: 25
         maxhp: 4
-        gold: 5
-        xp: 7
+        gold: 10
+        xp: 6
         skills: [{
             skill: skills.tactics
             level: 2
@@ -106,7 +117,7 @@ monsters =
         name: 'ice elemental'
         land: [mapTypes.arctic, mapTypes.tower, mapTypes.magical]
         species: [species.magical]
-        minLevel: 10
+        minLevel: 30
         maxLevel: 100
         movement: 6
         weapon: Weapons.dwarvenBow
@@ -114,14 +125,17 @@ monsters =
         broadheads: [ Broadheads.create broadheads.ice ]
         attack:
             speed: speed.normal
-            max: 6
+            max: 5
             min: 3
             range: 28
         armour:
-            type: armourTypes.light
-            amount: 25
+            type: Armours.skin
+            resistance:
+                physical: 15
+                ice: 100
+                fire: -50
         maxhp: 4
-        gold: 6
+        gold: 2
         xp: 8
     kobold:
         name: 'kobold'
@@ -135,15 +149,18 @@ monsters =
         broadheads: [ Broadheads.create broadheads.burning ]
         attack:
             speed: speed.vfast
-            max: 2
-            min: 1
-            range: 30
+            max: 1
+            min: 0.8
+            range: 26
         armour:
-            type: armourTypes.light
-            amount: 10
+            type: Armours.skin
+            resistance:
+                physical: 0
+                ice: -20
+                fire: 20
         maxhp: 3
-        gold: 3
-        xp: 3
+        gold: 5
+        xp: 2
     medusa:
         name: 'medusa'
         land: [mapTypes.dungeon, mapTypes.swamp]
@@ -156,14 +173,19 @@ monsters =
         broadheads: [ Broadheads.create broadheads.poisoning ]
         attack:
             speed: speed.fast
-            max: 6
-            min: 3
+            max: 4
+            min: 2
             range: 20
         armour:
-            type: armourTypes.medium
-            amount: 35
+            type: Armours.skin
+            resistance:
+                physical: 15
+                poison: 100
+                fire: -20
+                lightning: -20
+                arcane: 20
         maxhp: 4
-        gold: 6
+        gold: 12
         xp: 6
     salamander:
         name: 'salamander'
@@ -177,36 +199,43 @@ monsters =
         broadheads: [ Broadheads.create broadheads.burning ]
         attack:
             speed: speed.slow
-            max: 5
-            min: 4
+            max: 4
+            min: 3
             range: 28
         armour:
-            type: armourTypes.medium
-            amount: 40
+            type: Armours.scales
+            resistance:
+                physical: 15
+                fire: 95
+                ice: -40
+                arcane: 20
+                poison: 50
         maxhp: 5
-        gold: 5
-        xp: 5
+        gold: 2
+        xp: 6
     pixie:
         name: 'pixie'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.forest, mapTypes.desert, mapTypes.enchanted]
         species: [species.magical]
         minLevel: 0
-        maxLevel: 30
+        maxLevel: 50
         movement: 8
         weapon: Weapons.dart
         quiver: [ Arrows.create arrows.light ]
         broadheads: [ Broadheads.create broadheads.bleeding ]
         attack:
             speed: speed.fast
-            max: 0.8
-            min: 0.6
+            max: 1.8
+            min: 1.2
             range: 16
         armour:
-            type: armourTypes.light
-            amount: 10
+            type: Armours.robe
+            resistance:
+                physical: 0
+                fire: -20
         maxhp: 3
-        gold: 4
-        xp: 4
+        gold: 6
+        xp: 3
     siren:
         name: 'siren'
         land: [mapTypes.dungeon, mapTypes.swamp, mapTypes.desert, mapTypes.forest]
@@ -219,14 +248,20 @@ monsters =
         broadheads: [ Broadheads.create broadheads.vampiric ]
         attack:
             speed: speed.normal
-            max: 7
-            min: 5
+            max: 6
+            min: 4
             range: 28
         armour:
-            type: armourTypes.medium
-            amount: 60
+            type: Armours.skin
+            resistance:
+                physical: 20
+                fire: -20
+                ice: 20
+                lightning: 40
+                dark: 20
+                arcane: 20
         maxhp: 5
-        gold: 10
+        gold: 14
         xp: 10
     skeletonArcher:
         name: 'skeleton archer'
@@ -240,14 +275,18 @@ monsters =
         broadheads: [ Broadheads.create broadheads.piercing ]
         attack:
             speed: speed.normal
-            max: 2
-            min: 1
+            max: 5
+            min: 3.4
             range: 20
         armour:
-            type: armourTypes.medium
-            amount: 30
+            type: Armours.leather
+            resistance:
+                physical: 5
+                poison: 50
+                fire: -20
+                ice: 20
         maxhp: 4
-        gold: 5
-        xp: 5
+        gold: 6
+        xp: 4
 
 module.exports = (monster for own key, monster of monsters)

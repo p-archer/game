@@ -8,15 +8,33 @@ getNames = () ->
     return names
 
 abilities =
+    strafe: # TODO solve movement issue
+        name: 'strafe'
+        mana: 4
+        description: 'Retreat while firing 3 shots with decreased damage (50%).'
+        damage: 0.5
+        speed: speed.normal
+        use: (getDamage, takeDamage) ->
+            sumDmg = []
+            sumEffects = []
+            for i in [1..3]
+                [ damages, effects ] = getDamage()
+                for damage in damages
+                    damage.amount *= @damage
+                sumDmg = [ sumDmg..., damages... ]
+                sumEffects = [ sumEffects..., effects... ]
+            return takeDamage sumDmg, effects
     powerShot:
         name: 'power shot'
-        mana: 2
-        description: '+100% damage to a normal attack. (No retaliation)'
+        mana: 3
+        description: '+100% damage to a normal attack. +10% chance for critical hit.'
         damage: 2
         speed: speed.slow
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damage.amount * @damage for damage in damages
+            if random() < 10 then effects = [ effects..., { effect: weaponStates.critical, ticks: 1 } ]
+            for damage in damages
+                damage.amount *= @damage
 
             return takeDamage damages, effects
     rapidFire:
@@ -24,13 +42,14 @@ abilities =
         mana: 3
         description: 'Shoot 6 arrows in rapid succession with lowered damage (50% damage).'
         damage: 0.5
-        speed: speed.slow
+        speed: speed.normal
         use: (getDamage, takeDamage) ->
             sumDmg = []
             sumEffects = []
             for i in [1..6]
                 [ damages, effects ] = getDamage()
-                damage.amount * @damage for damage in damages
+                for damage in damages
+                    damage.amount *= @damage
                 sumDmg = [ sumDmg..., damages... ]
                 sumEffects = [ sumEffects..., effects... ]
             return takeDamage sumDmg, effects
@@ -44,8 +63,9 @@ abilities =
         speed: speed.fast
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.arcane
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.arcane
             return takeDamage damages, effects
     arcaneTorrent:
         name: 'arcane torrent'
@@ -60,8 +80,9 @@ abilities =
             attacks = 4 + random(4)
             for i in [0..attacks]
                 [ damages, effects ] = getDamage()
-                damages[0].amount *= @damage
-                damages[0].type = attackTypes.arcane
+                for damage in damages
+                    damage.amount *= @damage
+                    damage.type = attackTypes.arcane
                 sumDmg = [ sumDmg..., damages... ]
                 sumEffects = [ sumEffects..., effects... ]
             return takeDamage sumDmg, sumEffects
@@ -75,8 +96,9 @@ abilities =
         speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.fire
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.fire
             effects = [ effects..., { effect: heroStates.burning, ticks: 3} ] if random(10000) < @chance * 100
             return takeDamage damages, effects
     iceArrow:
@@ -89,8 +111,9 @@ abilities =
         speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.ice
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.ice
             effects = [ effects..., { effect: heroStates.frozen, ticks: 1} ] if random(10000) < @chance * 100
             return takeDamage damages, effects
     soulArrow:
@@ -102,8 +125,9 @@ abilities =
         speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.dark
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.dark
             return takeDamage damages, effects
     iceShards:
         name: 'ice shards'
@@ -119,8 +143,9 @@ abilities =
             for i in [1...6]
                 [ damages, effects ] = getDamage()
                 effects = [ effects..., { effect: heroStates.bleeding, ticks: 3 } ] if random(10000) < @chance * 100
-                damage.amount *= @damage for damage in damages
-                damage.type = attackTypes.ice for damage in damages
+                for damage in damages
+                    damage.amount *= @damage
+                    damage.type = attackTypes.ice
                 sumDmg = [ sumDmg..., damages... ]
                 sumEffects = [ sumEffects..., effects... ]
             return takeDamage sumDmg, sumEffects
@@ -134,8 +159,9 @@ abilities =
         speed: speed.slow
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.fire
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.fire
             effects = [ effects..., { effect: heroStates.burning, ticks: 1} ] if random(10000) < @chance * 100
             return takeDamage damages, effects
     soulBolt:
@@ -147,8 +173,9 @@ abilities =
         speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.dark
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.dark
             return takeDamage damages, effects
     lifeDrain:
         name: 'life drain'
@@ -159,8 +186,9 @@ abilities =
         speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.dark
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.dark
             effects = [ effects..., { effect: weaponStates.lifeDrain, ticks: 1} ]
             return takeDamage damages, effects
     manaDrain:
@@ -172,8 +200,9 @@ abilities =
         speed: speed.normal
         use: (getDamage, takeDamage) ->
             [ damages, effects ] = getDamage()
-            damages[0].amount *= @damage
-            damages[0].type = attackTypes.dark
+            for damage in damages
+                damage.amount *= @damage
+                damage.type = attackTypes.dark
             effects = [ effects..., { effect: weaponStates.manaDrain, ticks: 1} ]
             return takeDamage damages, effects
 

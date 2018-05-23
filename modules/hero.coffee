@@ -32,9 +32,9 @@ levelUp = (target) ->
         xp: target.xp - target.nextLevel
         nextLevel: target.nextLevel * LEVEL_GAIN_FACTOR
         level: target.level+1
-        maxhp: target.maxhp * HP_GAIN_FACTOR
+        maxhp: target.maxhp + target.hpGain
         maxMana: target.maxMana * MANA_GAIN_FACTOR
-        hp: target.maxhp * HP_GAIN_FACTOR
+        hp: target.maxhp + target.hpGain
         mana: target.maxMana * MANA_GAIN_FACTOR
         skillPoints: target.skillPoints+1
     }
@@ -88,12 +88,13 @@ create = (hero) ->
         free: hero.free || 0
         heroClass: hero.heroClass
         hp: hero.hp
+        hpGain: hero.hpGain
         level: hero.level || 1
         mana: hero.mana
         maxhp: hero.maxhp
         maxMana: hero.maxMana
         movement: hero.movement
-        name: hero.name || 'Susan'
+        name: hero.name || 'hero'
         nextLevel: hero.nextLevel || 10
         position: new Point(hero.position.x, hero.position.y)
         quiver: hero.quiver
@@ -106,12 +107,14 @@ create = (hero) ->
             when heroClass.warrior, heroClass.crusader, heroClass.knight
                 newHero.movement = 6
                 newHero.maxhp = 12
+                newHero.hpGain = 10
                 newHero.maxMana = 6
             when heroClass.archer, heroClass.arbalist, heroClass.bandit
                 arrows = Arrows.getAll()
                 broadheads = Broadheads.getAll()
                 newHero.movement = 5
                 newHero.maxhp = 8
+                newHero.hpGain = 6
                 newHero.maxMana = 6
                 newHero.broadheads = [ Broadheads.create(broadheads.normal) ]
                 newHero.quiver = [ Arrows.create arrows.normal ]
@@ -120,6 +123,7 @@ create = (hero) ->
             when heroClass.mage, heroClass.wizard, heroClass.sorcerer
                 newHero.movement = 4
                 newHero.maxhp = 6
+                newHero.hpGain = 4
                 newHero.maxMana = 12
         newHero.hp = newHero.maxhp
         newHero.mana = newHero.maxMana
@@ -311,10 +315,10 @@ showStats = (hero, state) ->
             log ' -- to be done --'
         when states.characterSheet.masteries
             for own key, mastery of hero.masteries
-                bonus = Math.pow WEAPON_GAIN_FACTOR, mastery.level-1
+                bonus = WEAPON_GAIN_FACTOR * (mastery.level-1)
                 log chalk.yellow(key.toFixed(16)) + chalk.green(('level: ' + mastery.level).toFixed(12)) + ' ' + mastery.xp.toFixed(2) + '/' + mastery.nextLevel.toFixed(2) + '\t' + 'damage bonus: ' + ((bonus-1)*100).toFixed(2) + '%'
         when states.characterSheet.skills
-            index = 0
+            index = 1
             for own key, skill of hero.skills
                 log index++ + '\t' + chalk.yellow(skill.name.toFixed(32)) + skill.level + '/' + MAX_SKILL_LEVEL
         when states.characterSheet.abilities
@@ -343,23 +347,24 @@ takeDamage = (hero, damages, effects) ->
         log chalk.blueBright '> critical hit'
         damage.amount *= 2 for damage in damages
 
-    adjustedDamage = Armour.soakDamage hero.armour, damages
-    hero = Object.assign {}, hero, { hp: hero.hp - adjustedDamage, state: [ hero.state..., effects... ] }
+    adjustedDamages = Armour.soakDamage hero.armour, damages
+    sumDmg = adjustedDamages.reduce ((acc, x) -> return acc + x.amount), 0
+    hero = Object.assign {}, hero, { hp: hero.hp - sumDmg, state: [ hero.state..., effects... ] }
 
     hp = 0
     mana = 0
     for state in effects
         switch state.effect
             when weaponStates.leeching
-                hp += Math.min adjustedDamage * 0.1, hero.hp
+                hp += sumDmg * 0.1
             when weaponStates.manaLeeching
-                mana += Math.min adjustedDamage * 0.1, hero.mana
+                mana += sumDmg * 0.1
             when weaponStates.lifeDrain
-                hp += Math.min adjustedDamage, hero.hp
+                hp += sumDmg
             when weaponStates.manaDrain
-                mana += Math.min adjustedDamage, hero.mana
+                mana += sumDmg
 
-    inspector.display hero, null, adjustedDamage, hp, mana
+    inspector.display hero, null, adjustedDamages, hp, mana
 
     if hero.hp <= 0
         err()

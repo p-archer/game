@@ -44,9 +44,11 @@ outputter.init();
 function output(str, fn) {
 	if (useLog === trashLog) {
 		if (!fn)
-			outputter.queue.push([console.log, str]);
+			console.log(str);
+			// outputter.queue.push([console.log, str]);
 		else
-			outputter.queue.push([fn, str]);
+			fn(str);
+			// outputter.queue.push([fn, str]);
 	} else {
 		if (!fn)
 			console.log(str);

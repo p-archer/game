@@ -59,6 +59,7 @@
 ** bugs [6/9]
 *** DONE interact doubles prompt
 	CLOSED: [2017-12-12 Tue 12:18]
+*** TODO can level up broadheads by using melee weapons
 *** DONE unknown key acts as pass in combat mode
 	CLOSED: [2017-12-12 Tue 12:18]
 *** DONE move weapon (and type) level to hero
@@ -107,3 +108,7 @@
 *** TODO monster damage scales a lot faster than hp
 *** TODO some attacks should be channelled
 	Figure out a way to delay/time damage of slower attacks
+*** DONE map types should have unique properties
+	CLOSED: [2018-02-24 Sat 22:58]
+	I.e. arctic should have a smaller chance for shops, dungeons should have higher chance for treasures
+	Monster density, chests, shops (and types)

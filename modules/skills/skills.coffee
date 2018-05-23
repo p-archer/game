@@ -10,13 +10,13 @@ getNames = () ->
     return names
 
 skillList =
-    # lockpick:
-    #     name: 'lockpick'
-    #     core: [heroClass.warrior, heroClass.archer, heroClass.mage]
-    #     requirements:
-    #         level: 0
-    #     cost: 0
-    #     description: 'Skill for opening locks'
+    lockpick:
+        name: 'lockpick'
+        core: [heroClass.warrior, heroClass.archer, heroClass.mage, heroClass.crusader, heroClass.knight, heroClass.arbalist, heroClass.bandit, heroClass.sorcerer, heroClass.wizard]
+        requirements:
+            level: 0
+        cost: 0
+        description: 'Skill for opening locks'
     inspection:
         name: 'inspection'
         core: [heroClass.warrior, heroClass.archer, heroClass.mage, heroClass.crusader, heroClass.knight, heroClass.arbalist, heroClass.bandit, heroClass.sorcerer, heroClass.wizard]
@@ -28,27 +28,28 @@ skillList =
         core: [heroClass.warrior, heroClass.crusader, heroClass.knight]
         requirements:
             level: 0
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.axe, weaponTypes.sword, weaponTypes.hammer]
-        description: 'Basic skill for using melee weapons (+10% damage per level).'
+        description: 'Basic skill for using melee weapons (+25% damage per level).'
         cost: 200
     ranged:
         name: 'ranged skill'
         core: [heroClass.archer, heroClass.bandit, heroClass.arbalist]
         requirements:
             level: 0
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
-        description: 'Basic skill for using ranged weapons (+10% damage per level).'
+        description: 'Basic skill for using ranged weapons (+25% damage per level).'
         cost: 200
+        ability: [Abilities.powerShot]
     magic:
         name: 'magic skill'
         core: [heroClass.mage, heroClass.wizard, heroClass.sorcerer]
         requirements:
             level: 0
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.wand, weaponTypes.staff, weaponTypes.tome]
-        description: 'Basic skill for using magic weapons (+10% damage per level).'
+        description: 'Basic skill for using magic weapons (+25% damage per level).'
         cost: 200
         ability: [Abilities.arcaneBolt, Abilities.arcaneTorrent]
     improvedMelee:
@@ -57,28 +58,28 @@ skillList =
             level: 10
             skills: () -> [{skill: skills.melee, level: 5}]
         cost: 500
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.axe, weaponTypes.sword, weaponTypes.hammer]
-        description: 'Improved skill for using melee weapons (+10% damage per level).'
+        description: 'Improved skill for using melee weapons (+25% damage per level).'
     improvedRanged:
         name: 'improved ranged skill'
         requirements:
             level: 10
             skills: () -> [{skill: skills.ranged, level: 5}]
         cost: 500
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
-        description: 'Improved skill for using ranged weapons (+10% damage per level).'
-        ability: [Abilities.powerShot]
+        description: 'Improved skill for using ranged weapons (+25% damage per level).'
+        ability: [Abilities.strafe]
     improvedMagic:
         name: 'improved magic skill'
         requirements:
             level: 10
             skills: () -> [{skill: skills.magic, level: 5}]
         cost: 500
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.wand, weaponTypes.staff, weaponTypes.tome]
-        description: 'Improved skill for using magic weapons (+10% damage per level).'
+        description: 'Improved skill for using magic weapons (+25% damage per level).'
         ability: [Abilities.fireArrow, Abilities.iceArrow, Abilities.soulArrow]
     advancedMelee:
         name: 'advanced melee skill'
@@ -86,18 +87,18 @@ skillList =
             level: 25
             skills: () -> [{skill: skills.improvedMelee, level: 5}]
         cost: 2500
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.axe, weaponTypes.sword, weaponTypes.hammer]
-        description: 'Advanced skill for using melee weapons (+10% damage per level).'
+        description: 'Advanced skill for using melee weapons (+25% damage per level).'
     advancedRanged:
         name: 'advanced ranged skill'
         requirements:
             level: 25
             skills: () -> [{skill: skills.improvedRanged, level: 5}]
         cost: 2500
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
-        description: 'Advanced skill for using ranged weapons (+10% damage per level).'
+        description: 'Advanced skill for using ranged weapons (+25% damage per level).'
         ability: [Abilities.rapidFire]
     advancedMagic:
         name: 'advanced magic skill'
@@ -105,17 +106,46 @@ skillList =
             level: 25
             skills: () -> [{skill: skills.improvedMagic, level: 5}]
         cost: 2500
-        damageBonus: () -> (this.level * 0.1)
+        damageBonus: () -> (this.level * 0.25)
         weaponType: [weaponTypes.wand, weaponTypes.staff, weaponTypes.tome]
-        description: 'Advanced skill for using magic weapons (+10% damage per level).'
+        description: 'Advanced skill for using magic weapons (+25% damage per level).'
+        ability: [Abilities.fireBall, Abilities.iceShards]
+    masterMelee:
+        name: 'master melee skill'
+        requirements:
+            level: 40
+            skills: () -> [{skill: skills.advancedMelee, level: 5}]
+        cost: 12500
+        damageBonus: () -> (this.level * 0.25)
+        weaponType: [weaponTypes.axe, weaponTypes.sword, weaponTypes.hammer]
+        description: 'Master skill for using melee weapons (+25% damage per level).'
+    masterRanged:
+        name: 'master ranged skill'
+        requirements:
+            level: 40
+            skills: () -> [{skill: skills.advancedRanged, level: 5}]
+        cost: 12500
+        damageBonus: () -> (this.level * 0.25)
+        weaponType: [weaponTypes.bow, weaponTypes.crossbow, weaponTypes.spear]
+        description: 'Master skill for using ranged weapons (+25% damage per level).'
+        ability: [Abilities.rapidFire]
+    masterMagic:
+        name: 'master magic skill'
+        requirements:
+            level: 40
+            skills: () -> [{skill: skills.advancedMagic, level: 5}]
+        cost: 12500
+        damageBonus: () -> (this.level * 0.25)
+        weaponType: [weaponTypes.wand, weaponTypes.staff, weaponTypes.tome]
+        description: 'Master skill for using magic weapons (+25% damage per level).'
         ability: [Abilities.fireBall, Abilities.iceShards]
     skinning:
         name: 'skinning'
         requirements:
             level: 0
-        bonus: 0.20
+        bonus: 1.00
         cost: 100
-        description: 'Gain extra gold from beasts by skinning them and selling their hides (20% more gold per level).'
+        description: 'Gain extra gold from beasts by skinning them and selling their hides (100% more gold per level).'
     # dodge:
     #     name: 'dodge'
     #     requirements:
@@ -193,9 +223,6 @@ skillList =
 
 # presence: 0, //lowers enemy damage and resistances
 # regeneration: 0
-# sneak: 0, //can walk past enemies
-# alchemy: 0, //potions
-# hunter: 0, //dmg bonus against beasts
 
 getAvailable = (hero) ->
     skills = {}

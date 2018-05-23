@@ -1,18 +1,15 @@
 /* global module */
 
 const ARMOUR_GAIN_FACTOR = 0.01;
-const CHANCE_FOR_ADDITIONAL_EXIT = 50;
-const CHANCE_FOR_MONSTER = 15;
-const CHANCE_FOR_SHOP = 100;
-const CHANCE_FOR_TREASURE = 35;
-const GOLD_RANGE = [10, 50, 200, 500, 1000];
-const HP_GAIN_FACTOR = 1.125;
+const CHANCE_FOR_ADDITIONAL_EXIT = 1;
+const GOLD_RANGE = [30, 80, 200, 500, 1000];
+const HP_GAIN_FACTOR = 1.1;
 const LEVEL_GAIN_FACTOR = 1.125;
 const MANA_GAIN_FACTOR = 1.025;
 const MAP_SIZE = 12;
 const MAX_SKILL_LEVEL = 5;
 const QUALITY_RANGE = [0, 15, 25, 40, 80, 160];
-const WEAPON_GAIN_FACTOR = 1.033;
+const WEAPON_GAIN_FACTOR = 1.1;
 const XP_GAIN_FACTOR = 1.10;
 
 const directions = {
@@ -90,16 +87,16 @@ const mapStyles = {
 };
 
 const mapTypes = {
-	arctic: { name: 'arctic', level: 0, style: mapStyles.plain }, //melee heavy, some ranged
-	crypt: { name: 'crypt', level: 0, style: mapStyles.corridors }, //mixed (melee heavy)
-	desert: { name: 'desert', level: 5, style: mapStyles.plain }, //
-	dungeon: { name: 'dungeon', level: 5, style: mapStyles.corridors }, //melee
-	enchanted: { name: 'enchanted forest', level: 15, style: mapStyles.plain }, //magic
-	inferno: { name: 'inferno', level: 10, style: mapStyles.ripple }, //magic
-	forest: { name: 'forest', level: 0, style: mapStyles.plain }, //melee
-	magical: { name: 'arcane dimension', level: 10, style: mapStyles.ripple }, //magic
-	swamp: { name: 'swamp', level: 10, style: mapStyles.corridors }, //ranged
-	tower: { name: 'tower', level: 20, style: mapStyles.ripple }, //magic
+	arctic: { name: 'arctic', level: 0, style: mapStyles.plain, monsterChance: 10, treasureChance: 1, shopChance: 30 }, //melee heavy, some ranged
+	crypt: { name: 'crypt', level: 0, style: mapStyles.corridors, monsterChance: 20, treasureChance: 2, shopChance: 20  }, //mixed (melee heavy)
+	desert: { name: 'desert', level: 5, style: mapStyles.plain, monsterChance: 15, treasureChance: 2, shopChance: 75  }, //
+	dungeon: { name: 'dungeon', level: 5, style: mapStyles.corridors, monsterChance: 20, treasureChance: 5, shopChance: 60 }, //melee
+	enchanted: { name: 'enchanted forest', level: 15, style: mapStyles.plain, monsterChance: 12, treasureChance: 3, shopChance: 70  }, //magic
+	inferno: { name: 'inferno', level: 10, style: mapStyles.ripple, monsterChance: 20, treasureChance: 2, shopChance: 80  }, //magic
+	forest: { name: 'forest', level: 0, style: mapStyles.plain, monsterChance: 15, treasureChance: 1, shopChance: 60  }, //melee
+	magical: { name: 'arcane dimension', level: 10, style: mapStyles.ripple, monsterChance: 15, treasureChance: 4, shopChance: 90  }, //magic
+	swamp: { name: 'swamp', level: 10, style: mapStyles.corridors, monsterChance: 12, treasureChance: 3, shopChance: 90  }, //ranged
+	tower: { name: 'tower', level: 20, style: mapStyles.ripple, monsterChance: 15, treasureChance: 5, shopChance: 90  }, //magic
 };
 
 const species = {
@@ -171,9 +168,6 @@ const speed = {
 module.exports = {
 	ARMOUR_GAIN_FACTOR: ARMOUR_GAIN_FACTOR,
 	CHANCE_FOR_ADDITIONAL_EXIT: CHANCE_FOR_ADDITIONAL_EXIT,
-	CHANCE_FOR_MONSTER: CHANCE_FOR_MONSTER,
-	CHANCE_FOR_SHOP: CHANCE_FOR_SHOP,
-	CHANCE_FOR_TREASURE: CHANCE_FOR_TREASURE,
 	GOLD_RANGE: GOLD_RANGE,
 	HP_GAIN_FACTOR: HP_GAIN_FACTOR,
 	LEVEL_GAIN_FACTOR: LEVEL_GAIN_FACTOR,

@@ -9,58 +9,50 @@ armours =
         monsterOnly: true
         type: armourTypes.light
         resistance:
-            physical: 20
-    hardenedSkin:
+            physical: 10
+    skin:
         name: 'hardened skin'
         monsterOnly: true
         type: armourTypes.medium
         resistance:
-            physical: 50
+            physical: 20
     scales:
         name: 'scales'
         monsterOnly: true
         type: armourTypes.heavy
         resistance:
-            physical: 100
+            physical: 50
     robe:
         name: 'robe'
         type: armourTypes.light
         cost: 100
         resistance:
-            physical: 20
+            physical: 10
     leather:
         name: 'leather armour'
         type: armourTypes.medium
         cost: 200
         resistance:
-            physical: 50
+            physical: 20
     breastPlate:
         name: 'breast plate'
         type: armourTypes.heavy
         cost: 400
         resistance:
-            physical: 100
+            physical: 50
 
 soakDamage = (armour, damages) ->
-    sum = 0
-    for damage in damages
+    results = [damages...]
+    for damage in results
         if damage.type is attackTypes.pure
-            sum += damage.amount
             continue
 
         if not armour.resistance[damage.type]
-            sum += damage.amount
             continue
 
-        if damage.type is attackTypes.physical
-            amount = armour.resistance.physical
-            percentage = 1/(1+(amount/100))
-            sum += percentage * damage.amount
-            continue
+        damage.amount *= (100 - armour.resistance[damage.type])/100
 
-        sum += damage.amount * armour.resistance[damage.type]
-
-    return sum
+    return results
 
 getAll = () ->
     return armours
@@ -73,7 +65,7 @@ create = (armour) ->
             physical: armour.resistance.physical || 0
             fire: armour.resistance.fire || 0
             ice: armour.resistance.ice || 0
-            ligtning: armour.resistance.ligtning || 0
+            lightning: armour.resistance.lightning || 0
             poison: armour.resistance.poison || 0
             dark: armour.resistance.dark || 0
             arcane: armour.resistance.arcane || 0

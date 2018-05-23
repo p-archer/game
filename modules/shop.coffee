@@ -8,6 +8,8 @@ chalk = require 'chalk'
 Skills = require './skills/skills.coffee'
 Weapons = require './weapons/weapons.coffee'
 
+PAGE_SIZE = 5
+
 create = (shop, hero) ->
     newShop =
         type: shop.type
@@ -22,10 +24,10 @@ createInventory = (shop, hero) ->
         when shops.skills then inventory = getSkills hero
         when shops.weapons then inventory = generateWeapons hero
     return Object.assign {}, shop, { inventory: inventory }
-showInventory = (shop) ->
+showInventory = (shop, page) ->
     switch shop.type
-        when shops.skills then showSkills shop.inventory
-        when shops.weapons then showWeapons shop.inventory
+        when shops.skills then showSkills shop.inventory, page
+        when shops.weapons then showWeapons shop.inventory, page
 remove = (shop, key) ->
     item = shop.inventory[key]
     newInventory = shop.inventory.filter((x) -> x isnt item)
@@ -33,7 +35,7 @@ remove = (shop, key) ->
     return [ shop, item ]
 
 getSkills = (hero) ->
-    list = Skills.getAvailable hero
+    list = Skills.getAvailable Object.assign {}, hero, { level: hero.level + 10 }
     results = []
     for own key, skill of list
         results.push skill
@@ -41,7 +43,7 @@ getSkills = (hero) ->
     return results
 
 showSkills = (inventory) ->
-    index = 0
+    index = 1
     log()
     for skill in inventory
         log ''+index++ + '\t' + skill.name.toFixed(32) + '\tcost: ' + chalk.yellow skill.cost + ' gold'
@@ -50,19 +52,22 @@ showSkills = (inventory) ->
 
 getWeapons = (hero) ->
     quality = getQualityRange hero.level
-    weapons = {}
+    weapons = []
     for own key, weapon of Weapons.getByQuality quality
-        weapons[key] = weapon
+        weapons.push weapon
     return weapons
 
-showWeapons = (inventory) ->
-    index = 0
+showWeapons = (inventory, page) ->
+    start = page * PAGE_SIZE
+    end = Math.min (page + 1) * PAGE_SIZE, inventory.length
     log()
-    for weapon in inventory
+
+    index = 1
+    for weapon in inventory[start..end-1]
         name = weapon.name
         if weapon.prefix? then name = weapon.prefix.name + ' ' + weapon.name
         if weapon.suffix? then name = name + ' of ' + weapon.suffix.name
-        log ''+index++ + '\t' + chalk.blueBright name.toFixed(32) + '\t' + chalk.green(weapon.min.toFixed(2) + ' - ' + weapon.max.toFixed(2)) + ' range: ' + weapon.range
+        log ''+index++ + '\t' + chalk.blueBright name.toFixed(32) + '\t' + chalk.green(weapon.min.toFixed(2) + ' - ' + weapon.max.toFixed(2)) + ' range: ' + weapon.range + ' speed: ' + weapon.speed
 
         log '\tcost'.toFixed(32) + '\t' + chalk.yellow weapon.cost + ' gold'
         log '\t' + weapon.description
@@ -83,12 +88,26 @@ generateWeapons = (hero) ->
     weapons = getWeapons hero
     inventory = []
     for i in [1..10]
-        keys = weapons.keys
-        key = random keys.length
-        item = weapons[keys[key]]
-        weaponBase = Weapons.create item
-        weapon = Weapons.create(getRandomSuffix(getRandomPrefix(weaponBase, hero), hero))
-        inventory.push weapon
+        melee = weapons.filter (x) -> return not x.range? and not x.spells?
+        item = melee[random(melee.length)]
+        if item?
+            weaponBase = Weapons.create item
+            weapon = Weapons.create(getRandomSuffix(getRandomPrefix(weaponBase, hero), hero))
+            inventory.push weapon
+    for i in [1..10]
+        ranged = weapons.filter (x) -> return x.range?
+        item = ranged[random(ranged.length)]
+        if item?
+            weaponBase = Weapons.create item
+            weapon = Weapons.create(getRandomSuffix(getRandomPrefix(weaponBase, hero), hero))
+            inventory.push weapon
+    for i in [1..10]
+        magic = weapons.filter (x) -> return x.spells?
+        item = magic[random(magic.length)]
+        if item?
+            weaponBase = Weapons.create item
+            weapon = Weapons.create(getRandomSuffix(getRandomPrefix(weaponBase, hero), hero))
+            inventory.push weapon
 
     return inventory
 

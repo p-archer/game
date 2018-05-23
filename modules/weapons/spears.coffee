@@ -14,7 +14,7 @@ getDamage = (weapon) ->
         range = weapon.range * arrow.range * broadhead.range
 
         if distance > 1
-            cth = 1 - Math.max 0, (distance/weapon.range - 1)
+            cth = 1 - Math.max 0, (distance/range - 1)
             if random() < cth * 100
                 return attack
 
@@ -107,7 +107,7 @@ spears =
     boneSpear:
         name: 'bone spear'
         min: 4
-        max: 6
+        max: 4.5
         range: 16
         speed: speed.normal
         requirements:

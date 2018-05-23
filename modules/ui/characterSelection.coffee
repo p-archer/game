@@ -20,7 +20,7 @@ initGame = (hc) ->
         # abilities: [ Abilities.getAll()[abilities.manaDrain.key] ]
     }
     # hero = Hero.buySkill hero, Object.assign {}, Skills.getAll().tactics, { key: 'tactics' }
-    hero.skills.inspection.level = 5
+    # hero.skills.inspection.level = 5
     map = new Map hero
 
     return [ hero, map ]
